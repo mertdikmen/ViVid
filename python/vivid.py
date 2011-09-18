@@ -74,7 +74,24 @@ class GreySource:
 
         return ret
 
-    
+class ScaledSource:
+    """
+    Rescale the origin
+    """
+    def __init__(self, origin, scale, interpolation=cv.CV_INTER_LINEAR):
+        self.scale = scale
+        self.origin = origin
+        self.interpolation = interpolation
+
+    def get_frame(self, frame_num):
+        src = self.origin.get_frame(frame_num)
+        ret = cv.CreateMat(int(src.rows * self.scale), 
+                           int(src.cols * self.scale), src.type)
+        cv.Resize(src, ret, self.interpolation)
+
+        return ret
+        
+   
 def cvmat2array(im):
     depth2dtype = {
         cv.CV_8S: np.int8, cv.CV_8SC: np.int8, cv.CV_8SC1: np.int8, 
