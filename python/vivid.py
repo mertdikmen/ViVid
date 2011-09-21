@@ -3,6 +3,9 @@ import scipy
 import cv
 import numpy as np
 
+#This is the source for C++ implementations
+from _vivid import *
+
 #class FileVideo(object):
 #    def __init__(self, file_name):
 #        self.file_name = file_name
@@ -90,9 +93,12 @@ class ScaledSource:
         cv.Resize(src, ret, self.interpolation)
 
         return ret
-        
-   
+ 
+# Helper functions
 def cvmat2array(im):
+    """
+    Converts a CvMat object to numpy array
+    """
     depth2dtype = {
         cv.CV_8S: np.int8, cv.CV_8SC: np.int8, cv.CV_8SC1: np.int8, 
         cv.CV_8SC2: np.int8, cv.CV_8SC3: np.int8, cv.CV_8SC4: np.int8,
@@ -149,4 +155,3 @@ def array2cv(a):
         a.dtype.itemsize*nChannels*a.shape[1])
     
     return cv_im
-
