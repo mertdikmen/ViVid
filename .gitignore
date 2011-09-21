@@ -4,3 +4,4 @@ dist/*
 *.swp
 *.pyc
 vivid/*
+src/release
