@@ -1,11 +1,8 @@
-#include <boost/python.hpp>
-
+#include "NumPyWrapper.hpp"
 #include "DeviceMatrixWrapper.hpp"
-
 #include "fastexp.h"
 
 #include <boost/python.hpp>
-
 #define PY_ARRAY_UNIQUE_SYMBOL tb
 #include <numpy/arrayobject.h>
 
@@ -63,7 +60,7 @@ boost::python::object fast_exp(boost::python::object& input_mat, const int appro
 
 BOOST_PYTHON_MODULE(_vivid)
 {
-    import_array();
+    NumPyWrapper::init();
 
     export_DeviceMatrix();
 

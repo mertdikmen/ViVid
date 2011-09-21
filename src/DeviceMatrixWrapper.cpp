@@ -27,8 +27,6 @@ DeviceMatrix::Ptr makeDeviceMatrix(boost::python::object& array)
     = PyArray_FromAny(array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
                       2, 2, NPY_CARRAY, NULL);
 
-  std::cout << "test" << std::endl;
-
   extract<DeviceMatrix::Ptr> get_matrix(array);
   if (get_matrix.check()) {
     return get_matrix();
@@ -266,7 +264,6 @@ void export_DeviceMatrix()
              (makeMCudaMatrix3D))
         .def("mat", MCudaMatrix3D_copyFromDevice)
       ;
-
 
     class_<DeviceMatrix::PtrList >("DeviceMatrix3DList", no_init)
         .def(vector_indexing_suite<DeviceMatrix::PtrList, true>());
