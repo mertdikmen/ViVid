@@ -1,5 +1,6 @@
 #include "NumPyWrapper.hpp"
 #include "DeviceMatrixWrapper.hpp"
+#include "PairwiseDistanceWrapper.hpp"
 #include "fastexp.h"
 
 #include <boost/python.hpp>
@@ -63,6 +64,7 @@ BOOST_PYTHON_MODULE(_vivid)
     NumPyWrapper::init();
 
     export_DeviceMatrix();
+    export_PairwiseDistance();
 
     def("fast_exp", fast_exp);
     //class_<VideoReader>("FileVideo", init<const std::string& >() )

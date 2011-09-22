@@ -16,6 +16,7 @@ vivid:
 clean:
 	$(RM) src/release/*.so
 	$(RM) src/release/*.o
+	$(RM) src/release/*.co
 
 vivid/__init__.py: python/vivid.py
 	cp $< $@

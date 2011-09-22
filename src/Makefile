@@ -2,6 +2,7 @@ OBJS := _vivid.o
 OBJS += exceptions.o
 OBJS += NumPyWrapper.o
 OBJS += DeviceMatrixWrapper.o DeviceMatrix.o
+OBJS += PairwiseDistanceWrapper.o PairwiseDistance.o PairwiseDistance.co
 OBJDIR := release
 OBJS := $(addprefix $(OBJDIR)/, $(OBJS))
 
@@ -45,6 +46,8 @@ CWARN_FLAGS := $(CXXWARN_FLAGS) \
 	-Wnested-externs \
 	-Wmain \
 
+NVCCFLAGS := -Xcompiler -fPIC
+
 define show_status
   @echo "[$(1)]" $@
 endef
@@ -81,13 +84,18 @@ LIBS += $(shell python2.7-config --libs) -lboost_python
 #	$(CXX) -o $@ $(OPENMP) -shared $^ $(LIBS)
 
 $(OBJDIR)/%.o: %.cpp
-	$(call show_status, c++)
+	$(call show_status,c++)
 	$(SILENT)$(CXX) -c -o $@ $< $(OPENMP) $(CPPFLAGS) 
+
+$(OBJDIR)/%.co: %.cu
+	$(call show_status,cuda)
+	$(SILENT)$(NVCC) -c -o $@ $< $(NVCCFLAGS)
 
 $(OBJDIR)/_vivid.so: $(OBJDIR)/_vivid.o $(OBJS) 
 	$(call show_status,link)
 	$(SILENT)$(CXX) -o $@ $(OPENMP) -shared $^ $(LIBS)
 
+#	$(SILENT)@$(NVCC) -M $< $(NVCCFLAGS) | sed 's#$(notdir $@)#$@#' > $(DEP)
 
 #release/_vivid.o: _vivid.cpp
 #	$(call show_status,c++)
