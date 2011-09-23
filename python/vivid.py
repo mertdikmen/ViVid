@@ -3,6 +3,8 @@ import scipy
 import cv
 import numpy as np
 
+from collections import deque
+
 #Supplementary functions
 from vivid_kmeans import *
 
@@ -96,7 +98,31 @@ class ScaledSource:
         cv.Resize(src, ret, self.interpolation)
 
         return ret
- 
+
+class CachedSource:
+    """A simple cache.
+
+    Note: The cache eviction strategy is least recent insert, not LRU.
+
+    """
+    def __init__(self, origin, cache_size=30):
+        self.origin = origin
+        self.cache_size = cache_size
+        self.cache = {}
+        self.insert_order = deque()
+
+    def get_frame(self, framenum):
+        try:
+            return self.cache[framenum]
+        except KeyError:
+            if len(self.cache) > self.cache_size-1:
+                del self.cache[self.insert_order.popleft()]
+            new = self.origin.get_frame(framenum)
+            self.cache[framenum] = new
+            self.insert_order.append(framenum)
+
+        return self.cache[framenum]
+
 # Helper functions
 def cvmat2array(im):
     """
