@@ -3,6 +3,7 @@ OBJS += exceptions.o
 OBJS += NumPyWrapper.o
 OBJS += DeviceMatrixWrapper.o DeviceMatrix.o
 OBJS += PairwiseDistanceWrapper.o PairwiseDistance.o PairwiseDistance.co
+OBJS += FlexibleFilterWrapper.o FlexibleFilter.o FlexibleFilter.co
 OBJDIR := release
 OBJS := $(addprefix $(OBJDIR)/, $(OBJS))
 

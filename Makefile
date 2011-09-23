@@ -1,5 +1,7 @@
 MODULES := __init__.py 
 MODULES += vivid_kmeans.py
+MODULES += flexible_filter.py
+MODULES += cv_conversions.py
 MODULES += _vivid.so
 
 MODULES := $(addprefix vivid/, $(MODULES))
