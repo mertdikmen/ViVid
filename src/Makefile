@@ -79,10 +79,6 @@ NUMPYFLAG := -I$(shell python2 -c 'import numpy; print numpy.get_include()')
 CPPFLAGS += $(shell python2.7-config --include) $(NUMPYFLAG)
 LIBS += $(shell python2.7-config --libs) -lboost_python
 
-#release/_vivid.so: release/_vivid.o
-#	$(call show_status,link)
-#	$(CXX) -o $@ $(OPENMP) -shared $^ $(LIBS)
-
 $(OBJDIR)/%.o: %.cpp
 	$(call show_status,c++)
 	$(SILENT)$(CXX) -c -o $@ $< $(OPENMP) $(CPPFLAGS) 

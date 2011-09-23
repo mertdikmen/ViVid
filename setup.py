@@ -21,8 +21,10 @@ class my_build_ext(build_ext):
 setup(
     cmdclass = {'build_ext':my_build_ext},
     name = "ViVid",
-    version = "0.0",
+    version = "1.0",
+    author = "Mert Dikmen",
+    author_email = "mertdikmen@gmail.com",
+    license = "NCSA",
     packages = ['vivid'],
-    #ext_modules = [Extension('vivid._vivid', ['vivid/_vivid.so'])]
-    #package_dir = {'':'vivid'}
+    ext_modules = [Extension('vivid._vivid', ['vivid/_vivid.so'])]
 )

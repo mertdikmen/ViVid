@@ -3,6 +3,9 @@ import scipy
 import cv
 import numpy as np
 
+#Supplementary functions
+from vivid_kmeans import *
+
 #This is the source for C++ implementations
 from _vivid import *
 
