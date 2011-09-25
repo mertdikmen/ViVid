@@ -1,6 +1,7 @@
 ViVid.egg-info/*
 build/*
 dist/*
+doc/*
 *.swp
 *.pyc
 vivid/*

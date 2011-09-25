@@ -80,6 +80,8 @@ NUMPYFLAG := -I$(shell python2 -c 'import numpy; print numpy.get_include()')
 CPPFLAGS += $(shell python2.7-config --include) $(NUMPYFLAG)
 LIBS += $(shell python2.7-config --libs) -lboost_python
 
+#Make rules
+
 $(OBJDIR)/%.o: %.cpp
 	$(call show_status,c++)
 	$(SILENT)$(CXX) -c -o $@ $< $(OPENMP) $(CPPFLAGS) 
@@ -91,6 +93,9 @@ $(OBJDIR)/%.co: %.cu
 $(OBJDIR)/_vivid.so: $(OBJDIR)/_vivid.o $(OBJS) 
 	$(call show_status,link)
 	$(SILENT)$(CXX) -o $@ $(OPENMP) -shared $^ $(LIBS)
+
+test: $(OBJDIR)/_vivid.so
+	../test/test_reading.py
 
 #	$(SILENT)@$(NVCC) -M $< $(NVCCFLAGS) | sed 's#$(notdir $@)#$@#' > $(DEP)
 

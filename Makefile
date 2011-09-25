@@ -16,6 +16,10 @@ vivid:
 src:
 	$(MAKE) -C src
 
+.PHONY: test
+test:
+	$(MAKE) -C src test
+
 vivid/__init__.py: python/vivid.py
 	cp $< $@
 
@@ -24,6 +28,7 @@ vivid/%.py: python/%.py
 
 vivid/_vivid.so: src src/release/_vivid.so
 	cp src/release/_vivid.so $@
+
 clean:
 	$(RM) src/release/*.so
 	$(RM) src/release/*.o
