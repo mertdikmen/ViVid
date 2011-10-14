@@ -8,6 +8,7 @@ from collections import deque
 #Supplementary functions
 from vivid_kmeans import *
 from flexible_filter import *
+from local_binary_pattern import *
 from cv_conversions import *
 
 #This is the source for C++ implementations

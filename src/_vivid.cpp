@@ -60,16 +60,90 @@ boost::python::object fast_exp(boost::python::object& input_mat, const int appro
     return boost::python::object(out_mat);
 }
 
+object compute_lbp_n8_r1_u2(const object& input_mat)
+{
+    NumPyMatrix input(input_mat);
+
+    const int height = input.height();
+    const int width = input.width();
+
+    const int imsize = height * width;
+
+    const int n_patterns = 10;
+
+    npy_intp dims[2] = {height, width};
+
+    PyObject* output = PyArray_SimpleNew(2, dims, PyArray_FLOAT);
+    float* out_data = (float*)PyArray_DATA(output);
+    
+    const float* input_data = (float*) input.data();
+
+    memset(out_data, 0, sizeof(float) * height * width);
+
+    const int offsets[8] = {-width - 1, -width, -width + 1, 
+                            -1, 1, 
+                            width - 1, width, width + 1};
+
+    for (int i = 0; i < width; i++){
+        out_data[i] = -1;
+        out_data[imsize - i - 1] = -1;
+    }
+
+    for (int i = 0; i<imsize; i+= width){
+        out_data[i] = -1;
+        out_data[i + width -1] = -1;
+    }
+
+    int cpi = 0;
+
+    const int j_start = 1;
+    for (int i = 1; i < height - 1; i++){
+        cpi = i * width + j_start;
+        for (int j = j_start; j < width - 1; j++){
+            int count_more_than = 0;
+            int more_than_ind = 0;    
+
+            float cur_pix = input_data[cpi];
+        
+            for (int oi = 0; oi < 8; oi++){
+                if (input_data[cpi + offsets[oi]] >= cur_pix){
+                    count_more_than++;
+                    more_than_ind = oi;
+                }
+                if (count_more_than == 2){
+                    break;
+                }
+            }
+
+            if (count_more_than >= 2){
+                out_data[cpi] = n_patterns - 1;               
+            }
+            else if (count_more_than == 1){
+                out_data[cpi] = more_than_ind + 1;
+            }
+            else { // count_more_than == 0
+                out_data[cpi] = 0;
+            }
+
+            cpi++;
+        }
+    }
+
+    handle<> temp_out(output);
+    return boost::python::object(temp_out);
+}
+
 object cell_histogram_dense(object& input_mat, object& weight_mat, 
                              const int max_bin, const int cell_size, 
-                             object& offset)
+                             object& start_inds, object& stop_inds)
 {
-    NumPyArray offset_arr(offset);
+    NumPyArray start_arr(start_inds);
+    NumPyArray stop_arr(stop_inds);
     NumPyMatrix id_m(input_mat);
     NumPyMatrix wgts(weight_mat);
 
-    int n_parts_y = (id_m.height() - 2 * offset_arr.data()[0] ) / cell_size;
-    int n_parts_x = (id_m.width()  - 2 * offset_arr.data()[1] ) / cell_size;
+    int n_parts_y = (stop_arr.data()[0] - start_arr.data()[0] ) / cell_size;
+    int n_parts_x = (stop_arr.data()[1] - start_arr.data()[1] ) / cell_size;
 
     npy_intp dims[3] = {n_parts_y, n_parts_x, max_bin};
     
@@ -78,8 +152,8 @@ object cell_histogram_dense(object& input_mat, object& weight_mat,
     
     memset(out_data, 0, sizeof(float) * n_parts_y * n_parts_x * max_bin);
 
-    int start_i = offset_arr.data()[0];
-    int start_j = offset_arr.data()[1];
+    int start_i = start_arr.data()[0];
+    int start_j = start_arr.data()[1];
 
     const int im_width = id_m.width();
     const int im_height = id_m.height();
@@ -243,7 +317,8 @@ BOOST_PYTHON_MODULE(_vivid)
     def("cell_histogram_dense", cell_histogram_dense);
     def("group_blocks", group_blocks); 
     def("group_cell_histograms", group_cell_histograms);
-   
+    def("compute_lbp_n8_r1_u2", compute_lbp_n8_r1_u2); 
+
     //class_<VideoReader>("FileVideo", init<const std::string& >() )
     //    .def("get_frame", &VideoReader::get_frame)
     //    .def("n_frames", &VideoReader::get_num_total_frames)
