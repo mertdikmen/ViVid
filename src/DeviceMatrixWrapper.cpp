@@ -23,10 +23,6 @@ DeviceMatrix::Ptr makeDeviceMatrix(boost::python::object& array)
 {
   // If we already have a DeviceMatrix, just return it.  This sholuld
   // help unify code paths.
-  PyObject* contig
-    = PyArray_FromAny(array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
-                      2, 2, NPY_CARRAY, NULL);
-
   extract<DeviceMatrix::Ptr> get_matrix(array);
   if (get_matrix.check()) {
     return get_matrix();
