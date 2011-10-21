@@ -5,15 +5,22 @@
 #include "fastexp.h"
 
 #include <boost/python.hpp>
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #define PY_ARRAY_UNIQUE_SYMBOL tb
 #include <numpy/arrayobject.h>
 
 ////////////////////////
 // Faster operations
 ////////////////////////
-boost::python::object fast_exp(boost::python::object& input_mat, const int approx_level){
-    PyObject* input_block = PyArray_FromAny(input_mat.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
-                                             1, 3, NPY_CARRAY, NULL);
+boost::python::object fast_exp(boost::python::object& input_mat, 
+                               const int approx_level)
+{
+    PyObject* input_block = PyArray_FromAny(
+                                input_mat.ptr(), 
+                                PyArray_DescrFromType(
+                                    PyArray_FLOAT),
+                                    1, 3, NPY_CARRAY, NULL);
+
     boost::python::expect_non_null(input_block);
 
     int num_dim = ((PyArrayObject*) input_block)->nd;
@@ -60,7 +67,49 @@ boost::python::object fast_exp(boost::python::object& input_mat, const int appro
     return boost::python::object(out_mat);
 }
 
-object compute_lbp_n8_r1_u2(const object& input_mat)
+//class LBPComputer
+//{
+//    public:
+//    LBPComputer(const int u, const int num_bits)
+//    {
+//        const int num_values = pow(2, num_bits);
+//        m_lbp_map.resize(num_values);
+//    }
+//
+//
+//
+//    private:
+//        std::vector<int> m_lbp_map;
+//}
+
+std::vector<int> create_lbp_dictionary(
+    const int u, const int num_bits)
+{
+    const int num_values = pow(2, num_bits);
+
+    std::vector<int> lbp_map(num_values, 0);
+
+    int number;
+    int center_count = 1;
+    for (int i=0; i<num_values; i++){
+        int one_count = 0;
+        number = i;
+        for (int j=0; j<num_bits;j++){
+            if ((number % 2) == 1){
+                one_count++;
+            }
+            number = number >> 1;
+        }
+        if (one_count <= u){
+            lbp_map[i] = center_count++;
+        }
+    }
+
+    return lbp_map;
+}
+
+object compute_lbp_n8_r1(const object& input_mat, 
+                         const std::vector<int> lbp_map)
 {
     NumPyMatrix input(input_mat);
 
@@ -69,21 +118,22 @@ object compute_lbp_n8_r1_u2(const object& input_mat)
 
     const int imsize = height * width;
 
-    const int n_patterns = 10;
-
     npy_intp dims[2] = {height, width};
 
-    PyObject* output = PyArray_SimpleNew(2, dims, PyArray_FLOAT);
-    float* out_data = (float*)PyArray_DATA(output);
+    PyObject* output = PyArray_SimpleNew(2, dims, PyArray_INT);
+    int* out_data = (int*)PyArray_DATA(output);
     
     const float* input_data = (float*) input.data();
 
-    memset(out_data, 0, sizeof(float) * height * width);
+    memset(out_data, 0, sizeof(int) * imsize);
 
-    const int offsets[8] = {-width - 1, -width, -width + 1, 
-                            -1, 1, 
-                            width - 1, width, width + 1};
+    const int offsets[8] = {-width - 1, -width, -width+1,
+                            -1, 1,
+                            width - 1, width, width+1};
 
+    const int vals[8] = {1, 2, 4, 8, 16, 32, 64, 128};
+
+    //set the values outside the margins to -1
     for (int i = 0; i < width; i++){
         out_data[i] = -1;
         out_data[imsize - i - 1] = -1;
@@ -94,38 +144,18 @@ object compute_lbp_n8_r1_u2(const object& input_mat)
         out_data[i + width -1] = -1;
     }
 
-    int cpi = 0;
 
-    const int j_start = 1;
     for (int i = 1; i < height - 1; i++){
-        cpi = i * width + j_start;
-        for (int j = j_start; j < width - 1; j++){
-            int count_more_than = 0;
-            int more_than_ind = 0;    
-
-            float cur_pix = input_data[cpi];
-        
-            for (int oi = 0; oi < 8; oi++){
-                if (input_data[cpi + offsets[oi]] >= cur_pix){
-                    count_more_than++;
-                    more_than_ind = oi;
-                }
-                if (count_more_than == 2){
-                    break;
-                }
-            }
-
-            if (count_more_than >= 2){
-                out_data[cpi] = n_patterns - 1;               
-            }
-            else if (count_more_than == 1){
-                out_data[cpi] = more_than_ind + 1;
-            }
-            else { // count_more_than == 0
-                out_data[cpi] = 0;
-            }
-
-            cpi++;
+        const int row_offset = i * width;
+        for (int j = 1; j < width - 1; j++){
+            int pix_i = row_offset + j;
+            int lbp_val = 0;
+            for (int k = 0; k < 8; k++){
+                lbp_val += 
+                    (input_data[pix_i] < 
+                     input_data[pix_i + offsets[k]]) ? vals[k] : 0;
+            } 
+            out_data[pix_i] = lbp_map[lbp_val];
         }
     }
 
@@ -137,10 +167,13 @@ object cell_histogram_dense(object& input_mat, object& weight_mat,
                              const int max_bin, const int cell_size, 
                              object& start_inds, object& stop_inds)
 {
-    NumPyArray start_arr(start_inds);
-    NumPyArray stop_arr(stop_inds);
     NumPyMatrix id_m(input_mat);
     NumPyMatrix wgts(weight_mat);
+    const float* id_data = (float*) id_m.data();
+    const float* wt_data = (float*) wgts.data();
+
+    NumPyArray start_arr(start_inds);
+    NumPyArray stop_arr(stop_inds);
 
     int n_parts_y = (stop_arr.data()[0] - start_arr.data()[0] ) / cell_size;
     int n_parts_x = (stop_arr.data()[1] - start_arr.data()[1] ) / cell_size;
@@ -158,8 +191,6 @@ object cell_histogram_dense(object& input_mat, object& weight_mat,
     const int im_width = id_m.width();
     const int im_height = id_m.height();
 
-    const float* id_data = (float*) id_m.data();
-    const float* wt_data = (float*) wgts.data();
 
     #pragma omp for 
     for (int write_i=0; write_i<n_parts_y; write_i++){
@@ -172,13 +203,11 @@ object cell_histogram_dense(object& input_mat, object& weight_mat,
 
                 for (int j=0; j<cell_size; j++){
                     int bin_ind = (int)id_data[read_i+read_j];
-        
-                    //will ignore the value if the input_mat value is outside the range
-                    if ( (bin_ind >= 0) && (bin_ind < max_bin) ){
-                        float weight = wt_data[read_i+read_j];
+                    //assert((bin_ind >= 0) && (bin_ind < max_bin));
+                    float weight = wt_data[read_i+read_j];
+                    if ((bin_ind >= 0) && (bin_ind < max_bin)){
                         out_data[out_ind + bin_ind] += weight;
                     }
-
                     read_j ++;    
                 }
                 read_i += im_width;
@@ -285,9 +314,12 @@ object group_cell_histograms(object& cell_histograms,
             for (int iy=0; iy<block_size_y; iy++){
                 for (int ix=0; ix<block_size_x; ix++){
 
-                    float* src_ptr = cell_histograms_data + ( (cy+iy) * cells_x + (cx+ix) ) * hist_size;
-                    float* dst_ptr = output_blocks_data + (by * blocks_x + bx) * hist_size * block_size_y * block_size_x + 
-                                    (iy * block_size_x + ix) * hist_size;
+                    float* src_ptr = cell_histograms_data + 
+                            ( (cy+iy) * cells_x + (cx+ix) ) * hist_size;
+                    float* dst_ptr = output_blocks_data +
+                            (by * blocks_x + bx) * hist_size * block_size_y *
+                            block_size_x +
+                            (iy * block_size_x + ix) * hist_size;
 
                     memcpy(dst_ptr, src_ptr, sizeof(float) * hist_size);
 
@@ -313,11 +345,14 @@ BOOST_PYTHON_MODULE(_vivid)
 
     import_array();
 
+    class_< std::vector<int> >("std::vectorOfInt")
+                 .def(vector_indexing_suite< std::vector<int>, true>());
     def("fast_exp", fast_exp);
     def("cell_histogram_dense", cell_histogram_dense);
     def("group_blocks", group_blocks); 
     def("group_cell_histograms", group_cell_histograms);
-    def("compute_lbp_n8_r1_u2", compute_lbp_n8_r1_u2); 
+    def("create_lbp_dictionary", create_lbp_dictionary);
+    def("compute_lbp_n8_r1", compute_lbp_n8_r1); 
 
     //class_<VideoReader>("FileVideo", init<const std::string& >() )
     //    .def("get_frame", &VideoReader::get_frame)
