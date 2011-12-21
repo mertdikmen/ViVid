@@ -51,8 +51,11 @@ __global__ void cell_histogram_kernel(DeviceMatrix3D input,
 
     //read the cell into the shared memory
     if ((threadIdx.y < cell_size) && (threadIdx.x < cell_size)){
-        id_cache[threadIdx.y*cell_size + threadIdx.x] = *getPtr(input, 0, base_y + threadIdx.y, base_x + threadIdx.x);
-        wt_cache[threadIdx.y*cell_size + threadIdx.x] = *getPtr(input, 1, base_y + threadIdx.y, base_x + threadIdx.x);
+        id_cache[threadIdx.y*cell_size + threadIdx.x] = 
+            *getPtr(input, 0, base_y + threadIdx.y, base_x + threadIdx.x);
+
+        wt_cache[threadIdx.y*cell_size + threadIdx.x] = 
+            *getPtr(input, 1, base_y + threadIdx.y, base_x + threadIdx.x);
     }
 
     for (int i=0;i<MAX_FOLDS;i++){
@@ -224,92 +227,70 @@ __global__ void blockwise_filter_kernel(DeviceMatrix frame,
 
 }
 
+/*
+template <int FILTER_DIM>
 __global__ void blockwise_distance_kernel(DeviceMatrix frame,
                                          DeviceMatrix3D output,
                                          const int frame_width, const int frame_height,
-                                         const int dim_t, const int dim_y, const int dim_x,
-                                         const int nchannels,
+                                         const int dim_t,
                                          const int optype)
 {
-    const int pix_y = blockIdx.y * (BLOCK_SIZE-dim_y+1) + threadIdx.y;
-    const int pix_x = blockIdx.x * (BLOCK_SIZE-dim_x+1) + threadIdx.x;
+    const int pix_y = blockIdx.y * (BLOCK_SIZE-FILTER_DIM+1) + threadIdx.y;
+    const int pix_x = blockIdx.x * (BLOCK_SIZE-FILTER_DIM+1) + threadIdx.x;
 
-    const int out_pix_y = pix_y + dim_y / 2;
-    const int out_pix_x = pix_x + dim_x / 2;
+    const int out_pix_y = pix_y + FILTER_DIM / 2;
+    const int out_pix_x = pix_x + FILTER_DIM / 2;
+
+    const int out_pix_offset = out_pix_y*output.pitch_y + out_pix_x;
 
     __shared__ float image_cache[BLOCK_SIZE][BLOCK_SIZE];
-
+    image_cache[threadIdx.y][threadIdx.x] = *(frame.data + pix_y*frame.pitch + pix_x);
     __syncthreads();
 
-    float curval = -1;
+    float curval = -1e6;
     float curid = -1;
+    float tempval;
 
-    float tempval = 0;
+    int fi=0;
 
-    for (int filter_id=0; filter_id<dim_t; filter_id++){
-        tempval = 0;
-        int fi_base = filter_id * dim_y * dim_x * nchannels;
-        
-        
-        for (int chan_id=0; chan_id<nchannels; chan_id++){
-            int fi = chan_id + fi_base;
-
-            image_cache[threadIdx.y][threadIdx.x] = *getPtr(frame, pix_y, pix_x * nchannels + chan_id);
-
-            __syncthreads();
+    if ( (threadIdx.y < BLOCK_SIZE-FILTER_DIM+1) && (threadIdx.x < BLOCK_SIZE-FILTER_DIM+1) ){
+        for (int filter_id=0; filter_id<dim_t; filter_id++){
+            tempval = 0;
 
             if (optype==FF_OPTYPE_EUCLIDEAN) {
-                if ( (threadIdx.y < BLOCK_SIZE-dim_y+1) && (threadIdx.x < BLOCK_SIZE-dim_x+1) ){
-                    for (int fyi=0; fyi<dim_y; fyi++){
-                        for (int fxi=0; fxi<dim_x; fxi++){
-                            float diff = image_cache[threadIdx.y+fyi][threadIdx.x+fxi] - c_FilterBank[fi];
-                            tempval += diff * diff;
-                            fi+=nchannels;
-                        }
-                    }
-                }
+                for (int fyi=0; fyi<FILTER_DIM; fyi++){for (int fxi=0; fxi<FILTER_DIM; fxi++){
+                    float diff = image_cache[threadIdx.y+fyi][threadIdx.x+fxi] - c_FilterBank[fi++];
+                    tempval += diff * diff;
+                }}
             }
             else { // optype==FF_OPTYPE_COSINE 
-                if ( (threadIdx.y < BLOCK_SIZE-dim_y+1) && (threadIdx.x < BLOCK_SIZE-dim_x+1) ){
-                    for (int fyi=0; fyi<dim_y; fyi++){
-                        for (int fxi=0; fxi<dim_x; fxi++){
-                            tempval += c_FilterBank[fi] * image_cache[threadIdx.y+fyi][threadIdx.x+fxi];
-                            fi+=nchannels;
-                        }
-                    }
+                for (int fyi=0; fyi<FILTER_DIM; fyi++){ for (int fxi=0; fxi<FILTER_DIM; fxi++){
+                    tempval += c_FilterBank[fi++] * image_cache[threadIdx.y+fyi][threadIdx.x+fxi];
+                }}
+            }
+
+            if (optype==FF_OPTYPE_EUCLIDEAN){
+               if (tempval < curval){
+                   curid = filter_id;
+                   curval = tempval;
+               }
+            }
+            else { //(optype==FF_OPTYPE_COSINE){
+                if (abs(tempval) > curval){
+                    curid = filter_id;
+                    curval = abs(tempval);
                 }
             }
         }
-
-        __syncthreads();
-
-        if (optype==FF_OPTYPE_EUCLIDEAN){
-            if ((filter_id==0) || (tempval < curval)){
-                curid = filter_id;
-                curval = tempval;
-            }
-        }
-        else { //(optype==FF_OPTYPE_COSINE){
-            if ((filter_id==0) || (abs(tempval) > curval)){
-                curid = filter_id;
-                curval = abs(tempval);
-            }
-        }
-
-        __syncthreads();
-
     }
-
 
     if ( (out_pix_y < frame_height) && (out_pix_x < frame_width) &&
-         (threadIdx.y < BLOCK_SIZE - dim_y + 1) && (threadIdx.x < BLOCK_SIZE - dim_x + 1) ){
-        *getPtr(output,0, out_pix_y, out_pix_x) = curid;
-        *getPtr(output,1, out_pix_y, out_pix_x) = curval;
+         (threadIdx.y < BLOCK_SIZE - FILTER_DIM + 1) && (threadIdx.x < BLOCK_SIZE - FILTER_DIM + 1) ){
+        *(output.data + out_pix_offset) = curid;
+        *(output.data + output.pitch_t + out_pix_offset) = curval;
     }
-
-    __syncthreads();
-
 }
+*/
 
 //this updates the filterbank saved in the constant device memory
 int update_filter_bank_internal(float* new_filter, int filter_size){
@@ -335,9 +316,161 @@ int update_filter_bank_internal(float* new_filter, int filter_size){
 
 }
 
+
+
+#define BLOCK_MULT 2
+template<int FILTER_DIM>
+__global__ void blockwise_distance_kernel(DeviceMatrix frame,
+                                         DeviceMatrix3D output,
+                                         const int frame_width, const int frame_height,
+                                         const int dim_t,
+                                         const int optype)
+{
+    const int out_pix_y0 = blockIdx.y * (BLOCK_SIZE * BLOCK_MULT) + FILTER_DIM / 2;
+    const int out_pix_x0 = blockIdx.x * (BLOCK_SIZE * BLOCK_MULT) + FILTER_DIM / 2;
+
+    const int out_pix_y1 = min(out_pix_y0 + (BLOCK_SIZE * BLOCK_MULT),
+                               frame_height - FILTER_DIM / 2);
+    const int out_pix_x1 = min(out_pix_x0 + (BLOCK_SIZE * BLOCK_MULT),
+                               frame_width - FILTER_DIM / 2);
+
+    const int cache_size = BLOCK_SIZE * BLOCK_MULT + FILTER_DIM - 1;
+
+    __shared__ float image_cache[cache_size][cache_size];
+
+    int read_pix_y = out_pix_y0 - FILTER_DIM / 2 + threadIdx.y;
+    int cache_ind_y = threadIdx.y;
+    for (int ii=0; ii<BLOCK_MULT+1; ii++){
+        int read_pix_x = out_pix_x0 - FILTER_DIM / 2 + threadIdx.x;
+        int cache_ind_x = threadIdx.x;
+        for (int jj=0; jj<BLOCK_MULT+1; jj++){
+            if ((cache_ind_x < cache_size) && (cache_ind_y < cache_size)){
+                image_cache[cache_ind_y][cache_ind_x] = *(frame.data + read_pix_y * frame.pitch + read_pix_x);
+            }
+            read_pix_x += BLOCK_SIZE;
+            cache_ind_x += BLOCK_SIZE;
+        }
+        read_pix_y += BLOCK_SIZE;
+        cache_ind_y += BLOCK_SIZE;
+    }
+
+    __syncthreads();
+
+    int out_y = out_pix_y0 + threadIdx.y;
+    for (int ii=0; ii<BLOCK_MULT; ii++){
+        int out_x = out_pix_x0 + threadIdx.x;       
+        for (int jj=0; jj<BLOCK_MULT; jj++){
+            float curval = -1e6;
+            float curid = -1;
+            int fi = 0;
+            if ((out_y < out_pix_y1) && (out_x < out_pix_x1)){           
+                for (int filter_id=0; filter_id<dim_t; filter_id++){
+                    float tempval = 0.0f;
+                    int cyi = threadIdx.y + ii * BLOCK_SIZE;
+                    for (int fyi=0; fyi<FILTER_DIM; fyi++){ 
+                        int cxi = threadIdx.x + jj * BLOCK_SIZE;
+                        for (int fxi=0; fxi<FILTER_DIM; fxi++){
+                            tempval += c_FilterBank[fi++] * image_cache[cyi][cxi];
+                            cxi++;
+                        }
+                        cyi++;
+                    }
+                    if (abs(tempval) > curval){
+                        curid = filter_id;
+                        curval = abs(tempval);
+                    }
+                }
+           
+                const int out_pix_offset = out_y * output.pitch_y + out_x;
+                *(output.data + out_pix_offset) = curid;
+                *(output.data + output.pitch_t + out_pix_offset) = curval;
+            }
+            out_x += BLOCK_SIZE;
+        }
+        out_y += BLOCK_SIZE;
+    }
+
+    __syncthreads();
+}
+
+void dist_filter2_d3(const DeviceMatrix* frame,
+                  const int dim_t, const int nchannels,
+                  DeviceMatrix3D* output,
+                  const int optype)
+{
+    const int frame_width = int(frame->width);
+    const int frame_height = int(frame->height);
+
+    const int valid_region_h = frame_height - 3 + 1;
+    const int valid_region_w = frame_width - 3 + 1;
+
+    int grid_ry = valid_region_h / (BLOCK_SIZE * BLOCK_MULT) + 1;
+    int grid_cx = valid_region_w / (BLOCK_SIZE * BLOCK_MULT) + 1;
+
+    dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE);
+
+    dim3 dimGrid(grid_cx, grid_ry);
+
+    blockwise_distance_kernel<3><<<dimGrid, dimBlock>>>(*frame,
+                                                    *output,
+                                                    frame_width, frame_height,
+                                                    dim_t,
+                                                    optype);
+}
+void dist_filter2_d5(const DeviceMatrix* frame,
+                  const int dim_t, const int nchannels,
+                  DeviceMatrix3D* output,
+                  const int optype)
+{
+    const int frame_width = int(frame->width);
+    const int frame_height = int(frame->height);
+
+    const int valid_region_h = frame_height - 5 + 1;
+    const int valid_region_w = frame_width - 5 + 1;
+
+    int grid_ry = valid_region_h / (BLOCK_SIZE * BLOCK_MULT) + 1;
+    int grid_cx = valid_region_w / (BLOCK_SIZE * BLOCK_MULT) + 1;
+
+    dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE);
+
+    dim3 dimGrid(grid_cx, grid_ry);
+
+    blockwise_distance_kernel<5><<<dimGrid, dimBlock>>>(*frame,
+                                                    *output,
+                                                    frame_width, frame_height,
+                                                    dim_t,
+                                                    optype);
+
+}
+void dist_filter2_d7(const DeviceMatrix* frame,
+                  const int dim_t, const int nchannels,
+                  DeviceMatrix3D* output,
+                  const int optype)
+{
+    const int frame_width = int(frame->width);
+    const int frame_height = int(frame->height);
+
+    const int valid_region_h = frame_height - 7 + 1;
+    const int valid_region_w = frame_width - 7 + 1;
+
+    int grid_ry = valid_region_h / (BLOCK_SIZE * BLOCK_MULT) + 1;
+    int grid_cx = valid_region_w / (BLOCK_SIZE * BLOCK_MULT) + 1;
+
+    dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE);
+
+    dim3 dimGrid(grid_cx, grid_ry);
+
+    blockwise_distance_kernel<7><<<dimGrid, dimBlock>>>(*frame,
+                                                    *output,
+                                                    frame_width, frame_height,
+                                                    dim_t,
+                                                    optype);
+}
+/*
 //new dist filter implementation
+template<int FILTER_DIM>
 void dist_filter2(const DeviceMatrix* frame,
-                  const int dim_t, const int dim_y, const int dim_x, const int nchannels,
+                  const int dim_t, const int nchannels,
                   DeviceMatrix3D* output,
                   const int optype)
 {
@@ -345,18 +478,19 @@ void dist_filter2(const DeviceMatrix* frame,
     const int frame_height = float(frame->height);
 
     dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE);
-    int grid_ry = (frame_height) / (dimBlock.y-dim_y+1) + 1;
-    int grid_cx = (frame_width ) / (dimBlock.x-dim_x+1) + 1;
+    int grid_ry = (frame_height) / (dimBlock.y-FILTER_DIM+1) + 1;
+    int grid_cx = (frame_width ) / (dimBlock.x-FILTER_DIM+1) + 1;
     dim3 dimGrid(grid_cx, grid_ry);
 
-    blockwise_distance_kernel<<<dimGrid, dimBlock>>>(*frame,
+    blockwise_distance_kernel<FILTER_DIM><<<dimGrid, dimBlock>>>(*frame,
                                                     *output,
                                                     frame_width, frame_height,
-                                                    dim_t, dim_y, dim_x,
-                                                    nchannels, optype);
+                                                    dim_t,
+                                                    optype);
    
 
 }
+*/
 
 //new dist filter implementation
 void dist_filter_noargmin(const DeviceMatrix* frame,

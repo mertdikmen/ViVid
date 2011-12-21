@@ -4,5 +4,6 @@ dist/*
 doc/*
 *.swp
 *.pyc
+*.csv
 vivid/*
 src/release

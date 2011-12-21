@@ -1,25 +1,43 @@
 #include "FlexibleFilter.hpp"
 #include "FlexibleFilterLocal.hpp"
 
+#include <omp.h>
+
 #include <cuda_runtime.h>
 
 int set_filter_bank(float* filter_bank, int size){
     return update_filter_bank_internal(filter_bank,size); 
 }
 
-DeviceMatrix3D::Ptr filter_frame_cuda(const DeviceMatrix::Ptr& frame,
-                                    const int dim_t, const int dim_y, const int dim_x, const int nchannels,
+DeviceMatrix3D::Ptr filter_frame_cuda_3(const DeviceMatrix::Ptr& frame,
+                                    const int dim_t, const int nchannels,
                                     const int optype){
 
     DeviceMatrix3D::Ptr out = makeDeviceMatrix3D(2, frame->height, frame->width / nchannels);
 
-    //dist_filter(frame.get(), dim_t, dim_y, dim_x, filter_bank.get(), out.get(), optype);
-
-    dist_filter2(frame.get(), dim_t, dim_y, dim_x, nchannels, out.get(), optype);
-
+    dist_filter2_d3(frame.get(), dim_t, nchannels, out.get(), optype);
     return out;
 }
 
+DeviceMatrix3D::Ptr filter_frame_cuda_5(const DeviceMatrix::Ptr& frame,
+                                    const int dim_t, const int nchannels,
+                                    const int optype){
+
+    DeviceMatrix3D::Ptr out = makeDeviceMatrix3D(2, frame->height, frame->width / nchannels);
+
+    dist_filter2_d5(frame.get(), dim_t, nchannels, out.get(), optype);
+    return out;
+}
+
+DeviceMatrix3D::Ptr filter_frame_cuda_7(const DeviceMatrix::Ptr& frame,
+                                    const int dim_t, const int nchannels,
+                                    const int optype){
+
+    DeviceMatrix3D::Ptr out = makeDeviceMatrix3D(2, frame->height, frame->width / nchannels);
+    dist_filter2_d7(frame.get(), dim_t, nchannels, out.get(), optype);
+
+    return out;
+}
 DeviceMatrix3D::Ptr filter_frame_cuda_noargmin(const DeviceMatrix::Ptr& frame,
                                     const int dim_t, const int dim_y, const int dim_x, const int nchannels,
                                     const int optype){

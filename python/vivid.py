@@ -1,5 +1,4 @@
 import numpy as np
-import scipy
 import cv
 import numpy as np
 

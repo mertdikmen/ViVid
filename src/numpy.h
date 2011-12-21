@@ -6,8 +6,8 @@
   // arrayobject.h
   //
   // http://numpy.scipy.org/numpydoc/numpy-13.html
-#define PY_ARRAY_UNIQUE_SYMBOL tv
-
-#include <numpy/arrayobject.h>
+//#define PY_ARRAY_UNIQUE_SYMBOL tv
+//
+//#include <numpy/arrayobject.h>
 
 #endif // NUMPY_H

@@ -1,6 +1,9 @@
 #include "DeviceMatrixWrapper.hpp"
+
+#define PY_ARRAY_UNIQUE_SYMBOL tb
 #define NO_IMPORT_ARRAY
-#include "numpy.h"
+#include <numpy/arrayobject.h>
+
 #include <iostream>
 
 #include <cuda_runtime.h>

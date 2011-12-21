@@ -1,6 +1,11 @@
 import numpy as np
 
-from _vivid import _update_filter_bank, DeviceMatrix, _filter_frame_cuda
+from _vivid import DeviceMatrix
+from _vivid import _update_filter_bank
+from _vivid import _filter_frame_cuda_3
+from _vivid import _filter_frame_cuda_5
+from _vivid import _filter_frame_cuda_7
+from _vivid import cosine_filter_c
 from cv_conversions import *
 
 ##FLEXIBLE_FILTER CLASS
@@ -19,6 +24,15 @@ class FlexibleFilter:
         self.filter_bank_size = self.filter_bank.shape[0]
         self.filter_height = self.filter_bank.shape[1]
         self.filter_width =  self.filter_bank.shape[2]
+
+        self.apron_y = self.filter_height / 2
+        self.apron_x = self.filter_width  / 2
+
+        if ((self.filter_width != self.filter_height) or
+            ((self.filter_width != 3) and
+             (self.filter_width != 5) and
+             (self.filter_width != 7))):
+            raise ValueError("Filter width (=height) must be 3, 5 or 7.")
 
         if len(self.filter_bank.shape) == 4:
             self.nchannels = self.filter_bank.shape[3]
@@ -44,6 +58,46 @@ class FlexibleFilter:
         assert((self.filter_height % 2 == 1) and
                (self.filter_width  % 2 == 1) )
 
+    def filter_frame_python(self, framenum):
+        from scipy.signal import correlate2d
+        if self.optype == FF_OPTYPE_EUCLIDEAN:
+           raise NotImplementedError(
+               "Euclidean filter is not implemented yet")
+
+        frame = cvmat2array(self.origin.get_frame(framenum))
+
+        result = -np.ones((2, frame.shape[0], frame.shape[1]), dtype='float32')
+
+        for fi, flt in enumerate(self.filter_bank):
+            filter_res = np.abs(correlate2d(frame, np.squeeze(flt), mode='same'))
+            better_ind = result[0] < filter_res
+            result[0][better_ind] = fi
+            result[1][better_ind] = filter_res[better_ind]
+
+        result[:, :self.apron_y,:] = -1
+        result[:,-self.apron_y:,:] = -1
+        result[:,:, :self.apron_x] = -1
+        result[:,:,-self.apron_x:] = -1
+
+        return result
+
+    def filter_frame_c(self,framenum):
+        if self.optype == FF_OPTYPE_EUCLIDEAN:
+           raise NotImplementedError(
+               "Euclidean filter is not implemented in C yet")
+        #elif self.optype == FF_OPTYPE_COSINE:
+
+        frame = cvmat2array(self.origin.get_frame(framenum))
+
+        result =  cosine_filter_c(frame, self.filter_bank)
+        
+        result[:, :self.apron_y,:] = -1
+        result[:,-self.apron_y:,:] = -1
+        result[:,:, :self.apron_x] = -1
+        result[:,:,-self.apron_x:] = -1
+
+        return result
+
     def filter_frame_cuda(self, framenum):
         frame = cvmat2array(self.origin.get_frame(framenum))
 
@@ -51,28 +105,30 @@ class FlexibleFilter:
             frame = np.reshape(frame,(frame.shape[0], frame.shape[1], 1))
 
         #interleave the channels
-        frame_ilv = np.empty((frame.shape[0], frame.shape[1] * frame.shape[2]),dtype='float32')
+        frame_ilv = np.empty((frame.shape[0], frame.shape[1] * frame.shape[2]), dtype='float32')
         for k in range(self.nchannels):
             frame_ilv[:,k::self.nchannels] = frame[:,:,k]
 
         frame_dm = DeviceMatrix(frame_ilv)
 
-        result = _filter_frame_cuda(frame_dm,
-                                  self.filter_bank_size,
-                                  self.filter_height,
-                                  self.filter_width,
-                                  self.nchannels,
-                                  self.optype)
+        if self.filter_width == 3:
+            fn = _filter_frame_cuda_3
+        elif self.filter_width == 5:
+            fn = _filter_frame_cuda_5
+        elif self.filter_width == 7:
+            fn = _filter_frame_cuda_7
+
+        result = fn(frame_dm,
+                    self.filter_bank_size,
+                    self.nchannels,
+                    self.optype)
 
         result = result.mat()
-
-        apron_y = self.filter_height / 2
-        apron_x = self.filter_width  / 2
-
-        result[:, :apron_y,:] = -1
-        result[:,-apron_y:,:] = -1
-        result[:,:, :apron_x] = -1
-        result[:,:,-apron_x:] = -1
+        
+        result[:, :self.apron_y,:] = -1
+        result[:,-self.apron_y:,:] = -1
+        result[:,:, :self.apron_x] = -1
+        result[:,:,-self.apron_x:] = -1
 
         return result  
 #

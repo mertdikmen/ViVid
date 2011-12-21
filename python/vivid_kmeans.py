@@ -56,8 +56,9 @@ class Kmeans:
 
         #Initialize the means by randomly sampling the points
         center_init = self._plusplus_init()
-        #self.centers = self.data[np.random.permutation(self.num_data)[:self.num_clust],:]
         self.centers = self.data[center_init,:]
+        #self.centers = self.data[np.random.permutation(self.num_data)[:self.num_clust],:]
+       
         self.centers_DM = DeviceMatrix(self.centers.astype('f'))
 
     def _plusplus_init(self):

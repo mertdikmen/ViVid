@@ -4,6 +4,7 @@ OBJS += NumPyWrapper.o
 OBJS += DeviceMatrixWrapper.o DeviceMatrix.o
 OBJS += PairwiseDistanceWrapper.o PairwiseDistance.o PairwiseDistance.co
 OBJS += FlexibleFilterWrapper.o FlexibleFilter.o FlexibleFilter.co
+OBJS += BlockHistogramWrapper.o BlockHistogram.o BlockHistogram.co
 OBJDIR := release
 OBJS := $(addprefix $(OBJDIR)/, $(OBJS))
 
@@ -23,6 +24,15 @@ CC   := gcc-4.4 -fPIC
 LINK := g++-4.4 -fPIC
 
 INCLUDES += -I. -I$(CUDA_INSTALL_PATH)/include
+
+CXX_OPT := \
+	-O3 \
+	-funroll-loops \
+	-ftree-loop-distribution \
+	-fmerge-all-constants \
+	-ftracer \
+	-fvariable-expansion-in-unroller \
+	-fvpt
 
 # Warning flags
 CXXWARN_FLAGS := \
@@ -47,7 +57,7 @@ CWARN_FLAGS := $(CXXWARN_FLAGS) \
 	-Wnested-externs \
 	-Wmain \
 
-NVCCFLAGS := -Xcompiler -fPIC
+NVCCFLAGS := -Xcompiler -fPIC -arch=compute_20
 
 define show_status
   @echo "[$(1)]" $@
@@ -84,7 +94,7 @@ LIBS += $(shell python2.7-config --libs) -lboost_python
 
 $(OBJDIR)/%.o: %.cpp
 	$(call show_status,c++)
-	$(SILENT)$(CXX) -c -o $@ $< $(OPENMP) $(CPPFLAGS) 
+	$(SILENT)$(CXX) -c -o $@ $< $(OPENMP) $(CPPFLAGS) $(CXX_OPT)
 
 $(OBJDIR)/%.co: %.cu
 	$(call show_status,cuda)

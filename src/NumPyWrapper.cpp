@@ -4,7 +4,9 @@
 
 #include "NumPyWrapper.hpp"
 
-#include "numpy.h"
+#define PY_ARRAY_UNIQUE_SYMBOL tb
+#define NO_IMPORT_ARRAY
+#include <numpy/arrayobject.h>
 
 using namespace boost::python;
 
@@ -123,7 +125,7 @@ NumPyImage::NumPyImage(unsigned int height,
 //////////////////////////////////////////////////////////////////////
 
 void NumPyWrapper::init() {
-  import_array();
+//  import_array();
 }
 
 //NUMPY ARRAY

@@ -16,9 +16,16 @@ void dist_filter_noargmin(const DeviceMatrix* frame,
                   DeviceMatrix3D* output,
                   const int optype);
 
-
-void dist_filter2(const DeviceMatrix* frame,
-                  const int dim_t, const int dim_y, const int dim_x, const int nchannels,
+void dist_filter2_d3(const DeviceMatrix* frame,
+                  const int dim_t, const int nchannels,
+                  DeviceMatrix3D* output,
+                  const int optype);
+void dist_filter2_d5(const DeviceMatrix* frame,
+                  const int dim_t, const int nchannels,
+                  DeviceMatrix3D* output,
+                  const int optype);
+void dist_filter2_d7(const DeviceMatrix* frame,
+                  const int dim_t, const int nchannels,
                   DeviceMatrix3D* output,
                   const int optype);
 

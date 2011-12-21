@@ -28,9 +28,9 @@ object pwdist_c(object a, object b){
 //    omp_set_num_threads(4);
 //    printf("Total threads = %d\n", omp_get_num_threads());
 
+    double tic = omp_get_wtime();
     for (unsigned int i=0; i<aheight; i++){
-        #pragma omp parallel num_threads(1)
-        #pragma omp for 
+        #pragma omp parallel for num_threads(4)
         for (unsigned int j=0; j<bheight; j++){
             float sum = 0.0;
 
@@ -41,6 +41,10 @@ object pwdist_c(object a, object b){
             out_data[i*owidth+j]=sum;
         }
     }
+    double toc = omp_get_wtime();
+
+    printf("CPU time: %.6f\n", (toc - tic) * 1e6 );
+
     return output.array;
 };
 

@@ -2,10 +2,12 @@
 #include "DeviceMatrixWrapper.hpp"
 #include "PairwiseDistanceWrapper.hpp"
 #include "FlexibleFilterWrapper.hpp"
+#include "BlockHistogramWrapper.hpp"
 #include "fastexp.h"
 
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+
 #define PY_ARRAY_UNIQUE_SYMBOL tb
 #include <numpy/arrayobject.h>
 
@@ -59,7 +61,6 @@ boost::python::object fast_exp(boost::python::object& input_mat,
             break;
         default:
             std::cout << "Invalid approximation level.  Select [3-9]" << std::endl;
-
     }
 
     boost::python::handle<> out_mat(output_block);
@@ -94,11 +95,23 @@ std::vector<int> create_lbp_dictionary(
     for (int i=0; i<num_values; i++){
         int one_count = 0;
         number = i;
+
+        //rotate_left 
+        if (i >= (num_values / 2) ){ 
+            number = ((number - num_values / 2) << 1) + 1;
+        }
+        else {
+            number = number << 1;
+        }
+
+        //bitwise xor
+        int xor_test = number ^ i;
+
         for (int j=0; j<num_bits;j++){
-            if ((number % 2) == 1){
+            if ((xor_test % 2) == 1){
                 one_count++;
             }
-            number = number >> 1;
+            xor_test = xor_test >> 1;
         }
         if (one_count <= u){
             lbp_map[i] = center_count++;
@@ -163,61 +176,7 @@ object compute_lbp_n8_r1(const object& input_mat,
     return boost::python::object(temp_out);
 }
 
-object cell_histogram_dense(object& input_mat, object& weight_mat, 
-                             const int max_bin, const int cell_size, 
-                             object& start_inds, object& stop_inds)
-{
-    NumPyMatrix id_m(input_mat);
-    NumPyMatrix wgts(weight_mat);
-    const float* id_data = (float*) id_m.data();
-    const float* wt_data = (float*) wgts.data();
 
-    NumPyArray start_arr(start_inds);
-    NumPyArray stop_arr(stop_inds);
-
-    int n_parts_y = (stop_arr.data()[0] - start_arr.data()[0] ) / cell_size;
-    int n_parts_x = (stop_arr.data()[1] - start_arr.data()[1] ) / cell_size;
-
-    npy_intp dims[3] = {n_parts_y, n_parts_x, max_bin};
-    
-    PyObject* arr = PyArray_SimpleNew(3, dims, PyArray_FLOAT);
-    float* out_data = (float*)PyArray_DATA(arr);
-    
-    memset(out_data, 0, sizeof(float) * n_parts_y * n_parts_x * max_bin);
-
-    int start_i = start_arr.data()[0];
-    int start_j = start_arr.data()[1];
-
-    const int im_width = id_m.width();
-    const int im_height = id_m.height();
-
-
-    #pragma omp for 
-    for (int write_i=0; write_i<n_parts_y; write_i++){
-        for (int write_j=0; write_j<n_parts_x; write_j++){
-            int out_ind = (write_i*n_parts_x + write_j) * max_bin;
-
-            int read_i = (start_i + (write_i * cell_size)) * im_width;
-            for (int i=0; i<cell_size; i++){
-                int read_j = start_j + write_j * cell_size ;
-
-                for (int j=0; j<cell_size; j++){
-                    int bin_ind = (int)id_data[read_i+read_j];
-                    //assert((bin_ind >= 0) && (bin_ind < max_bin));
-                    float weight = wt_data[read_i+read_j];
-                    if ((bin_ind >= 0) && (bin_ind < max_bin)){
-                        out_data[out_ind + bin_ind] += weight;
-                    }
-                    read_j ++;    
-                }
-                read_i += im_width;
-            }
-        }
-    }
-    
-    handle<> temp_out(arr);
-    return boost::python::object(temp_out);
-}
 
 object group_blocks(object& block_mat, object& grouping_inds, bool normalize_flag){
 
@@ -272,6 +231,71 @@ object group_blocks(object& block_mat, object& grouping_inds, bool normalize_fla
 
 }
 
+object add_cell_histograms(object& cell_histograms,
+                           const int block_size_y, const int block_size_x,
+                           const int block_step)
+{
+    PyObject* pyo_cell_histograms = PyArray_FromAny(cell_histograms.ptr(), 
+                                   PyArray_DescrFromType(PyArray_FLOAT), 
+                                   3, 3, 
+                                   NPY_CARRAY, NULL);
+
+    boost::python::expect_non_null(pyo_cell_histograms);
+
+    npy_intp* n_dims = PyArray_DIMS(pyo_cell_histograms);
+
+    const int cells_y = n_dims[0]; 
+    const int cells_x = n_dims[1];
+    const int hist_size = n_dims[2];
+
+    assert(cells_y >= block_size_y);
+    assert(cells_x >= block_size_x);
+
+    const int blocks_y = (cells_y - block_size_y) / block_step + 1;
+    const int blocks_x = (cells_x - block_size_x) / block_step + 1;
+
+    npy_intp output_dims[3];
+    output_dims[0] = blocks_y;
+    output_dims[1] = blocks_x;
+    output_dims[2] = hist_size;
+
+    PyObject* pyo_output_blocks = PyArray_SimpleNew(3, output_dims, PyArray_FLOAT);
+
+    float* cell_histograms_data = (float*) PyArray_DATA(pyo_cell_histograms);
+    float* output_blocks_data = (float*) PyArray_DATA(pyo_output_blocks);
+
+    memset(output_blocks_data, 0, sizeof(float) * blocks_y * blocks_x * hist_size);
+
+    #pragma omp for
+    for (int by=0; by<blocks_y; by++){
+        const int cy = block_step * by;
+        for (int bx=0; bx<blocks_x; bx++){
+            const int cx = block_step * bx;
+
+            float* dst_ptr = output_blocks_data +
+                             (by * blocks_x + bx) * hist_size;
+
+            for (int iy=0; iy<block_size_y; iy++){
+                for (int ix=0; ix<block_size_x; ix++){
+
+                    float* src_ptr = cell_histograms_data + 
+                            ( (cy+iy) * cells_x + (cx+ix) ) * hist_size;
+
+                    for (int hi=0; hi<hist_size; hi++){
+                        dst_ptr[hi] += src_ptr[hi];
+                    }
+                }
+            }
+        }    
+    }
+
+    handle<> out_mat(pyo_output_blocks);
+
+    Py_DECREF(pyo_cell_histograms);
+    return boost::python::object(out_mat);
+}
+        
+
 object group_cell_histograms(object& cell_histograms, 
                              const int block_size_y, const int block_size_x, /* in terms of number of cells */
                              const int block_step /* in terms of number of cells */)
@@ -286,7 +310,6 @@ object group_cell_histograms(object& cell_histograms,
 
     npy_intp* n_dims = PyArray_DIMS(pyo_cell_histograms);
 
-    
     const int cells_y = n_dims[0]; 
     const int cells_x = n_dims[1];
     const int hist_size = n_dims[2];
@@ -306,9 +329,8 @@ object group_cell_histograms(object& cell_histograms,
 
     #pragma omp for
     for (int by=0; by<blocks_y; by++){
+        const int cy = block_step * by;
         for (int bx=0; bx<blocks_x; bx++){
-
-            const int cy = block_step * by;
             const int cx = block_step * bx;
 
             for (int iy=0; iy<block_size_y; iy++){
@@ -337,20 +359,21 @@ object group_cell_histograms(object& cell_histograms,
 
 BOOST_PYTHON_MODULE(_vivid)
 {
-    NumPyWrapper::init();
+    //NumPyWrapper::init();
+
+    import_array();
 
     export_DeviceMatrix();
     export_PairwiseDistance();
     export_FlexibleFilter();
-
-    import_array();
+    export_BlockHistogram();
 
     class_< std::vector<int> >("std::vectorOfInt")
                  .def(vector_indexing_suite< std::vector<int>, true>());
     def("fast_exp", fast_exp);
-    def("cell_histogram_dense", cell_histogram_dense);
     def("group_blocks", group_blocks); 
     def("group_cell_histograms", group_cell_histograms);
+    def("add_cell_histograms", add_cell_histograms);
     def("create_lbp_dictionary", create_lbp_dictionary);
     def("compute_lbp_n8_r1", compute_lbp_n8_r1); 
 
