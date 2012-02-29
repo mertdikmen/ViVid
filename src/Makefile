@@ -8,11 +8,11 @@ OBJS += BlockHistogramWrapper.o BlockHistogram.o BlockHistogram.co
 OBJDIR := release
 OBJS := $(addprefix $(OBJDIR)/, $(OBJS))
 
-CUDA_INSTALL_PATH ?= /usr
-
-ifdef cuda-install
-	CUDA_INSTALL_PATH := $(cuda-install)
-endif
+#CUDA_INSTALL_PATH ?= /usr
+#
+#ifdef cuda-install
+#	CUDA_INSTALL_PATH := $(cuda-install)
+#endif
 
 SM_VERSIONS   := 10 11 12 13 20 21
 

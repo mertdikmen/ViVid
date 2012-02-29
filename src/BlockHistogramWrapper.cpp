@@ -66,7 +66,7 @@ object cell_histogram_dense(object& input_mat, object& weight_mat,
 
     double toc = omp_get_wtime();
 
-    printf("Loop time: %.8f\n",(toc-tic) * 1000000.0f);
+    //printf("Loop time: %.8f\n",(toc-tic) * 1000000.0f);
 
     return boost::python::object(temp_out);
 }
