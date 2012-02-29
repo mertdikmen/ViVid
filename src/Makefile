@@ -18,17 +18,24 @@ SM_VERSIONS   := 10 11 12 13 20 21
 
 OSARCH = $(shell uname -m)
 
-NVCC := $(CUDA_INSTALL_PATH)/bin/nvcc --compiler-bindir /opt/gcc-4.4
-CXX  := g++-4.4 -fPIC
-CC   := gcc-4.4 -fPIC
-LINK := g++-4.4 -fPIC
+GCC := /scratch/local/bin/gcc
+GPP := /scratch/local/bin/g++
+
+NVCC := $(CUDA_INSTALL_PATH)/bin/nvcc --compiler-bindir $(GCC)
+CXX  := $(GPP) -fPIC
+CC   := $(GCC) -fPIC
+LINK := $(GPP) -fPIC
+
+#NVCC := $(CUDA_INSTALL_PATH)/bin/nvcc
+#CXX  := g++ -fPIC
+#CC   := gcc -fPIC
+#LINK := g++ -fPIC
 
 INCLUDES += -I. -I$(CUDA_INSTALL_PATH)/include
 
 CXX_OPT := \
 	-O3 \
 	-funroll-loops \
-	-ftree-loop-distribution \
 	-fmerge-all-constants \
 	-ftracer \
 	-fvariable-expansion-in-unroller \
@@ -79,7 +86,12 @@ CFLAGS += $(INCLUDES)
 ifneq ($(EMU),)
   NVCCFLAGS += --device-emulation
 endif
+
+ifeq ($(OSARCH), i686)
+LIBS += -L$(CUDA_INSTALL_PATH)/lib -lcuda -lcudart
+else
 LIBS += -L$(CUDA_INSTALL_PATH)/lib64 -lcuda -lcudart
+endif
 
 #
 # Set up OpenMP
