@@ -3,6 +3,7 @@
 #include "PairwiseDistanceWrapper.hpp"
 #include "FlexibleFilterWrapper.hpp"
 #include "BlockHistogramWrapper.hpp"
+#include "ConvolutionWrapper.hpp"
 #include "fastexp.h"
 
 #include <boost/python.hpp>
@@ -367,6 +368,7 @@ BOOST_PYTHON_MODULE(_vivid)
     export_PairwiseDistance();
     export_FlexibleFilter();
     export_BlockHistogram();
+    export_Convolution();
 
     class_< std::vector<int> >("std::vectorOfInt")
                  .def(vector_indexing_suite< std::vector<int>, true>());

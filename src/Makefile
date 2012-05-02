@@ -5,6 +5,7 @@ OBJS += DeviceMatrixWrapper.o DeviceMatrix.o
 OBJS += PairwiseDistanceWrapper.o PairwiseDistance.o PairwiseDistance.co
 OBJS += FlexibleFilterWrapper.o FlexibleFilter.o FlexibleFilter.co
 OBJS += BlockHistogramWrapper.o BlockHistogram.o BlockHistogram.co
+OBJS += ConvolutionWrapper.o Convolution.co
 OBJDIR := release
 OBJS := $(addprefix $(OBJDIR)/, $(OBJS))
 
