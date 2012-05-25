@@ -1,10 +1,12 @@
-#include "DeviceMatrix.hpp"
-#include "NumPyWrapper.hpp"
-#include "exceptions.hpp"
+#include <iostream>
 
 #include <cuda_runtime.h>
 
-#include <iostream>
+#include <CL/opencl.h>
+
+#include "DeviceMatrix.hpp"
+#include "NumPyWrapper.hpp"
+#include "exceptions.hpp"
 
 static void deleteDeviceMatrix(DeviceMatrix* mat)
 {
@@ -33,6 +35,22 @@ boost::shared_ptr<DeviceMatrix> makeDeviceMatrix(size_t height,
 
   return boost::shared_ptr<DeviceMatrix>(mat, deleteDeviceMatrix);
 }
+
+static void deleteDeviceMatrixCL(DeviceMatrixCL* mat)
+{
+
+}
+
+boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(size_t height, size_t width)
+{
+    DeviceMatrixCL* mat = new DeviceMatrixCL();
+    mat->width = width;
+    mat->height = height;
+
+
+    return boost::shared_ptr<DeviceMatrixCL>(mat, deleteDeviceMatrixCL);
+}
+
 
 static void deleteDeviceMatrix3D(DeviceMatrix3D* mat)
 {

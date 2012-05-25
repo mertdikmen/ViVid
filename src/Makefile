@@ -5,7 +5,9 @@ OBJS += DeviceMatrixWrapper.o DeviceMatrix.o
 OBJS += PairwiseDistanceWrapper.o PairwiseDistance.o PairwiseDistance.co
 OBJS += FlexibleFilterWrapper.o FlexibleFilter.o FlexibleFilter.co
 OBJS += BlockHistogramWrapper.o BlockHistogram.o BlockHistogram.co
-OBJS += ConvolutionWrapper.o Convolution.co
+OBJS += ConvolutionWrapper.o Convolution.co ConvolutionMCuda.o
+OBJS += ConvolutionMCuda0.o ConvolutionMCuda2.o ConvolutionMCuda4.o
+OBJS += OpenCLWrapper.o
 OBJDIR := release
 OBJS := $(addprefix $(OBJDIR)/, $(OBJS))
 
@@ -19,8 +21,10 @@ SM_VERSIONS   := 10 11 12 13 20 21
 
 OSARCH = $(shell uname -m)
 
-GCC := /scratch/local/bin/gcc
-GPP := /scratch/local/bin/g++
+GCC44_PATH := /opt/gcc-4.4
+
+GCC := $(GCC44_PATH)/gcc
+GPP := $(GCC44_PATH)/g++
 
 NVCC := $(CUDA_INSTALL_PATH)/bin/nvcc --compiler-bindir $(GCC)
 CXX  := $(GPP) -fPIC

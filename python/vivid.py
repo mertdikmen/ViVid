@@ -9,6 +9,7 @@ from vivid_kmeans import *
 from flexible_filter import *
 from local_binary_pattern import *
 from cv_conversions import *
+from sift import *
 
 #This is the source for C++ implementations
 from _vivid import *
@@ -57,7 +58,7 @@ class ConvertedSource:
             cv.Convert(src,ret)
         else:
             cv.ConvertScale(src, ret, self.scale)
-    
+
         return ret
 
 class GreySource:
@@ -66,7 +67,7 @@ class GreySource:
     """
     def __init__(self, origin):
         self.target_type = {
-            cv.CV_8SC3: cv.CV_8SC1, 
+            cv.CV_8SC3: cv.CV_8SC1,
             cv.CV_8UC3: cv.CV_8UC1,
             cv.CV_16SC3: cv.CV_16SC1,
             cv.CV_16UC3: cv.CV_16UC1,
@@ -95,7 +96,7 @@ class ScaledSource:
 
     def get_frame(self, frame_num):
         src = self.origin.get_frame(frame_num)
-        ret = cv.CreateMat(int(src.rows * self.scale), 
+        ret = cv.CreateMat(int(src.rows * self.scale),
                            int(src.cols * self.scale), src.type)
         cv.Resize(src, ret, self.interpolation)
 

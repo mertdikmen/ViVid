@@ -72,6 +72,65 @@ void DeviceMatrix_copyToDevice(DeviceMatrix& self,
   }
 }
 
+
+////////////////////////////
+DeviceMatrixCL::Ptr makeDeviceMatrixCL(boost::python::object& array)
+{
+  // If we already have a DeviceMatrix, just return it.  This sholuld
+  // help unify code paths.
+  extract<DeviceMatrixCL::Ptr> get_matrix(array);
+  if (get_matrix.check()) {
+    return get_matrix();
+  }
+
+  NumPyMatrix arr(array);
+
+  DeviceMatrixCL::Ptr retval = makeDeviceMatrixCL(arr.height(), arr.width());
+
+  DeviceMatrixCL_copyToDevice(*retval, arr);
+  return retval;
+}
+
+boost::python::object DeviceMatrixCL_copyFromDevice(const DeviceMatrixCL& self)
+{
+  NumPyMatrix retval(self.height, self.width);
+  //printf("reading %p (%i x %i)\n", self.data, self.width, self.height);
+ 
+  /*
+  if ((self.width > 0) && (self.height > 0)) {
+    const size_t widthInBytes = self.width * sizeof(float);
+    CUDA_SAFE_CALL_NO_SYNC
+      (cudaMemcpy2D(retval.data(), widthInBytes,
+                    self.data, self.pitch * sizeof(float),
+                    widthInBytes, self.height,
+                    cudaMemcpyDeviceToHost));
+  }
+  */
+
+  return retval.array;
+}
+
+void DeviceMatrixCL_copyToDevice(DeviceMatrixCL& self,
+                               const NumPyMatrix& matrix)
+{
+  assert(self.width  == matrix.width());
+  assert(self.height == matrix.height());
+
+  /*
+  if ((self.width > 0) && (self.height > 0)) {
+    const size_t widthInBytes = self.width * sizeof(float);
+    CUDA_SAFE_CALL_NO_SYNC
+      (cudaMemcpy2D(self.data, self.pitch * sizeof(float),
+                    matrix.data(), widthInBytes,
+                    widthInBytes, self.height,
+                    cudaMemcpyHostToDevice));
+  }
+  */
+}
+
+
+///////////////////////////
+
 DeviceMatrix3D::Ptr makeDeviceMatrix3D(const boost::python::object& array)
 {
   PyObject* contig
@@ -231,8 +290,6 @@ boost::python::object MCudaMatrix3D_copyFromDevice(const MCudaMatrix3D& self)
 }
 
 
-
-
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 void export_DeviceMatrix()
 {
@@ -242,6 +299,13 @@ void export_DeviceMatrix()
              make_constructor<DeviceMatrix::Ptr (object&)>
              (makeDeviceMatrix))
         .def("mat", DeviceMatrix_copyFromDevice);
+
+    class_<DeviceMatrixCL, DeviceMatrixCL::Ptr >
+        ("DeviceMatrixCL", no_init)
+        .def("__init__",
+                make_constructor<DeviceMatrixCL::Ptr (object&)>
+                (makeDeviceMatrixCL))
+        .def("mat", DeviceMatrixCL_copyFromDevice);
 
     class_<DeviceMatrix3D, DeviceMatrix3D::Ptr >
         ("DeviceMatrix3D", no_init)

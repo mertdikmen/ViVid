@@ -24,6 +24,22 @@ struct DeviceMatrix {
 DeviceMatrix::Ptr makeDeviceMatrix(size_t height,
                                    size_t width);
 
+
+struct DeviceMatrixCL {
+    typedef boost::shared_ptr<DeviceMatrixCL> Ptr;
+    typedef std::vector<Ptr> PtrList;
+
+    size_t width;
+    size_t height;
+
+    size_t pitch;
+    float* data;
+
+    void zero();
+};
+
+DeviceMatrixCL::Ptr makeDeviceMatrixCL(size_t height, size_t width);
+
 struct DeviceMatrix3D {
     typedef boost::shared_ptr<DeviceMatrix3D> Ptr;
     typedef std::vector<Ptr> PtrList;

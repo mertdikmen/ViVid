@@ -4,6 +4,7 @@
 #include "FlexibleFilterWrapper.hpp"
 #include "BlockHistogramWrapper.hpp"
 #include "ConvolutionWrapper.hpp"
+#include "OpenCLWrapper.hpp"
 #include "fastexp.h"
 
 #include <boost/python.hpp>
@@ -11,6 +12,7 @@
 
 #define PY_ARRAY_UNIQUE_SYMBOL tb
 #include <numpy/arrayobject.h>
+
 
 ////////////////////////
 // Faster operations
@@ -369,6 +371,7 @@ BOOST_PYTHON_MODULE(_vivid)
     export_FlexibleFilter();
     export_BlockHistogram();
     export_Convolution();
+    export_OpenCL();
 
     class_< std::vector<int> >("std::vectorOfInt")
                  .def(vector_indexing_suite< std::vector<int>, true>());
