@@ -11,20 +11,16 @@ OBJS += OpenCLWrapper.o
 OBJDIR := release
 OBJS := $(addprefix $(OBJDIR)/, $(OBJS))
 
-#CUDA_INSTALL_PATH ?= /usr
-#
-#ifdef cuda-install
-#	CUDA_INSTALL_PATH := $(cuda-install)
-#endif
+CUDA_INSTALL_PATH := /usr/local/cuda
 
 SM_VERSIONS   := 10 11 12 13 20 21
 
 OSARCH = $(shell uname -m)
 
-GCC44_PATH := /opt/gcc-4.4
+GCC44_PATH := /opt
 
-GCC := $(GCC44_PATH)/gcc
-GPP := $(GCC44_PATH)/g++
+GCC := gcc
+GPP := g++
 
 NVCC := $(CUDA_INSTALL_PATH)/bin/nvcc --compiler-bindir $(GCC)
 CXX  := $(GPP) -fPIC
@@ -36,7 +32,7 @@ LINK := $(GPP) -fPIC
 #CC   := gcc -fPIC
 #LINK := g++ -fPIC
 
-INCLUDES += -I. -I$(CUDA_INSTALL_PATH)/include
+INCLUDES += -I. -I$(CUDA_INSTALL_PATH)/include -I /usr/lib/ 
 
 CXX_OPT := \
 	-O3 \
@@ -44,7 +40,9 @@ CXX_OPT := \
 	-fmerge-all-constants \
 	-ftracer \
 	-fvariable-expansion-in-unroller \
-	-fvpt
+	-fvpt \
+        -lOpenCL
+	
 
 # Warning flags
 CXXWARN_FLAGS := \
@@ -93,9 +91,9 @@ ifneq ($(EMU),)
 endif
 
 ifeq ($(OSARCH), i686)
-LIBS += -L$(CUDA_INSTALL_PATH)/lib -lcuda -lcudart
-else
-LIBS += -L$(CUDA_INSTALL_PATH)/lib64 -lcuda -lcudart
+LIBS += -L$(CUDA_INSTALL_PATH)/lib -lcuda -lcudart -lOpenCL
+else 
+LIBS += -L$(CUDA_INSTALL_PATH)/lib64 -lcuda -lcudart -lOpenCL
 endif
 
 #
