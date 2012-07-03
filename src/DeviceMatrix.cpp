@@ -104,7 +104,9 @@ boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(size_t height, size_t width
 	 
 	 **/
 	
-		const int mem_size = mat->height * pitch;
+		const int mem_size =sizeof(float)* mat->height *   (mat->pitch/sizeof(float));
+
+	 	printf("We allocate %d x %d:  %d\n",mat->width,mat->height,mem_size);
 	int err;
 	//cl_mem GPUVector1 = clCreateBuffer(GPUContext, CL_MEM_READ_WRITE  | CL_MEM_COPY_HOST_PTR, mem_size, mat->data,&err);
 	

@@ -99,19 +99,23 @@ boost::python::object DeviceMatrixCL_copyFromDevice(const DeviceMatrixCL& self)
    
 	  const int mem_size = self.height * self.pitch;
 	  TheContext * tc = new TheContext();
-	  if (clEnqueueReadBuffer(tc->getMyContext()->cqCommandQueue, self.dataMatrix, CL_TRUE, 0, mem_size, retval.data(), 0, NULL, NULL) != CL_SUCCESS) {
+/*	  if (clEnqueueReadBuffer(tc->getMyContext()->cqCommandQueue, self.dataMatrix, CL_TRUE, 0, mem_size, retval.data(), 0, NULL, NULL) != CL_SUCCESS) {
 		  printf("clEnqueueReadBuffer error\n");
 	  }
-	  
- /*    CUDA_SAFE_CALL_NO_SYNC
-      (cudaMemcpy2D(retval.data(), widthInBytes,
-                    self.data, self.pitch * sizeof(float),
-                    widthInBytes, self.height,
-                    cudaMemcpyDeviceToHost));
-  */
-   }
-  
+*/ 
+        const size_t buffer_origin[3] = {0,0,0}; //offset
+        const size_t host_origin[3] = {0,0,0};//offset
+  	size_t region[3] = {retval.width()*sizeof(float),
+                            retval.height(),
+                            1};//region[0]*region[1]*region[2] = total Bytes of the main region
+        size_t buffer_row_pitch=self.pitch;// bytes of the row in GPU
+        size_t buffer_slice_pitch=self.pitch*self.height;// Total bytes of the matrix in GPU
+        size_t host_row_pitch=sizeof(float)*retval.width();// bytes in a row of Host
+        size_t host_slice_pitch=sizeof(float)*retval.width()*retval.height();//Total Byte of all the matrix in host
+	int err = clEnqueueReadBufferRect(tc->getMyContext()->cqCommandQueue, self.dataMatrix, CL_TRUE, buffer_origin, host_origin, region, buffer_row_pitch, buffer_slice_pitch, 			host_row_pitch, host_slice_pitch,  retval.data(), 0, NULL, NULL);
+	printf("Error code in get: %d\n", err);
 
+}
   return retval.array;
 }
 
@@ -126,14 +130,19 @@ void DeviceMatrixCL_copyToDevice(DeviceMatrixCL& self,
 	
 	const int mem_size = self.height * self.pitch;
 	TheContext * tc = new TheContext();
-	//int	err = clEnqueueWriteBuffer(tc->getMyContext()->cqCommandQueue, self.dataMatrix, CL_TRUE, 0, mem_size,  matrix.data(), 0, NULL, NULL);
-	size_t buffer_origin[3] = {0,0,0};
-	size_t host_origin[3] = {0,0,0};	
-	size_t region[3] = {matrix.width() * sizeof(float), 
-			    matrix.height() * sizeof(float),
-			    1};	
-
-	int err = clEnqueueWriteBufferRect(tc->getMyContext()->cqCommandQueue, self.dataMatrix, CL_TRUE, buffer_origin, host_origin, region, self.pitch, 0, sizeof(float) * matrix.width(), 0,  matrix.data(), 0, NULL, NULL);
+	
+	const size_t buffer_origin[3] = {0,0,0}; //offset
+	const size_t host_origin[3] = {0,0,0};	//offset
+	size_t region[3] = {matrix.width()*sizeof(float), 
+			    matrix.height(),
+			    1};	//region[0]*region[1]*region[2] = total Bytes of the main region
+        size_t buffer_row_pitch=self.pitch; // bytes of the row in GPU
+	size_t buffer_slice_pitch=self.pitch*self.height; // Total bytes of the matrix in GPU
+        size_t host_row_pitch= sizeof(float)*matrix.width(); // bytes in a row of Host
+        size_t host_slice_pitch=sizeof(float)*matrix.width()*matrix.height(); //Total Byte of all the matrix in host
+        
+	  //printf("%d,%d,%d,%d\n",buffer_row_pitch,buffer_slice_pitch,host_row_pitch,host_slice_pitch); 
+	int err = clEnqueueWriteBufferRect(tc->getMyContext()->cqCommandQueue, self.dataMatrix, CL_TRUE, buffer_origin, host_origin, region, buffer_row_pitch, buffer_slice_pitch, host_row_pitch, host_slice_pitch,  matrix.data(), 0, NULL, NULL);
 
 	printf("Error code in copy: %d\n", err);
 
