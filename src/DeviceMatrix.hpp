@@ -6,7 +6,11 @@
 #define _DEVICEMATRIX_HPP_ 1
 
 #include <boost/shared_ptr.hpp>
+#include <CL/opencl.h>
+#include <CL/cl.h>
 #include <vector>
+#include "ContextOpenCL.h"
+
 
 struct DeviceMatrix {
   typedef boost::shared_ptr<DeviceMatrix> Ptr;
@@ -34,6 +38,8 @@ struct DeviceMatrixCL {
 
     size_t pitch;
     float* data;
+	
+    cl_mem dataMatrix;
 
     void zero();
 };

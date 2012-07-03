@@ -10,6 +10,8 @@
 
 #include <boost/python.hpp>
 
+
+
 DeviceMatrix::Ptr makeDeviceMatrix(const boost::python::object& array);
 boost::python::object DeviceMatrix_copyFromDevice(const DeviceMatrix& self);
 void DeviceMatrix_copyToDevice(DeviceMatrix& self,const NumPyMatrix& matrix);

@@ -86,7 +86,6 @@ DeviceMatrixCL::Ptr makeDeviceMatrixCL(boost::python::object& array)
   NumPyMatrix arr(array);
 
   DeviceMatrixCL::Ptr retval = makeDeviceMatrixCL(arr.height(), arr.width());
-
   DeviceMatrixCL_copyToDevice(*retval, arr);
   return retval;
 }
@@ -96,16 +95,22 @@ boost::python::object DeviceMatrixCL_copyFromDevice(const DeviceMatrixCL& self)
   NumPyMatrix retval(self.height, self.width);
   //printf("reading %p (%i x %i)\n", self.data, self.width, self.height);
  
-  /*
   if ((self.width > 0) && (self.height > 0)) {
-    const size_t widthInBytes = self.width * sizeof(float);
-    CUDA_SAFE_CALL_NO_SYNC
+   
+	  const int mem_size = self.height * self.pitch;
+	  TheContext * tc = new TheContext();
+	  if (clEnqueueReadBuffer(tc->getMyContext()->cqCommandQueue, self.dataMatrix, CL_TRUE, 0, mem_size, retval.data(), 0, NULL, NULL) != CL_SUCCESS) {
+		  printf("clEnqueueReadBuffer error\n");
+	  }
+	  
+ /*    CUDA_SAFE_CALL_NO_SYNC
       (cudaMemcpy2D(retval.data(), widthInBytes,
                     self.data, self.pitch * sizeof(float),
                     widthInBytes, self.height,
                     cudaMemcpyDeviceToHost));
-  }
   */
+   }
+  
 
   return retval.array;
 }
@@ -115,17 +120,23 @@ void DeviceMatrixCL_copyToDevice(DeviceMatrixCL& self,
 {
   assert(self.width  == matrix.width());
   assert(self.height == matrix.height());
+	
+	//cl_context GPUContext = getContextCL();
+	//cl_device_id cdDevice = getDeviceCL();
+	
+	const int mem_size = self.height * self.pitch;
+	TheContext * tc = new TheContext();
+	//int	err = clEnqueueWriteBuffer(tc->getMyContext()->cqCommandQueue, self.dataMatrix, CL_TRUE, 0, mem_size,  matrix.data(), 0, NULL, NULL);
+	size_t buffer_origin[3] = {0,0,0};
+	size_t host_origin[3] = {0,0,0};	
+	size_t region[3] = {matrix.width() * sizeof(float), 
+			    matrix.height() * sizeof(float),
+			    1};	
 
-  /*
-  if ((self.width > 0) && (self.height > 0)) {
-    const size_t widthInBytes = self.width * sizeof(float);
-    CUDA_SAFE_CALL_NO_SYNC
-      (cudaMemcpy2D(self.data, self.pitch * sizeof(float),
-                    matrix.data(), widthInBytes,
-                    widthInBytes, self.height,
-                    cudaMemcpyHostToDevice));
-  }
-  */
+	int err = clEnqueueWriteBufferRect(tc->getMyContext()->cqCommandQueue, self.dataMatrix, CL_TRUE, buffer_origin, host_origin, region, self.pitch, 0, sizeof(float) * matrix.width(), 0,  matrix.data(), 0, NULL, NULL);
+
+	printf("Error code in copy: %d\n", err);
+
 }
 
 

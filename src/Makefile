@@ -8,6 +8,7 @@ OBJS += BlockHistogramWrapper.o BlockHistogram.o BlockHistogram.co
 OBJS += ConvolutionWrapper.o Convolution.co ConvolutionMCuda.o
 OBJS += ConvolutionMCuda0.o ConvolutionMCuda2.o ConvolutionMCuda4.o
 OBJS += OpenCLWrapper.o
+OBJS += ContextOpenCL.o
 OBJDIR := release
 OBJS := $(addprefix $(OBJDIR)/, $(OBJS))
 
