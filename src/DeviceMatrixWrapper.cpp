@@ -24,137 +24,157 @@ using namespace boost::python;
 
 DeviceMatrix::Ptr makeDeviceMatrix(boost::python::object& array)
 {
-  // If we already have a DeviceMatrix, just return it.  This sholuld
-  // help unify code paths.
-  extract<DeviceMatrix::Ptr> get_matrix(array);
-  if (get_matrix.check()) {
-    return get_matrix();
-  }
+    // If we already have a DeviceMatrix, just return it.  This sholuld
+    // help unify code paths.
+    extract<DeviceMatrix::Ptr> get_matrix(array);
+    if (get_matrix.check()) {
+        return get_matrix();
+    }
 
-  NumPyMatrix arr(array);
+    NumPyMatrix arr(array);
 
-  DeviceMatrix::Ptr retval = makeDeviceMatrix(arr.height(), arr.width());
+    DeviceMatrix::Ptr retval = makeDeviceMatrix(arr.height(), arr.width());
 
-  DeviceMatrix_copyToDevice(*retval, arr);
-  return retval;
+    DeviceMatrix_copyToDevice(*retval, arr);
+    return retval;
 }
 
 boost::python::object DeviceMatrix_copyFromDevice(const DeviceMatrix& self)
 {
-  NumPyMatrix retval(self.height, self.width);
-  //printf("reading %p (%i x %i)\n", self.data, self.width, self.height);
-  
-  if ((self.width > 0) && (self.height > 0)) {
-    const size_t widthInBytes = self.width * sizeof(float);
-    CUDA_SAFE_CALL_NO_SYNC
-      (cudaMemcpy2D(retval.data(), widthInBytes,
-                    self.data, self.pitch * sizeof(float),
-                    widthInBytes, self.height,
-                    cudaMemcpyDeviceToHost));
-  }
+    NumPyMatrix retval(self.height, self.width);
+    //printf("reading %p (%i x %i)\n", self.data, self.width, self.height);
 
-  return retval.array;
+    if ((self.width > 0) && (self.height > 0)) {
+        const size_t widthInBytes = self.width * sizeof(float);
+        CUDA_SAFE_CALL_NO_SYNC
+            (cudaMemcpy2D(retval.data(), widthInBytes,
+                          self.data, self.pitch * sizeof(float),
+                          widthInBytes, self.height,
+                          cudaMemcpyDeviceToHost));
+    }
+
+    return retval.array;
 }
 
 void DeviceMatrix_copyToDevice(DeviceMatrix& self,
-                               const NumPyMatrix& matrix)
+        const NumPyMatrix& matrix)
 {
-  assert(self.width  == matrix.width());
-  assert(self.height == matrix.height());
+    assert(self.width  == matrix.width());
+    assert(self.height == matrix.height());
 
-  if ((self.width > 0) && (self.height > 0)) {
-    const size_t widthInBytes = self.width * sizeof(float);
-    CUDA_SAFE_CALL_NO_SYNC
-      (cudaMemcpy2D(self.data, self.pitch * sizeof(float),
-                    matrix.data(), widthInBytes,
-                    widthInBytes, self.height,
-                    cudaMemcpyHostToDevice));
-  }
+    if ((self.width > 0) && (self.height > 0)) {
+        const size_t widthInBytes = self.width * sizeof(float);
+        CUDA_SAFE_CALL_NO_SYNC
+            (cudaMemcpy2D(self.data, self.pitch * sizeof(float),
+                          matrix.data(), widthInBytes,
+                          widthInBytes, self.height,
+                          cudaMemcpyHostToDevice));
+    }
 }
 
 
-////////////////////////////
 DeviceMatrixCL::Ptr makeDeviceMatrixCL(boost::python::object& array)
 {
-  // If we already have a DeviceMatrix, just return it.  This sholuld
-  // help unify code paths.
-  extract<DeviceMatrixCL::Ptr> get_matrix(array);
-  if (get_matrix.check()) {
-    return get_matrix();
-  }
+    // If we already have a DeviceMatrix, just return it.  This sholuld
+    // help unify code paths.
+    extract<DeviceMatrixCL::Ptr> get_matrix(array);
+    if (get_matrix.check()) {
+        return get_matrix();
+    }
 
-  NumPyMatrix arr(array);
+    NumPyMatrix arr(array);
 
-  DeviceMatrixCL::Ptr retval = makeDeviceMatrixCL(arr.height(), arr.width());
-  DeviceMatrixCL_copyToDevice(*retval, arr);
-  return retval;
+    DeviceMatrixCL::Ptr retval = makeDeviceMatrixCL(arr.height(), arr.width());
+    DeviceMatrixCL_copyToDevice(*retval, arr);
+    return retval;
 }
 
 boost::python::object DeviceMatrixCL_copyFromDevice(const DeviceMatrixCL& self)
 {
-  NumPyMatrix retval(self.height, self.width);
-  //printf("reading %p (%i x %i)\n", self.data, self.width, self.height);
- 
-  if ((self.width > 0) && (self.height > 0)) {
-   
-	  const int mem_size = self.height * self.pitch;
-	  TheContext * tc = new TheContext();
-	  if (clEnqueueReadBuffer(tc->getMyContext()->cqCommandQueue, self.dataMatrix, CL_TRUE, 0, mem_size, retval.data(), 0, NULL, NULL) != CL_SUCCESS) {
-		  printf("clEnqueueReadBuffer error\n");
-	  }
-	  
- /*    CUDA_SAFE_CALL_NO_SYNC
-      (cudaMemcpy2D(retval.data(), widthInBytes,
-                    self.data, self.pitch * sizeof(float),
-                    widthInBytes, self.height,
-                    cudaMemcpyDeviceToHost));
-  */
-   }
-  
+    NumPyMatrix retval(self.height, self.width);
 
-  return retval.array;
+    if ((self.width > 0) && (self.height > 0)) {
+        const int mem_size = self.height * self.pitch;
+
+        TheContext * tc = new TheContext();
+        
+        //if (clEnqueueReadBuffer(
+        //            tc->getMyContext()->cqCommandQueue, 
+        //            self.dataMatrix, CL_TRUE, 
+        //            0, mem_size, retval.data(), 
+        //            0, NULL, NULL) != CL_SUCCESS) 
+        //{
+        //    printf("clEnqueueReadBuffer error\n");
+        //}
+        size_t buffer_origin[3] = {0,0,0};
+        size_t host_origin[3] = {0,0,0};	
+        size_t region[3] = {self.width * sizeof(float), 
+            self.height,
+            1};	
+
+        cl_int err =
+            clEnqueueReadBufferRect(
+                    tc->getMyContext()->cqCommandQueue,
+                    self.dataMatrix, CL_TRUE,
+                    buffer_origin, host_origin, region,
+                    self.pitch, 0,
+                    self.width * sizeof(float), 0,
+                    retval.data(),
+                    0, NULL, NULL);
+
+        if (err != 0){
+            std::cout << "Error in copyFromDevice (CODE: " << err << ")" << std::endl;
+        }
+    }
+
+    return retval.array;
 }
 
 void DeviceMatrixCL_copyToDevice(DeviceMatrixCL& self,
-                               const NumPyMatrix& matrix)
+        const NumPyMatrix& matrix)
 {
-  assert(self.width  == matrix.width());
-  assert(self.height == matrix.height());
-	
-	//cl_context GPUContext = getContextCL();
-	//cl_device_id cdDevice = getDeviceCL();
-	
-	const int mem_size = self.height * self.pitch;
-	TheContext * tc = new TheContext();
-	//int	err = clEnqueueWriteBuffer(tc->getMyContext()->cqCommandQueue, self.dataMatrix, CL_TRUE, 0, mem_size,  matrix.data(), 0, NULL, NULL);
-	size_t buffer_origin[3] = {0,0,0};
-	size_t host_origin[3] = {0,0,0};	
-	size_t region[3] = {matrix.width() * sizeof(float), 
-			    matrix.height() * sizeof(float),
-			    1};	
+    assert(self.width  == matrix.width());
+    assert(self.height == matrix.height());
 
-	int err = clEnqueueWriteBufferRect(tc->getMyContext()->cqCommandQueue, self.dataMatrix, CL_TRUE, buffer_origin, host_origin, region, self.pitch, 0, sizeof(float) * matrix.width(), 0,  matrix.data(), 0, NULL, NULL);
+    //cl_context GPUContext = getContextCL();
+    //cl_device_id cdDevice = getDeviceCL();
 
-	printf("Error code in copy: %d\n", err);
+    const int mem_size = self.height * self.pitch;
+    TheContext * tc = new TheContext();
 
+    //int	err = clEnqueueWriteBuffer(tc->getMyContext()->cqCommandQueue, self.dataMatrix, CL_TRUE, 0, mem_size,  matrix.data(), 0, NULL, NULL);
+    size_t buffer_origin[3] = {0,0,0};
+    size_t host_origin[3] = {0,0,0};	
+    size_t region[3] = {matrix.width() * sizeof(float), 
+        matrix.height(),
+        1};	
+
+    int err = clEnqueueWriteBufferRect(
+            tc->getMyContext()->cqCommandQueue, 
+            self.dataMatrix, CL_TRUE, 
+            buffer_origin, host_origin, region, 
+            self.pitch, 0, 
+            sizeof(float) * matrix.width(), 0,  
+            matrix.data(), 0, NULL, NULL);
+
+    if (err != 0){
+        std::cout << "Error in copyToDevice (CODE: " << err << ")" << std::endl;
+    }
 }
-
-
-///////////////////////////
 
 DeviceMatrix3D::Ptr makeDeviceMatrix3D(const boost::python::object& array)
 {
-  PyObject* contig
-    = PyArray_FromAny(array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
-                      3, 3, NPY_CARRAY, NULL);
-  handle<> temp(contig);
-  object arr(temp);
+    PyObject* contig
+        = PyArray_FromAny(array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
+                3, 3, NPY_CARRAY, NULL);
+    handle<> temp(contig);
+    object arr(temp);
 
-  DeviceMatrix3D::Ptr retval = makeDeviceMatrix3D(PyArray_DIM(arr.ptr(), 0),
-                                                  PyArray_DIM(arr.ptr(), 1),
-                                                  PyArray_DIM(arr.ptr(), 2));
-  DeviceMatrix3D_copyToDevice(*retval, arr);
-  return retval;
+    DeviceMatrix3D::Ptr retval = makeDeviceMatrix3D(PyArray_DIM(arr.ptr(), 0),
+            PyArray_DIM(arr.ptr(), 1),
+            PyArray_DIM(arr.ptr(), 2));
+    DeviceMatrix3D_copyToDevice(*retval, arr);
+    return retval;
 }
 
 #if 0
@@ -165,7 +185,7 @@ boost::python::object DeviceMatrix3D_copyFromDevice(const DeviceMatrix3D& self)
     npy_intp dims[3] = {self.dim_t, self.dim_y, self.dim_x};
 
     PyObject* arr = PyArray_New(&PyArray_Type, 3, dims, PyArray_FLOAT,
-                                NULL, NULL, 0, NPY_C_CONTIGUOUS, NULL);
+            NULL, NULL, 0, NPY_C_CONTIGUOUS, NULL);
     handle<> temp(arr);
     object retval(temp);
 
@@ -179,26 +199,26 @@ boost::python::object DeviceMatrix3D_copyFromDevice(const DeviceMatrix3D& self)
          * the library wants.
          */
         copyParams.srcPtr // Device
-          = make_cudaPitchedPtr((void*)self.data,
-                                self.pitch_y * sizeof(float),
-                                self.dim_x,
-                                self.pitch_t / self.pitch_y);
+            = make_cudaPitchedPtr((void*)self.data,
+                    self.pitch_y * sizeof(float),
+                    self.dim_x,
+                    self.pitch_t / self.pitch_y);
 
         copyParams.dstPtr // Host
-          = make_cudaPitchedPtr(PyArray_DATA(retval.ptr()),
-                                self.dim_x * sizeof(float),
-                                self.dim_x,
-                                self.dim_y);
+            = make_cudaPitchedPtr(PyArray_DATA(retval.ptr()),
+                    self.dim_x * sizeof(float),
+                    self.dim_x,
+                    self.dim_y);
 
         copyParams.kind = cudaMemcpyDeviceToHost;
 
         copyParams.extent
-          = make_cudaExtent(self.dim_x*sizeof(float), self.dim_y, self.dim_t);
+            = make_cudaExtent(self.dim_x*sizeof(float), self.dim_y, self.dim_t);
 
         CUDA_SAFE_CALL_NO_SYNC(cudaMemcpy3D(&copyParams));
     }
 
-  return retval;
+    return retval;
 }
 #else
 // Hack around problem with cudaMemcpy3D by using cudaMemcpy2D
@@ -207,7 +227,7 @@ boost::python::object DeviceMatrix3D_copyFromDevice(const DeviceMatrix3D& self)
     npy_intp dims[3] = {self.dim_t, self.dim_y, self.dim_x};
 
     PyObject* arr = PyArray_New(&PyArray_Type, 3, dims, PyArray_FLOAT,
-                                NULL, NULL, 0, 0, NULL);
+            NULL, NULL, 0, 0, NULL);
     handle<> temp(arr);
     object retval(temp);
 
@@ -244,11 +264,11 @@ boost::python::object DeviceMatrix3D_copyFromDevice(const DeviceMatrix3D& self)
 }
 #endif
 void DeviceMatrix3D_copyToDevice(DeviceMatrix3D& self,
-                                 const object& array)
+        const object& array)
 {
     PyObject* contig
         = PyArray_FromAny(array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
-                          3, 3, NPY_CARRAY, NULL);
+                3, 3, NPY_CARRAY, NULL);
     handle<> temp(contig);
     object arr(temp);
 
@@ -258,28 +278,28 @@ void DeviceMatrix3D_copyToDevice(DeviceMatrix3D& self,
     if ((self.dim_x > 0) && (self.dim_y > 0) && (self.dim_t > 0)) {
         const size_t widthInBytes = self.dim_x * sizeof(float);
         CUDA_SAFE_CALL_NO_SYNC
-        (cudaMemcpy2D(self.data, self.pitch_y * sizeof(float),
-                      PyArray_DATA(arr.ptr()), widthInBytes,
-                      widthInBytes, self.dim_y * self.dim_t,
-                      cudaMemcpyHostToDevice));
+            (cudaMemcpy2D(self.data, self.pitch_y * sizeof(float),
+                          PyArray_DATA(arr.ptr()), widthInBytes,
+                          widthInBytes, self.dim_y * self.dim_t,
+                          cudaMemcpyHostToDevice));
     }
 }
 
 
 MCudaMatrix3D::Ptr makeMCudaMatrix3D(const object& array)
 {
-  PyObject* contig
-    = PyArray_FromAny(array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
-                      3, 3, NPY_CARRAY, NULL);
-  handle<> temp(contig);
-  object arr(temp);
+    PyObject* contig
+        = PyArray_FromAny(array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
+                3, 3, NPY_CARRAY, NULL);
+    handle<> temp(contig);
+    object arr(temp);
 
-  MCudaMatrix3D::Ptr retval = makeMCudaMatrix3D(PyArray_DIM(arr.ptr(), 0),
-                                                PyArray_DIM(arr.ptr(), 1),
-                                                PyArray_DIM(arr.ptr(), 2));
-  memcpy(retval->data, PyArray_DATA(arr.ptr()),
-         retval->dim_t * retval->dim_y * retval->dim_x * sizeof(float));
-  return retval;
+    MCudaMatrix3D::Ptr retval = makeMCudaMatrix3D(PyArray_DIM(arr.ptr(), 0),
+            PyArray_DIM(arr.ptr(), 1),
+            PyArray_DIM(arr.ptr(), 2));
+    memcpy(retval->data, PyArray_DATA(arr.ptr()),
+            retval->dim_t * retval->dim_y * retval->dim_x * sizeof(float));
+    return retval;
 }
 
 boost::python::object MCudaMatrix3D_copyFromDevice(const MCudaMatrix3D& self)
@@ -287,7 +307,7 @@ boost::python::object MCudaMatrix3D_copyFromDevice(const MCudaMatrix3D& self)
     npy_intp dims[3] = {self.dim_t, self.dim_y, self.dim_x};
 
     PyObject* arr = PyArray_New(&PyArray_Type, 3, dims, PyArray_FLOAT,
-                                NULL, NULL, 0, 0, NULL);
+            NULL, NULL, 0, 0, NULL);
     handle<> temp(arr);
     object retval(temp);
 
@@ -295,7 +315,7 @@ boost::python::object MCudaMatrix3D_copyFromDevice(const MCudaMatrix3D& self)
      * @todo Avoid the copy
      */
     memcpy(PyArray_DATA(retval.ptr()), self.data,
-           self.dim_t * self.dim_y * self.dim_x * sizeof(float));
+            self.dim_t * self.dim_y * self.dim_x * sizeof(float));
 
     return retval;
 }
@@ -307,8 +327,8 @@ void export_DeviceMatrix()
     class_<DeviceMatrix, DeviceMatrix::Ptr >
         ("DeviceMatrix", no_init)
         .def("__init__",
-             make_constructor<DeviceMatrix::Ptr (object&)>
-             (makeDeviceMatrix))
+                make_constructor<DeviceMatrix::Ptr (object&)>
+                (makeDeviceMatrix))
         .def("mat", DeviceMatrix_copyFromDevice);
 
     class_<DeviceMatrixCL, DeviceMatrixCL::Ptr >
@@ -321,12 +341,12 @@ void export_DeviceMatrix()
     class_<DeviceMatrix3D, DeviceMatrix3D::Ptr >
         ("DeviceMatrix3D", no_init)
         .def("__init__",
-             make_constructor<DeviceMatrix3D::Ptr (const object&)>
-             (makeDeviceMatrix3D))
+                make_constructor<DeviceMatrix3D::Ptr (const object&)>
+                (makeDeviceMatrix3D))
         .def("mat", DeviceMatrix3D_copyFromDevice)
         .def("set", DeviceMatrix3D_copyToDevice)
         .def("crop", cropDeviceMatrix3D)
-      ;
+        ;
     def("_makeDeviceMatrix3DPacked", makeDeviceMatrix3DPacked);
 
     // Don't tell python about the subclass relationship -- we should
@@ -334,10 +354,10 @@ void export_DeviceMatrix()
     class_<MCudaMatrix3D, MCudaMatrix3D::Ptr >
         ("MCudaMatrix3D", no_init)
         .def("__init__",
-             make_constructor<MCudaMatrix3D::Ptr (const object&)>
-             (makeMCudaMatrix3D))
+                make_constructor<MCudaMatrix3D::Ptr (const object&)>
+                (makeMCudaMatrix3D))
         .def("mat", MCudaMatrix3D_copyFromDevice)
-      ;
+        ;
 
     class_<DeviceMatrix::PtrList >("DeviceMatrix3DList", no_init)
         .def(vector_indexing_suite<DeviceMatrix::PtrList, true>());
