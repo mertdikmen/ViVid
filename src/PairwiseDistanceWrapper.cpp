@@ -153,7 +153,11 @@ void export_PairwiseDistance()
 
     def<DeviceMatrix::Ptr (const DeviceMatrix::Ptr&, const DeviceMatrix::Ptr& ) >
         ("pwdist_cuda",pwdist_cuda);
+	
+	def<DeviceMatrixCL::Ptr (const DeviceMatrixCL::Ptr&, const DeviceMatrixCL::Ptr& ) >
+	("pwdist_cl",pwdist_cl);
 
+	
     def<DeviceMatrix::Ptr (const DeviceMatrix::Ptr&, const DeviceMatrix::Ptr& ) >
         ("pwcityblock_cuda",pwcityblock_cuda);
 

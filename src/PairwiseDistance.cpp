@@ -10,6 +10,19 @@ DeviceMatrix::Ptr pwdist_cuda( const DeviceMatrix::Ptr& features_train,
     return out;
 }
 
+
+DeviceMatrixCL::Ptr pwdist_cl( const DeviceMatrixCL::Ptr& features_train,
+							  const DeviceMatrixCL::Ptr& features_test){
+	
+    DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(features_train->height,
+                                             features_test->height);
+    pwdist_genericCL(features_train.get(), features_test.get(), out.get(), EUCLIDEAN);
+    return out;
+}
+
+
+
+
 DeviceMatrix::Ptr pwdot_cuda( const DeviceMatrix::Ptr& features_train,
                                const DeviceMatrix::Ptr& features_test){
 

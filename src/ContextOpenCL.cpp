@@ -15,10 +15,10 @@ myContexOpenCl *  TheContext::The_Context_Singleton=NULL;
 
 TheContext::TheContext(){
 	
-	printf("Te Context()");
+//	printf("Te Context()");
 	
 	if (The_Context_Singleton==NULL){
-		printf("Is NULL");
+	//	printf("Is NULL");
 		The_Context_Singleton = new myContexOpenCl();
 	}
 	

@@ -9,6 +9,18 @@
 #include <stdio.h>
 #include <iostream>
 
+
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <error.h>
+
+
 using namespace std;
 
 #include <CL/opencl.h>
@@ -204,5 +216,25 @@ cl_device_id getDeviceCL(){
 
 }
 */
+
+
+
+static char * load_program_source(const char *filename) {
+	
+    struct stat statbuf;
+    FILE *fh;
+    char *source;
+	
+    fh = fopen(filename, "r");
+    if (fh == 0)
+        return 0;
+	
+    stat(filename, &statbuf);
+    source = (char *) malloc(statbuf.st_size + 1);
+    fread(source, statbuf.st_size, 1, fh);
+    source[statbuf.st_size] = '\0';
+	
+    return source;
+}
 
 

@@ -12,6 +12,9 @@
 DeviceMatrix::Ptr pwdist_cuda( const DeviceMatrix::Ptr& features_train,
                                const DeviceMatrix::Ptr& features_test);
 
+DeviceMatrixCL::Ptr pwdist_cl( const DeviceMatrixCL::Ptr& features_train,
+							  const DeviceMatrixCL::Ptr& features_test);
+
 DeviceMatrix::Ptr pwdot_cuda( const DeviceMatrix::Ptr& features_train, 
                               const DeviceMatrix::Ptr& features_test);
 

@@ -9,6 +9,12 @@
 #include "NumPyWrapper.hpp"
 #include "exceptions.hpp"
 
+
+
+
+
+
+
 static void deleteDeviceMatrix(DeviceMatrix* mat)
 {
   //printf("cudaFree: %p\n", mat->data);
@@ -39,8 +45,7 @@ boost::shared_ptr<DeviceMatrix> makeDeviceMatrix(size_t height,
 
 static void deleteDeviceMatrixCL(DeviceMatrixCL* mat)
 {
-    clReleaseMemObject(mat->dataMatrix);
-    delete mat;
+
 }
 
 boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(size_t height, size_t width)
@@ -48,121 +53,54 @@ boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(size_t height, size_t width
     DeviceMatrixCL* mat = new DeviceMatrixCL();
     mat->width = width;
     mat->height = height;
-
+	
     TheContext * tc = new TheContext();
-<<<<<<< HEAD
 	
+    cl_context GPUContext = tc->getMyContext()->getContextCL();
+    cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
 	
-		cl_context GPUContext = tc->getMyContext()->getContextCL();
-
-		
-		cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
-	
-	
-	    
-	
-	int buffer;
-	
-	/**
-	 
-	 The optimal pitch is computed by (1) getting the base address alignment 
+    int buffer;
+    /**
+	 The optimal pitch is computed by (1) getting the base address alignment
 	 preference for your card (CL_DEVICE_MEM_BASE_ADDR_ALIGN property with
-	 clGetDeviceInfo: note that the returned value is in bits, so you have 
+	 clGetDeviceInfo: note that the returned value is in bits, so you have
 	 to divide by 8 to get it in bytes);
-	 
 	 **/
 	
+    cl_int prueba = clGetDeviceInfo(cdDevice, CL_DEVICE_MEM_BASE_ADDR_ALIGN , sizeof(buffer), &buffer, NULL);
+    int naturalPitch= sizeof(float) * mat->width;
+    buffer = buffer / 8;
 	
-	cl_int  prueba = clGetDeviceInfo(cdDevice, CL_DEVICE_MEM_BASE_ADDR_ALIGN  , sizeof(buffer),&buffer, NULL);
-
-	int naturalPitch= sizeof(float) * mat->width;
-	
-	buffer = buffer / 8;
-	/**
-	 
+    /**
 	 let's call this base (2) find the largest multiple of base
 	 that is no less than your natural
 	 data pitch (sizeof(type) times number of columns);
-	 
 	 **/
-	int pitch = naturalPitch;
-	int devicepitch = ceil(float(naturalPitch)/buffer) * buffer;
-
-	printf("Pitch: %d,  DevicePitch: %d, Buffer: %d\n", pitch, devicepitch, buffer);
-	
-	//mat->pitch = pitch;
-	mat->pitch = devicepitch;
-
-	
-	/**
-	
-	 You then allocate pitch times number of rows bytes, and pass the pitch information to kernels.
-	 
-	 **/
-	
-		const int mem_size =sizeof(float)* mat->height *   (mat->pitch/sizeof(float));
-
-	 	printf("We allocate %d x %d:  %d\n",mat->width,mat->height,mem_size);
-	int err;
-	//cl_mem GPUVector1 = clCreateBuffer(GPUContext, CL_MEM_READ_WRITE  | CL_MEM_COPY_HOST_PTR, mem_size, mat->data,&err);
-	
-	cl_mem GPUVector1 = clCreateBuffer(GPUContext, CL_MEM_READ_WRITE, mem_size, NULL, &err);
-printf("Error Code  create buffer: %d\n",err);
-
-	mat->dataMatrix = GPUVector1; // We insert the cl_mem in the struture
-	
-	
-//	CUDA_CALL(cudaMallocPitch((void**)&mat->data, &mat->pitch,mat->width * sizeof(float),mat->height));
-	
-  
-=======
-
-    cl_context GPUContext = tc->getMyContext()->getContextCL();
-    cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
-
-    int buffer;
-    /**
-      The optimal pitch is computed by (1) getting the base address alignment 
-      preference for your card (CL_DEVICE_MEM_BASE_ADDR_ALIGN property with
-      clGetDeviceInfo: note that the returned value is in bits, so you have 
-      to divide by 8 to get it in bytes);
-     **/
-
-    cl_int  prueba = clGetDeviceInfo(cdDevice, CL_DEVICE_MEM_BASE_ADDR_ALIGN  , sizeof(buffer), &buffer, NULL);
-    int naturalPitch= sizeof(float) * mat->width;
-    buffer = buffer / 8;
-
-    /**
-      let's call this base (2) find the largest multiple of base
-      that is no less than your natural
-      data pitch (sizeof(type) times number of columns);
-     **/
     
     int pitch = naturalPitch;
     int devicepitch = ceil(float(naturalPitch)/buffer) * buffer;
-
-    printf("Pitch: %d,  DevicePitch: %d, Buffer: %d\n", pitch, devicepitch, buffer);
-
+	
+   // printf("Pitch: %d, DevicePitch: %d, Buffer: %d\n", pitch, devicepitch, buffer);
+	
     //mat->pitch = pitch;
     mat->pitch = devicepitch;
-
+	
     // You then allocate pitch times number of rows bytes, and pass the pitch information to kernels.
-
+	
     const int mem_size = mat->height * mat->pitch;
-
-    std::cout << "Mem size: " << mem_size << std::endl;
-
+	
+  //  std::cout << "Mem size: " << mem_size << std::endl;
+	
     int err;
-    //cl_mem GPUVector1 = clCreateBuffer(GPUContext, CL_MEM_READ_WRITE  | CL_MEM_COPY_HOST_PTR, mem_size, mat->data,&err);
-
-    mat->dataMatrix = clCreateBuffer(GPUContext, 
-            CL_MEM_READ_WRITE, mem_size, NULL, &err);
-    printf("Error Code create buffer: %d\n",err);
-
->>>>>>> 092cbdb95b297efebc8a8f167fa06adcaf5d84f8
+    //cl_mem GPUVector1 = clCreateBuffer(GPUContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, mem_size, mat->data,&err);
+	
+    mat->dataMatrix = clCreateBuffer(GPUContext,
+									 CL_MEM_READ_WRITE, mem_size, NULL, &err);
+   if(err!=0)
+	printf("Error Code create buffer: %d\n",err);
+	
     return boost::shared_ptr<DeviceMatrixCL>(mat, deleteDeviceMatrixCL);
 }
-
 
 static void deleteDeviceMatrix3D(DeviceMatrix3D* mat)
 {
