@@ -154,7 +154,6 @@ void export_PairwiseDistance()
     def<DeviceMatrix::Ptr (const DeviceMatrix::Ptr&, const DeviceMatrix::Ptr& ) >
         ("pwdist_cuda",pwdist_cuda);
 	
-	
     def<DeviceMatrix::Ptr (const DeviceMatrix::Ptr&, const DeviceMatrix::Ptr& ) >
         ("pwcityblock_cuda",pwcityblock_cuda);
 
@@ -164,25 +163,21 @@ void export_PairwiseDistance()
     def<DeviceMatrix::Ptr (const DeviceMatrix::Ptr&, const DeviceMatrix::Ptr& ) >
         ("pwabsdot_cuda",pwabsdot_cuda);
 	
-	def<DeviceMatrixCL::Ptr (const DeviceMatrixCL::Ptr&, const DeviceMatrixCL::Ptr& ) >
-	("pwchisq_cl",pwchisq_cl);
+	//def<DeviceMatrixCL::Ptr (const DeviceMatrixCL::Ptr&, const DeviceMatrixCL::Ptr& ) >
+	//("pwchisq_cl",pwchisq_cl);
 	
 	def<DeviceMatrixCL::Ptr (const DeviceMatrixCL::Ptr&, const DeviceMatrixCL::Ptr& ) >
 	("pwdist_cl",pwdist_cl);
 	
+    //def<DeviceMatrixCL::Ptr (const DeviceMatrixCL::Ptr&, const DeviceMatrixCL::Ptr& ) >
+	//("pwcityblock_cl",pwcityblock_cl);
+	//
+    //def<DeviceMatrixCL::Ptr (const DeviceMatrixCL::Ptr&, const DeviceMatrixCL::Ptr& ) >
+	//("pwdot_cl",pwdot_cl);
+	//
+    //def<DeviceMatrixCL::Ptr (const DeviceMatrixCL::Ptr&, const DeviceMatrixCL::Ptr& ) >
+	//("pwabsdot_cl",pwabsdot_cl);
 	
-    def<DeviceMatrixCL::Ptr (const DeviceMatrixCL::Ptr&, const DeviceMatrixCL::Ptr& ) >
-	("pwcityblock_cl",pwcityblock_cl);
-	
-    def<DeviceMatrixCL::Ptr (const DeviceMatrixCL::Ptr&, const DeviceMatrixCL::Ptr& ) >
-	("pwdot_cl",pwdot_cl);
-	
-    def<DeviceMatrixCL::Ptr (const DeviceMatrixCL::Ptr&, const DeviceMatrixCL::Ptr& ) >
-	("pwabsdot_cl",pwabsdot_cl);
-	
-	
-	
-
     def ("pwdist_c", pwdist_c);
     def ("pwcityblock_c", pwcityblock_c);
     def ("pwchisq_c", pwchisq_c);

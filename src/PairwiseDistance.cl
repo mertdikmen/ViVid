@@ -1,7 +1,4 @@
-
-
-
-//static const unsigned int BLOCK_SIZE = 16;
+/*static const unsigned int BLOCK_SIZE = 16;*/
 
 
 

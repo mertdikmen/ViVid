@@ -91,33 +91,6 @@ DeviceMatrixCL::Ptr makeDeviceMatrixCL(boost::python::object& array)
 
 boost::python::object DeviceMatrixCL_copyFromDevice(const DeviceMatrixCL& self)
 {
-<<<<<<< HEAD
-  NumPyMatrix retval(self.height, self.width);
-  //printf("reading %p (%i x %i)\n", self.data, self.width, self.height);
- 
-  if ((self.width > 0) && (self.height > 0)) {
-   
-	  const int mem_size = self.height * self.pitch;
-	  TheContext * tc = new TheContext();
-/*	  if (clEnqueueReadBuffer(tc->getMyContext()->cqCommandQueue, self.dataMatrix, CL_TRUE, 0, mem_size, retval.data(), 0, NULL, NULL) != CL_SUCCESS) {
-		  printf("clEnqueueReadBuffer error\n");
-	  }
-*/ 
-        const size_t buffer_origin[3] = {0,0,0}; //offset
-        const size_t host_origin[3] = {0,0,0};//offset
-  	size_t region[3] = {retval.width()*sizeof(float),
-                            retval.height(),
-                            1};//region[0]*region[1]*region[2] = total Bytes of the main region
-        size_t buffer_row_pitch=self.pitch;// bytes of the row in GPU
-        size_t buffer_slice_pitch=self.pitch*self.height;// Total bytes of the matrix in GPU
-        size_t host_row_pitch=sizeof(float)*retval.width();// bytes in a row of Host
-        size_t host_slice_pitch=sizeof(float)*retval.width()*retval.height();//Total Byte of all the matrix in host
-	int err = clEnqueueReadBufferRect(tc->getMyContext()->cqCommandQueue, self.dataMatrix, CL_TRUE, buffer_origin, host_origin, region, buffer_row_pitch, buffer_slice_pitch, 			host_row_pitch, host_slice_pitch,  retval.data(), 0, NULL, NULL);
-	printf("Error code in get: %d\n", err);
-
-}
-  return retval.array;
-=======
     NumPyMatrix retval(self.height, self.width);
 
     if ((self.width > 0) && (self.height > 0)) {
@@ -125,15 +98,7 @@ boost::python::object DeviceMatrixCL_copyFromDevice(const DeviceMatrixCL& self)
 
         TheContext * tc = new TheContext();
         
-        //if (clEnqueueReadBuffer(
-        //            tc->getMyContext()->cqCommandQueue, 
-        //            self.dataMatrix, CL_TRUE, 
-        //            0, mem_size, retval.data(), 
-        //            0, NULL, NULL) != CL_SUCCESS) 
-        //{
-        //    printf("clEnqueueReadBuffer error\n");
-        //}
-        size_t buffer_origin[3] = {0,0,0};
+       size_t buffer_origin[3] = {0,0,0};
         size_t host_origin[3] = {0,0,0};	
         size_t region[3] = {self.width * sizeof(float), 
             self.height,
@@ -155,38 +120,11 @@ boost::python::object DeviceMatrixCL_copyFromDevice(const DeviceMatrixCL& self)
     }
 
     return retval.array;
->>>>>>> 092cbdb95b297efebc8a8f167fa06adcaf5d84f8
 }
 
 void DeviceMatrixCL_copyToDevice(DeviceMatrixCL& self,
         const NumPyMatrix& matrix)
 {
-<<<<<<< HEAD
-  assert(self.width  == matrix.width());
-  assert(self.height == matrix.height());
-	
-	//cl_context GPUContext = getContextCL();
-	//cl_device_id cdDevice = getDeviceCL();
-	
-	const int mem_size = self.height * self.pitch;
-	TheContext * tc = new TheContext();
-	
-	const size_t buffer_origin[3] = {0,0,0}; //offset
-	const size_t host_origin[3] = {0,0,0};	//offset
-	size_t region[3] = {matrix.width()*sizeof(float), 
-			    matrix.height(),
-			    1};	//region[0]*region[1]*region[2] = total Bytes of the main region
-        size_t buffer_row_pitch=self.pitch; // bytes of the row in GPU
-	size_t buffer_slice_pitch=self.pitch*self.height; // Total bytes of the matrix in GPU
-        size_t host_row_pitch= sizeof(float)*matrix.width(); // bytes in a row of Host
-        size_t host_slice_pitch=sizeof(float)*matrix.width()*matrix.height(); //Total Byte of all the matrix in host
-        
-	  //printf("%d,%d,%d,%d\n",buffer_row_pitch,buffer_slice_pitch,host_row_pitch,host_slice_pitch); 
-	int err = clEnqueueWriteBufferRect(tc->getMyContext()->cqCommandQueue, self.dataMatrix, CL_TRUE, buffer_origin, host_origin, region, buffer_row_pitch, buffer_slice_pitch, host_row_pitch, host_slice_pitch,  matrix.data(), 0, NULL, NULL);
-
-	printf("Error code in copy: %d\n", err);
-
-=======
     assert(self.width  == matrix.width());
     assert(self.height == matrix.height());
 
@@ -196,7 +134,6 @@ void DeviceMatrixCL_copyToDevice(DeviceMatrixCL& self,
     const int mem_size = self.height * self.pitch;
     TheContext * tc = new TheContext();
 
-    //int	err = clEnqueueWriteBuffer(tc->getMyContext()->cqCommandQueue, self.dataMatrix, CL_TRUE, 0, mem_size,  matrix.data(), 0, NULL, NULL);
     size_t buffer_origin[3] = {0,0,0};
     size_t host_origin[3] = {0,0,0};	
     size_t region[3] = {matrix.width() * sizeof(float), 
@@ -214,7 +151,6 @@ void DeviceMatrixCL_copyToDevice(DeviceMatrixCL& self,
     if (err != 0){
         std::cout << "Error in copyToDevice (CODE: " << err << ")" << std::endl;
     }
->>>>>>> 092cbdb95b297efebc8a8f167fa06adcaf5d84f8
 }
 
 DeviceMatrix3D::Ptr makeDeviceMatrix3D(const boost::python::object& array)
