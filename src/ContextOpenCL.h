@@ -219,7 +219,7 @@ cl_device_id getDeviceCL(){
 
 
 
-static char * load_program_source(const char *filename) {
+/*static char * load_program_source(const char *filename) {
 	
     struct stat statbuf;
     FILE *fh;
@@ -235,6 +235,6 @@ static char * load_program_source(const char *filename) {
     source[statbuf.st_size] = '\0';
 	
     return source;
-}
+}*/
 
 

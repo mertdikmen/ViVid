@@ -12,15 +12,16 @@ OBJS += ContextOpenCL.o
 OBJDIR := release
 OBJS := $(addprefix $(OBJDIR)/, $(OBJS))
 
-#CUDA_INSTALL_PATH := /usr/local/cuda
-CUDA_INSTALL_PATH := /opt/cuda-toolkit
+CUDA_INSTALL_PATH := /usr/local/cuda
 
 SM_VERSIONS   := 10 11 12 13 20 21
 
 OSARCH = $(shell uname -m)
 
-GCC := /opt/gcc-4.4/gcc
-GPP := /opt/gcc-4.4/g++
+GCC44_PATH := /opt
+
+GCC := gcc
+GPP := g++
 
 NVCC := $(CUDA_INSTALL_PATH)/bin/nvcc --compiler-bindir $(GCC)
 CXX  := $(GPP) -fPIC
@@ -32,7 +33,8 @@ LINK := $(GPP) -fPIC
 #CC   := gcc -fPIC
 #LINK := g++ -fPIC
 
-INCLUDES += -I. -I$(CUDA_INSTALL_PATH)/include -I /usr/lib/ 
+INCLUDES += -I. -I$(CUDA_INSTALL_PATH)/include 
+
 
 CXX_OPT := \
 	-O3 \
@@ -89,6 +91,7 @@ CFLAGS += $(INCLUDES)
 ifneq ($(EMU),)
   NVCCFLAGS += --device-emulation
 endif
+  NVCCFLAGS +=-lOpenCL
 
 ifeq ($(OSARCH), i686)
 LIBS += -L$(CUDA_INSTALL_PATH)/lib -lcuda -lcudart -lOpenCL
