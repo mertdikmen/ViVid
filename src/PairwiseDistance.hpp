@@ -33,5 +33,10 @@ DeviceMatrix::Ptr argmax_cuda(const DeviceMatrix::Ptr& matrix);
 DeviceMatrix::Ptr min_cuda(const DeviceMatrix::Ptr& matrix);
 DeviceMatrix::Ptr max_cuda(const DeviceMatrix::Ptr& matrix);
 
+void pwdist_genericCL(
+        const DeviceMatrixCL* features_train,
+        const DeviceMatrixCL* features_test,
+        DeviceMatrixCL* output,
+        int type);
 
 #endif /* _PAIRWISE_DISTANCE_HPP_ */

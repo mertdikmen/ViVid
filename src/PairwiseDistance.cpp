@@ -1,7 +1,5 @@
 #include "PairwiseDistance.hpp"
 #include "PairwiseDistanceLocal.hpp"
-#include "DeviceMatrixOpenCL.hpp"
-
 
 DeviceMatrix::Ptr pwdist_cuda( const DeviceMatrix::Ptr& features_train,
         const DeviceMatrix::Ptr& features_test){
@@ -76,16 +74,11 @@ DeviceMatrix::Ptr max_cuda(const DeviceMatrix::Ptr& matrix)
     return out;
 }
 
-
-
-
 /**
-
 
   OpenCL function
 
  **/
-
 
 DeviceMatrixCL::Ptr pwdist_cl( const DeviceMatrixCL::Ptr& features_train,
         const DeviceMatrixCL::Ptr& features_test){
@@ -126,7 +119,7 @@ DeviceMatrixCL::Ptr pwchisq_cl( const DeviceMatrixCL::Ptr& features_train,
 }
 
 
-DeviceMatrixCL::Ptr pwcityblock_cuda( const DeviceMatrixCL::Ptr& features_train,
+DeviceMatrixCL::Ptr pwcityblock_cl( const DeviceMatrixCL::Ptr& features_train,
         const DeviceMatrixCL::Ptr& features_test){
 
     DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(features_train->height,
@@ -136,28 +129,17 @@ DeviceMatrixCL::Ptr pwcityblock_cuda( const DeviceMatrixCL::Ptr& features_train,
 }
 
 /**
-
-
   This code was in the cu file of the cuda version
-
  **/
 
 static const unsigned int BLOCK_SIZE = 16;
 
-void pwdist_genericCL( const DeviceMatrixCL* features_train,
+void pwdist_genericCL(const DeviceMatrixCL* features_train,
         const DeviceMatrixCL* features_test,
         DeviceMatrixCL* output,
         int type) {
 
-    //dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE);
-    //int grid_ry = (features_train->height-1) / dimBlock.y + 1;
-    //int grid_cx = (features_test->height-1) / dimBlock.x + 1;
-    //dim3 dimGrid(grid_cx, grid_ry);
-
-    // pairwiseDistanceKernelGeneric<<<dimGrid, dimBlock>>>(*features_train,*features_test,*output,type);
-    //cudaThreadSynchronize();
-
-    TheContext * tc = new TheContext();
+    TheContext* tc = new TheContext();
 
     cl_context GPUContext = tc->getMyContext()->getContextCL();
     cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
@@ -166,7 +148,7 @@ void pwdist_genericCL( const DeviceMatrixCL* features_train,
     // Uses NVIDIA helper functions to get the code string and it's size (in bytes)
     size_t src_size = 0;
 
-    char *program_source = load_program_source("/home/antigm/vivid/src/PairwiseDistance.cl");
+    char *program_source = load_program_source("../src/PairwiseDistance.cl");
     if (program_source == NULL) {
         printf("Error: Failed to read the OpenCL kernel: kernel.cl\n");
         exit(-1);
@@ -180,7 +162,6 @@ void pwdist_genericCL( const DeviceMatrixCL* features_train,
     }
 
     // Build the program executable
-    //
     const char * options = "";
     err = clBuildProgram(program_list[0], 0, NULL, options, NULL, NULL);
     if (err != CL_SUCCESS) {
@@ -202,52 +183,68 @@ void pwdist_genericCL( const DeviceMatrixCL* features_train,
     }
     err=0;
 
-    err |=   clSetKernelArg(kernel_list[0], 0, sizeof (cl_mem), &features_train->dataMatrix);
-    err |=   clSetKernelArg(kernel_list[0], 1, sizeof (int), &features_train->width);
-    err|=  clSetKernelArg(kernel_list[0], 2, sizeof (int), &features_train->height);
-    err |= clSetKernelArg(kernel_list[0],3, sizeof (int), &features_train->pitch);
+    err |= clSetKernelArg(kernel_list[0], 0, sizeof (cl_mem), &features_train->dataMatrix);
+    err |= clSetKernelArg(kernel_list[0], 1, sizeof (int), &features_train->width);
+    err |= clSetKernelArg(kernel_list[0], 2, sizeof (int), &features_train->height);
+    err |= clSetKernelArg(kernel_list[0], 3, sizeof (int), &features_train->pitch);
 
 
-    err |=   clSetKernelArg(kernel_list[0], 4, sizeof (cl_mem), &features_test->dataMatrix);
-    err |=   clSetKernelArg(kernel_list[0], 5, sizeof (int), &features_test->width);
-    err|=  clSetKernelArg(kernel_list[0], 6, sizeof (int), &features_test->height);
-    err |= clSetKernelArg(kernel_list[0],7, sizeof (int), &features_test->pitch);
+    err |= clSetKernelArg(kernel_list[0], 4, sizeof (cl_mem), &features_test->dataMatrix);
+    err |= clSetKernelArg(kernel_list[0], 5, sizeof (int), &features_test->width);
+    err |= clSetKernelArg(kernel_list[0], 6, sizeof (int), &features_test->height);
+    err |= clSetKernelArg(kernel_list[0], 7, sizeof (int), &features_test->pitch);
 
-    err |=   clSetKernelArg(kernel_list[0], 8, sizeof (cl_mem), &output->dataMatrix);
-    err |=   clSetKernelArg(kernel_list[0], 9, sizeof (int), &output->width);
-    err|=  clSetKernelArg(kernel_list[0], 10, sizeof (int), &output->height);
-    err |= clSetKernelArg(kernel_list[0],11, sizeof (int), &output->pitch);
+    err |= clSetKernelArg(kernel_list[0], 8, sizeof (cl_mem), &output->dataMatrix);
+    err |= clSetKernelArg(kernel_list[0], 9, sizeof (int), &output->width);
+    err |= clSetKernelArg(kernel_list[0], 10, sizeof (int), &output->height);
+    err |= clSetKernelArg(kernel_list[0], 11, sizeof (int), &output->pitch);
 
     err |= clSetKernelArg(kernel_list[0], 12, sizeof (int), &type);
     err |= clSetKernelArg(kernel_list[0], 13, sizeof (int), &BLOCK_SIZE);
+
     if (err != CL_SUCCESS) {
         printf("Error: Failed to set kernel arguments 3! %d\n", err);
         exit(1);
     }
 
     /*
-       err |= clSetKernelArg(kernel_list[0], 1, sizeof (DeviceMatrixCL), &features_train);	
-       if (err != CL_SUCCESS) {
-       printf("Error: Failed to set kernel arguments 1! %d\n", err);
-       exit(1);
-       }
-       err |= clSetKernelArg(kernel_list[0], 2, sizeof (DeviceMatrixCL), &features_train);
+    err |= clSetKernelArg(kernel_list[0], 1, sizeof (DeviceMatrixCL), &features_train);	
+    if (err != CL_SUCCESS) {
+    printf("Error: Failed to set kernel arguments 1! %d\n", err);
+    exit(1);
+    }
+    err |= clSetKernelArg(kernel_list[0], 2, sizeof (DeviceMatrixCL), &features_train);
 
-       if (err != CL_SUCCESS) {
-       printf("Error: Failed to set kernel arguments 2! %d\n", err);
-       exit(1);
-       }
-       err |= clSetKernelArg(kernel_list[0], 3, sizeof (int), &type);
+    if (err != CL_SUCCESS) {
+    printf("Error: Failed to set kernel arguments 2! %d\n", err);
+    exit(1);
+    }
+    err |= clSetKernelArg(kernel_list[0], 3, sizeof (int), &type);
 
-       if (err != CL_SUCCESS) {
-       printf("Error: Failed to set kernel arguments 3! %d\n", err);
-       exit(1);
-       }
-       */
-    const size_t local_work_size[2]={BLOCK_SIZE,BLOCK_SIZE}; 
-    const size_t global_work_size[2]={ceil((float)features_train->width/BLOCK_SIZE)*BLOCK_SIZE,ceil((float)features_train->height/BLOCK_SIZE)*BLOCK_SIZE}; 
+    if (err != CL_SUCCESS) {
+    printf("Error: Failed to set kernel arguments 3! %d\n", err);
+    exit(1);
+    }
+    */
 
-    err = clEnqueueNDRangeKernel(tc->getMyContext()->cqCommandQueue, kernel_list[0], 2, NULL, global_work_size, local_work_size, 0, NULL, NULL);
+    /*
+    const int n_blocks_x = (features_train->height - 1) / BLOCK_SIZE + 1;
+    const int n_blocks_y = (features_test->height - 1) / BLOCK_SIZE + 1;
+    */
+
+    const int n_blocks_x = ((features_train->height - 1) / BLOCK_SIZE + 1) * BLOCK_SIZE;
+    const int n_blocks_y = ((features_test->height - 1) / BLOCK_SIZE + 1) * BLOCK_SIZE;
+
+    const size_t local_work_size[2] = {BLOCK_SIZE, BLOCK_SIZE}; 
+    const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
+
+    //std::cout << "Threads: " << local_work_size[0] << ", " << local_work_size[1] << std::endl;
+    //std::cout << "Blocks: " << global_work_size[0] << ", " << global_work_size[1] << std::endl;
+
+    err = clEnqueueNDRangeKernel(tc->getMyContext()->cqCommandQueue, 
+            kernel_list[0], 2, NULL, 
+            global_work_size, local_work_size, 0, NULL, NULL);
+
     if (err) {
         printf("Error: Failed to execute kernel! %d\n", err);
         exit(1);
