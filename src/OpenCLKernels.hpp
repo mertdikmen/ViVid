@@ -57,8 +57,8 @@ struct theKernels {
 		createKernel("pairwiseDistanceKernelGeneric","../src/PairwiseDistance.cl",0);
 		createKernel("argminKernel","../src/argminKernel.cl",1);
 		createKernel("argmaxKernel","../src/argmaxKernel.cl",2);
-		createKernel("minKernel","../src/minKernel.cl",2);
-		createKernel("maxKernel","../src/maxKernel.cl",3);
+		createKernel("minKernel","../src/minKernel.cl",3);
+		createKernel("maxKernel","../src/maxKernel.cl",4);
 	}
 	
 	void createKernel(const char * kernel,const char * ruta,int indice){

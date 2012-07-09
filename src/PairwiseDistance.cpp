@@ -233,23 +233,63 @@ void pwdist_genericCL(const DeviceMatrixCL* features_train,
 
 
 
-cl_int parameters_minmax_local(cl_kernel *theKernel,const DeviceMatrixCL* matrix, DeviceMatrixCL* output){
+cl_int parameters_minmax_local(cl_kernel theKernel,const DeviceMatrixCL* matrix, DeviceMatrixCL* output){
 	cl_int err=0;
 	
-    err |= clSetKernelArg(*theKernel, 0, sizeof (cl_mem), &matrix->dataMatrix);
-    err |= clSetKernelArg(*theKernel, 1, sizeof (int), &matrix->width);
-    err |= clSetKernelArg(*theKernel, 2, sizeof (int), &matrix->height);
-    err |= clSetKernelArg(*theKernel, 3, sizeof (int), &matrix->pitch);
+    err |= clSetKernelArg(theKernel, 0, sizeof (cl_mem), &matrix->dataMatrix);
+  
+	if (err != CL_SUCCESS) {
+        printf("Error: Failed to set kernel arguments 1! %d\n", err);
+        exit(1);
+    }
 	
+	err |= clSetKernelArg(theKernel, 1, sizeof (int), &matrix->width);
+    
+	if (err != CL_SUCCESS) {
+        printf("Error: Failed to set kernel arguments 2! %d\n", err);
+        exit(1);
+    }
 	
-    err |= clSetKernelArg(*theKernel, 4, sizeof (cl_mem), &output->dataMatrix);
-    err |= clSetKernelArg(*theKernel, 5, sizeof (int), &output->width);
-    err |= clSetKernelArg(*theKernel, 6, sizeof (int), &output->height);
-    err |= clSetKernelArg(*theKernel, 7, sizeof (int), &output->pitch);
+	err |= clSetKernelArg(theKernel, 2, sizeof (int), &matrix->height);
+    
+	if (err != CL_SUCCESS) {
+        printf("Error: Failed to set kernel arguments 3! %d\n", err);
+        exit(1);
+    }
+	
+	err |= clSetKernelArg(theKernel, 3, sizeof (int), &matrix->pitch);
+	
+	if (err != CL_SUCCESS) {
+        printf("Error: Failed to set kernel arguments 4! %d\n", err);
+        exit(1);
+    }
+	
+    err |= clSetKernelArg(theKernel, 4, sizeof (cl_mem), &output->dataMatrix);
+    
+	if (err != CL_SUCCESS) {
+        printf("Error: Failed to set kernel arguments 5! %d\n", err);
+        exit(1);
+    }
+	
+	err |= clSetKernelArg(theKernel, 5, sizeof (int), &output->width);
+    
+	if (err != CL_SUCCESS) {
+        printf("Error: Failed to set kernel arguments 6! %d\n", err);
+        exit(1);
+    }
+	
+	err |= clSetKernelArg(theKernel, 6, sizeof (int), &output->height);
+    
+	if (err != CL_SUCCESS) {
+        printf("Error: Failed to set kernel arguments 7! %d\n", err);
+        exit(1);
+    }
+	
+	err |= clSetKernelArg(theKernel, 7, sizeof (int), &output->pitch);
 	
   	
     if (err != CL_SUCCESS) {
-        printf("Error: Failed to set kernel arguments 3! %d\n", err);
+        printf("Error: Failed to set kernel arguments 8! %d\n", err);
         exit(1);
     }
 	return err;
@@ -276,7 +316,7 @@ void argmin_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
 	
 	cl_int err;
 		
-	err =  parameters_minmax_local(&theKernel, matrix, output);
+	err =  parameters_minmax_local(theKernel, matrix, output);
 	
 	const size_t local_work_size[2] = {256, 1}; 
 	
@@ -322,7 +362,7 @@ void argmax_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
 	cl_int err;
 	err=0;
 	
-   err =  parameters_minmax_local(&theKernel, matrix, output);	
+   err =  parameters_minmax_local(theKernel, matrix, output);	
   	
     if (err != CL_SUCCESS) {
         printf("Error: Failed to set kernel arguments 3! %d\n", err);
@@ -366,11 +406,10 @@ void max_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
 	
 	cl_kernel theKernel= kernels->getMaxKernel();
 	
-	
 	cl_int err;
 	err=0;
 	
-    err =  parameters_minmax_local(&theKernel, matrix, output);	
+    err =  parameters_minmax_local(theKernel, matrix, output);	
   	
     if (err != CL_SUCCESS) {
         printf("Error: Failed to set kernel arguments 3! %d\n", err);
@@ -418,7 +457,7 @@ void min_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
 	cl_int err;
 	err=0;
 	
-    err =  parameters_minmax_local(&theKernel, matrix, output);	
+    err =  parameters_minmax_local(theKernel, matrix, output);	
   	
     if (err != CL_SUCCESS) {
         printf("Error: Failed to set kernel arguments 3! %d\n", err);
