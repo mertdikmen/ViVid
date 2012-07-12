@@ -417,6 +417,11 @@ void dist_filter2_d3(const DeviceMatrix* frame,
                                                     dim_t,
                                                     optype);
 }
+
+
+
+
+/**CUDA***/
 void dist_filter2_d5(const DeviceMatrix* frame,
                   const int dim_t, const int nchannels,
                   DeviceMatrix3D* output,

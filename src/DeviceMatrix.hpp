@@ -68,6 +68,7 @@ struct DeviceMatrix3D {
     void zero();
 };
 
+
 DeviceMatrix3D::Ptr makeDeviceMatrix3D(size_t dim_t, size_t dim_y, 
                                        size_t dim_x);
 
@@ -106,10 +107,81 @@ cropDeviceMatrix3D(const DeviceMatrix3D::Ptr self,
  */
 struct MCudaMatrix3D : public DeviceMatrix3D
 {
-  typedef boost::shared_ptr<MCudaMatrix3D> Ptr;
+	typedef boost::shared_ptr<MCudaMatrix3D> Ptr;
 };
 
 MCudaMatrix3D::Ptr makeMCudaMatrix3D(size_t dim_t, size_t dim_y,
+                                     size_t dim_x);
+
+
+struct DeviceMatrixCL3D {
+    typedef boost::shared_ptr<DeviceMatrixCL3D> Ptr;
+    typedef std::vector<Ptr> PtrList;
+	
+    unsigned int dim_x; //!< width in floats
+    unsigned int dim_y; //!< height in floats
+    unsigned int dim_t; //!< depth (length?) in floats
+	
+    // We assume that the data is tightly packed in x
+    unsigned int pitch_y; //! pitch in the y direction
+    unsigned int pitch_t; //! pitch in the t direction
+	
+	cl_mem dataMatrix;
+    /**
+     * @note We structure the data as data[t][y][x] (or as
+     * FORTRAN-style x,y,t).
+     */
+    float* data;
+	
+    // Fill the matrix with zeros
+    void zero();
+};
+
+
+
+
+DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(size_t dim_t, size_t dim_y, 
+                                       size_t dim_x);
+
+//! Create a DeviceMatrix3D that has no padding
+DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3DPacked(size_t dim_t, size_t dim_y, 
+                                             size_t dim_x);
+
+/**
+ * By using inheritence, we're definitely heading into c++ land.
+ * However, we should still be mostly ok, since we have no virtual
+ * functions and only one additional member.
+ */
+struct DeviceMatrixCL3DView : public DeviceMatrixCL3D
+{
+    //! Keeps the parent alive while the view is active
+    boost::shared_ptr<void> parent;
+};
+
+/**
+ * Returns a view of a portion of the input matrix.
+ *
+ * @note This function does not support arbitary subcubes -- the
+ * "origin" must remain in place.
+ */
+DeviceMatrixCL3D::Ptr
+cropDeviceMatrixCL3D(const DeviceMatrixCL3D::Ptr self,
+                   size_t new_dim_t, size_t new_dim_y, size_t new_dim_x);
+
+/**
+ * This class has no new data memebers, but it has different
+ * semantics.  A MCudaMatrix3D actually has a data pointer which
+ * points to a (packed) C array on CPU memory.
+ *
+ * The subclassing is so that we can pass this seamlessly into MCUDA
+ * code that expects a DeviceMatrix3D.
+ */
+struct MCLMatrix3D : public DeviceMatrixCL3D
+{
+  typedef boost::shared_ptr<MCLMatrix3D> Ptr;
+};
+
+MCLMatrix3D::Ptr makeMCLMatrix3D(size_t dim_t, size_t dim_y,
                                      size_t dim_x);
 
 #endif /* _DEVICEMATRIX_HPP_ */

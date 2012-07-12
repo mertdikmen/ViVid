@@ -36,4 +36,34 @@ void hist_all_cells(const DeviceMatrix3D* inds_and_weights,
                     const int offset_x,
                     const int max_bin);
 
+
+
+
+void dist_filter2_d3_cl(const DeviceMatrixCL* frame,
+					 const int dim_t, const int nchannels,
+					 DeviceMatrixCL3D* output,
+					 const int optype);
+
+void dist_filter2_d5_cl(const DeviceMatrixCL* frame,
+					 const int dim_t, const int nchannels,
+					 DeviceMatrixCL3D* output,
+					 const int optype);
+
+void dist_filter2_d7_cl(const DeviceMatrixCL* frame,
+					 const int dim_t, const int nchannels,
+					 DeviceMatrixCL3D* output,
+					 const int optype);
+
+void dist_filter_noargmin_cl(const DeviceMatrixCL* frame,
+						  const int dim_t, const int dim_y, const int dim_x, const int nchannels,
+						  DeviceMatrixCL3D* output,
+						  const int optype);
+
+void hist_all_cells_cl(const DeviceMatrixCL3D* inds_and_weights,
+                    DeviceMatrixCL3D* output,
+                    const int cell_size,
+                    const int offset_y,
+                    const int offset_x,
+                    const int max_bin);
+
 #endif

@@ -51,6 +51,7 @@ struct theKernels {
 	cl_program program_list[32]; 
 	cl_context GPUContext_K;
 	cl_device_id cdDevice_K;
+	cl_mem  c_FilterBank;
 	theKernels(cl_context GPUContext,cl_device_id cdDevice){
 		GPUContext_K = GPUContext;
 		cdDevice_K   = cdDevice;
@@ -59,6 +60,10 @@ struct theKernels {
 		createKernel("argmaxKernel","../src/argmaxKernel.cl",2);
 		createKernel("minKernel","../src/minKernel.cl",3);
 		createKernel("maxKernel","../src/maxKernel.cl",4);
+		createKernel("blockwise_distance_kernel","../src/blockwise_distance_kernel.cl",5);
+		createKernel("blockwise_filter_kernel","../src/blockwise_filter_kernel.cl",6);
+		createKernel("cell_histogram_kernel","../src/cell_histogram_kernel.cl",7);
+
 	}
 	
 	void createKernel(const char * kernel,const char * ruta,int indice){
@@ -124,7 +129,11 @@ public:
 	
 	MyKernels(cl_context GPUContext_K1,
 			  cl_device_id cdDevice_K1);
-	theKernels * getMyKernels();
+	
+	theKernels * getMyKernels(){
+		return My_Kernels;
+	}
+	
 	cl_kernel getPairwiseDistanceKernel(){
 		return My_Kernels->kernel_list[0];
 	}
@@ -147,6 +156,18 @@ public:
 	
 	cl_kernel getMaxKernel(){
 		return My_Kernels->kernel_list[4];
+	}
+	
+	cl_kernel getBlockWiseDistanceKernel(){
+		return My_Kernels->kernel_list[5];
+	}
+	
+	cl_kernel getBlockWiseFilterKernel(){
+		return My_Kernels->kernel_list[6];
+	}
+	
+	cl_kernel getCellHistogramKernel(){
+		return My_Kernels->kernel_list[7];
 	}
 	
 	~MyKernels(){};

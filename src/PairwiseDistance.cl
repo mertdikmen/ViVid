@@ -1,11 +1,11 @@
 /*static const unsigned int BLOCK_SIZE = 16;*/
 
-/*const int EUCLIDEAN 0
-  const int DOTPRODUCT 1
-  const int CHISQUARED 2
-  const int CITYBLOCK 3
-  const int ABSDOTPRODUCT 4
-*/
+__constant int EUCLIDEAN = 0;
+ __constant int DOTPRODUCT = 1;
+ __constant int CHISQUARED =  2;
+ __constant int CITYBLOCK = 3;
+  __constant int ABSDOTPRODUCT=  4;
+  
 
 /*
  * @note This kernel is based on the blocked matrix multiply.  We
@@ -62,8 +62,26 @@ __kernel void pairwiseDistanceKernelGeneric(
     
         for (unsigned int k=0; k < end; k++)
         {
-            float diff = a_cache[get_local_id(0) * BLOCK_SIZE + k] - b_cache[get_local_id(1) * BLOCK_SIZE + k];
-            dst += diff * diff;
+			if (type == EUCLIDEAN){
+                float diff = a_cache[get_local_id(0) * BLOCK_SIZE + k]  - b_cache[get_local_id(1) * BLOCK_SIZE + k];
+                dst += diff * diff;
+            }
+            else if (type == DOTPRODUCT){
+                dst += a_cache[get_local_id(0) * BLOCK_SIZE + k]  * b_cache[get_local_id(1) * BLOCK_SIZE + k];
+            }
+            else if (type == ABSDOTPRODUCT){
+                dst += a_cache[get_local_id(0) * BLOCK_SIZE + k]  * b_cache[get_local_id(1) * BLOCK_SIZE + k];
+            }
+            else if (type == CHISQUARED){
+                float diff, sum;
+                diff =a_cache[get_local_id(0) * BLOCK_SIZE + k]  - b_cache[get_local_id(1) * BLOCK_SIZE + k];
+                sum  = a_cache[get_local_id(0) * BLOCK_SIZE + k]  + b_cache[get_local_id(1) * BLOCK_SIZE + k];
+                dst += diff * diff / sum;
+            }
+            else if (type == CITYBLOCK){
+                dst += fabs(a_cache[get_local_id(0) * BLOCK_SIZE + k]  - b_cache[get_local_id(1) * BLOCK_SIZE + k]);
+            }
+
         }
         barrier(CLK_GLOBAL_MEM_FENCE | CLK_LOCAL_MEM_FENCE);
     }

@@ -2,6 +2,8 @@
 #define _FLEXIBLE_FILTER_HPP_ 1
 
 #include "DeviceMatrix.hpp"
+#include "OpenCLKernels.hpp"
+
 #include <stdio.h>
 
 #define FF_OPTYPE_EUCLIDEAN 0
@@ -36,6 +38,37 @@ DeviceMatrix3D::Ptr filter_frame_cuda_7(const DeviceMatrix::Ptr& frame,
                                     const int dim_t, const int nchannels,
                                     const int optype);
 
+/**
+ 
+ OPENCL FUNCTIONS
+ 
+ 
+**/
+
+
+DeviceMatrixCL3D::Ptr filter_frame_cl_noargmin(const DeviceMatrixCL::Ptr& frame,
+											   const int dim_t, const int dim_y, const int dim_x, const int nchannels,
+											   const int optype);
+
+DeviceMatrixCL3D::Ptr get_cell_histograms_cl(const DeviceMatrixCL3D::Ptr& inds_and_weights,
+                                             const int cell_size,
+                                             const int offset_y, const int offset_x,
+                                             const int n_bins);
+
+DeviceMatrixCL3D::Ptr filter_frame_cl_3(const DeviceMatrixCL::Ptr& frame,
+										const int dim_t, const int nchannels,
+										const int optype);
+
+DeviceMatrixCL3D::Ptr filter_frame_cl_5(const DeviceMatrixCL::Ptr& frame,
+										const int dim_t, const int nchannels,
+										const int optype);
+
+DeviceMatrixCL3D::Ptr filter_frame_cl_7(const DeviceMatrixCL::Ptr& frame,
+										const int dim_t, const int nchannels,
+										const int optype);
+
+
+/**  CONST  **/
 static const unsigned int BLOCK_SIZE = 16;
 static const unsigned int BLOCK_16 = 16;
 static const unsigned int BLOCK_8 = 8;

@@ -139,22 +139,45 @@ void export_FlexibleFilter()
                              const int dim_t, const int nchannels,
                              const int optype ) >
         ("_filter_frame_cuda_3", filter_frame_cuda_3);
+	
+	def<DeviceMatrixCL3D::Ptr (const DeviceMatrixCL::Ptr&, 
+                             const int dim_t, const int nchannels,
+                             const int optype ) >
+	("_filter_frame_cl_3", filter_frame_cl_3);
+	
+	
 
     def<DeviceMatrix3D::Ptr (const DeviceMatrix::Ptr&, 
                              const int dim_t, const int nchannels,
                              const int optype ) >
         ("_filter_frame_cuda_5", filter_frame_cuda_5);
+	
+	def<DeviceMatrixCL3D::Ptr (const DeviceMatrixCL::Ptr&, 
+                             const int dim_t, const int nchannels,
+                             const int optype ) >
+	("_filter_frame_cl_5", filter_frame_cl_5);
 
     def<DeviceMatrix3D::Ptr (const DeviceMatrix::Ptr&, 
                              const int dim_t, const int nchannels,
                              const int optype ) >
         ("_filter_frame_cuda_7", filter_frame_cuda_7);
 
+	def<DeviceMatrixCL3D::Ptr (const DeviceMatrixCL::Ptr&, 
+                             const int dim_t, const int nchannels,
+                             const int optype ) >
+	("_filter_frame_cl_7", filter_frame_cl_7);
     def<DeviceMatrix3D::Ptr (const DeviceMatrix::Ptr&, 
                              const int dim_t, const int dim_y, const int dim_x, const int nchannels,
                              const int optype ) >
         ("_filter_frame_cuda_noargmin", filter_frame_cuda_noargmin);
 
+	def<DeviceMatrixCL3D::Ptr (const DeviceMatrixCL::Ptr&, 
+                             const int dim_t, const int dim_y, const int dim_x, const int nchannels,
+                             const int optype ) >
+	("_filter_frame_cl_noargmin", filter_frame_cl_noargmin);
+	
+	
+	
     def ("_update_filter_bank", update_filter_bank);
 
     def("cosine_filter_c", cosine_filter_c);
