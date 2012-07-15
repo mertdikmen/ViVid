@@ -43,7 +43,7 @@ object pwdist_c(object a, object b){
     }
     double toc = omp_get_wtime();
 
-    printf("CPU time: %.6f\n", (toc - tic) * 1e6 );
+    //printf("CPU time: %.6f\n", (toc - tic) * 1e6 );
 
     return output.array;
 };

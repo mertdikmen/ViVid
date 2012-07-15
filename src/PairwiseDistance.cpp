@@ -1,12 +1,19 @@
 #include "PairwiseDistance.hpp"
 #include "PairwiseDistanceLocal.hpp"
 
+#include "omp.h"
+
 DeviceMatrix::Ptr pwdist_cuda( const DeviceMatrix::Ptr& features_train,
         const DeviceMatrix::Ptr& features_test){
 
     DeviceMatrix::Ptr out = makeDeviceMatrix(features_train->height,
             features_test->height);
+    double tic = omp_get_wtime();
     pwdist_generic(features_train.get(), features_test.get(), out.get(), EUCLIDEAN);
+    double toc = omp_get_wtime();
+
+    //std::cout << "CUDA Time: " << toc - tic << std::endl;
+
     return out;
 }
 
@@ -86,7 +93,11 @@ DeviceMatrixCL::Ptr pwdist_cl( const DeviceMatrixCL::Ptr& features_train,
     DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(features_train->height,
             features_test->height);
 
+    double tic = omp_get_wtime();
     pwdist_genericCL(features_train.get(), features_test.get(), out.get(), EUCLIDEAN);
+    double toc = omp_get_wtime();
+
+    //std::cout << "OpenCL time: " << toc - tic << std::endl;
     return out;
 }
 
