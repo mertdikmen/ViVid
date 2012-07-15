@@ -18,6 +18,7 @@ vivid:
 
 .PHONY: src
 src:
+	mkdir -p src/release
 	$(MAKE) -C src
 
 .PHONY: test
