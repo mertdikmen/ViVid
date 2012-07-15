@@ -39,7 +39,13 @@ boost::shared_ptr<DeviceMatrix> makeDeviceMatrix(size_t height,
 
 static void deleteDeviceMatrixCL(DeviceMatrixCL* mat)
 {
+    cl_int err = clReleaseMemObject(mat->dataMatrix);
+    if (err)
+    {
+        printf("Error releasing DeviceMatrixCL object (CL Error: %d", err);
+    }
 
+    delete mat;
 }
 
 boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(size_t height, size_t width)
