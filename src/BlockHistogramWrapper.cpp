@@ -80,4 +80,10 @@ void export_BlockHistogram()
         const int, const int, 
         boost::python::object&, boost::python::object&) >
         ("cell_histogram_dense_cuda", cell_histogram_dense_cuda);
+	
+	def<DeviceMatrixCL3D::Ptr (
+							 const DeviceMatrixCL::Ptr&, const DeviceMatrixCL::Ptr&,
+							 const int, const int, 
+							 boost::python::object&, boost::python::object&) >
+	("cell_histogram_dense_cl", cell_histogram_dense_cl);
 }

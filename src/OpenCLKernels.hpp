@@ -63,7 +63,8 @@ struct theKernels {
 		createKernel("blockwise_distance_kernel","../src/blockwise_distance_kernel.cl",5);
 		createKernel("blockwise_filter_kernel","../src/blockwise_filter_kernel.cl",6);
 		createKernel("cell_histogram_kernel","../src/cell_histogram_kernel.cl",7);
-
+		createKernel("cellHistogramKernel1","../src/cellHistogramKernel1.cl",8);
+		createKernel("cellHistogramKernel2","../src/cellHistogramKernel2.cl",9);
 	}
 	
 	void createKernel(const char * kernel,const char * ruta,int indice){
@@ -168,6 +169,15 @@ public:
 	
 	cl_kernel getCellHistogramKernel(){
 		return My_Kernels->kernel_list[7];
+	}
+	
+	cl_kernel getCellHistogramKernel1(){
+		return My_Kernels->kernel_list[8];
+	}
+	
+	
+	cl_kernel getCellHistogramKernel2(){
+		return My_Kernels->kernel_list[9];
 	}
 	
 	~MyKernels(){};
