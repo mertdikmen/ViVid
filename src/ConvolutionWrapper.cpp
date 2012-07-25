@@ -16,5 +16,19 @@ void export_Convolution()
   def("convolve_complex_t_specific", convolve_complex_t_specific);
 
   def("debug_convolution_algorithm_used", debug_convolution_algorithm_used);
+	
+	
+	/** OPENCL**/
+	
+	def<DeviceMatrixCL3D::Ptr (const DeviceMatrixCL3D::Ptr&,
+							 const DeviceMatrixCL3D::Ptr&)>
+    ("convolve3d_cl", convolve3d_cl);
+	def("convolve3d_specific_cl", convolve3d_specific_cl);
+	
+	def("convolve3d_m_cl", convolve3d_m_cl);
+	def("convolve_complex_t_cl", convolve_complex_t_cl);
+	def("convolve_complex_t_specific_cl", convolve_complex_t_specific_cl);
+	
+	def("debug_convolution_algorithm_used_cl", debug_convolution_algorithm_used_cl);
 
 }

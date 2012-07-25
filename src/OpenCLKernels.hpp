@@ -47,11 +47,12 @@ static char * load_program_source(const char *filename) {
 
 struct theKernels {
 	
-	cl_kernel kernel_list[32];
-	cl_program program_list[32]; 
+	cl_kernel kernel_list[50];
+	cl_program program_list[50]; 
 	cl_context GPUContext_K;
 	cl_device_id cdDevice_K;
 	cl_mem  c_FilterBank;
+	cl_mem constant_kernel;
 	theKernels(cl_context GPUContext,cl_device_id cdDevice){
 		GPUContext_K = GPUContext;
 		cdDevice_K   = cdDevice;
@@ -65,6 +66,31 @@ struct theKernels {
 		createKernel("cell_histogram_kernel","../src/cell_histogram_kernel.cl",7);
 		createKernel("cellHistogramKernel1","../src/cellHistogramKernel1.cl",8);
 		createKernel("cellHistogramKernel2","../src/cellHistogramKernel2.cl",9);
+		createKernel("do_convolution0","../src/do_convolution0.cl",10);
+		createKernel("do_convolution1","../src/do_convolution1.cl",11);
+		createKernel("do_convolution2_8","../src/do_convolution2.cl",12);
+		createKernel("do_convolution2_10","../src/do_convolution2_10.cl",13);
+		createKernel("do_convolution2_12","../src/do_convolution2_12.cl",14);
+		createKernel("do_convolution2_14","../src/do_convolution2_14.cl",15);
+		createKernel("do_convolution3","../src/do_convolution3.cl",16);
+		createKernel("do_convolution3_7","../src/do_convolution3_7.cl",17);
+		createKernel("do_convolution3_9","../src/do_convolution3_9.cl",18);
+		createKernel("do_convolution3_11","../src/do_convolution3_11.cl",19);
+		createKernel("do_convolution4","../src/do_convolution4.cl",20);
+		createKernel("do_convolution4_7","../src/do_convolution4_7.cl",21);
+		createKernel("do_convolution4_9","../src/do_convolution4_9.cl",22);
+		createKernel("do_convolution4_11","../src/do_convolution4_11.cl",23);
+		createKernel("do_convolution4_13","../src/do_convolution4_13.cl",24);
+		createKernel("do_convolution4_15","../src/do_convolution4_15.cl",25);
+		createKernel("do_convolution5","../src/do_convolution5.cl",26);
+		createKernel("do_convolution5_7","../src/do_convolution5_7.cl",27);
+		createKernel("do_convolution5_9","../src/do_convolution5_9.cl",28);
+		createKernel("do_convolution5_11","../src/do_convolution5_11.cl",29);
+		createKernel("do_convolution_complex_t0","../src/do_convolution_complex_t0.cl",30);
+		createKernel("do_convolution_complex_t1_5","../src/do_convolution_complex_t1.cl",31);
+		createKernel("do_convolution_complex_t1_7","../src/do_convolution_complex_t1_7.cl",32);
+		createKernel("do_convolution_complex_t1_9","../src/do_convolution_complex_t1_9.cl",33);
+		createKernel("do_convolution_complex_t1_11","../src/do_convolution_complex_t1_11.cl",34);
 	}
 	
 	void createKernel(const char * kernel,const char * ruta,int indice){
@@ -178,6 +204,98 @@ public:
 	
 	cl_kernel getCellHistogramKernel2(){
 		return My_Kernels->kernel_list[9];
+	}
+	
+	cl_kernel getDoConvolution0(){
+		return My_Kernels->kernel_list[10];
+	}
+	
+	cl_kernel getDoConvolution1(){
+		return My_Kernels->kernel_list[11];
+	}
+	
+	cl_kernel getDoConvolution2_8(){
+		return My_Kernels->kernel_list[12];
+	}
+	cl_kernel getDoConvolution2_10(){
+		return My_Kernels->kernel_list[13];
+	}
+	
+	cl_kernel getDoConvolution2_12(){
+		return My_Kernels->kernel_list[14];
+	}
+	cl_kernel getDoConvolution2_14(){
+		return My_Kernels->kernel_list[15];
+	}
+	cl_kernel getDoConvolution3(){
+		return My_Kernels->kernel_list[16];
+	}
+	
+	cl_kernel getDoConvolution3_7(){
+		return My_Kernels->kernel_list[17];
+	}
+	cl_kernel getDoConvolution3_9(){
+		return My_Kernels->kernel_list[18];
+		
+	}
+	cl_kernel getDoConvolution3_11(){
+		return My_Kernels->kernel_list[19];
+	}
+	
+	cl_kernel getDoConvolution4(){
+		return My_Kernels->kernel_list[20];
+	}
+	cl_kernel getDoConvolution4_7(){
+		return My_Kernels->kernel_list[21];
+	}
+	cl_kernel getDoConvolution4_9(){
+		return My_Kernels->kernel_list[22];
+	}
+	cl_kernel getDoConvolution4_11(){
+		return My_Kernels->kernel_list[23];
+	}
+	cl_kernel getDoConvolution4_13(){
+		return My_Kernels->kernel_list[24];
+	}
+	cl_kernel getDoConvolution4_15(){
+		return My_Kernels->kernel_list[25];
+	}
+	
+	cl_kernel getDoConvolution5(){
+		return My_Kernels->kernel_list[26];
+	}
+	
+	cl_kernel getDoConvolution5_7(){
+		return My_Kernels->kernel_list[27];
+	}
+	
+	cl_kernel getDoConvolution5_9(){
+		return My_Kernels->kernel_list[28];
+	}
+	
+	cl_kernel getDoConvolution5_11(){
+		return My_Kernels->kernel_list[29];
+	}
+	
+
+	
+	cl_kernel getDoConvolutionComplexT0(){
+		return My_Kernels->kernel_list[30];
+	}
+	
+	cl_kernel getDoConvolutionComplexT1_5(){
+		return My_Kernels->kernel_list[31];
+	}
+	cl_kernel getDoConvolutionComplexT1_7(){
+		return My_Kernels->kernel_list[32];
+	}
+	
+	cl_kernel getDoConvolutionComplexT1_9(){
+		return My_Kernels->kernel_list[33];
+	}
+	
+	cl_kernel getDoConvolutionComplexT1_11(){
+		return My_Kernels->kernel_list[34];
 	}
 	
 	~MyKernels(){};
