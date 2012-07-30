@@ -33,10 +33,13 @@ __kernel void blockwise_distance_kernel( __global float* frame, const int f_widt
                                frame_width - FILTER_DIM / 2);
 							   
 	const int cache_size = BLOCK_SIZE * BLOCK_MULT + FILTER_DIM - 1;
-	 
-	 __local float *image_cache;
-	
 
+	/* 
+	 __local float *image_cache;
+	*/
+    __local float image_cache[34*34];
+		
+/*
 	if(cache_size == 34){
 	
 	__local float temp[34 * 34];
@@ -50,9 +53,8 @@ __kernel void blockwise_distance_kernel( __global float* frame, const int f_widt
 	
 	__local float temp[38 * 38];
 		image_cache = temp;
-	
-		
 	}
+*/
 	
 	int read_pix_y = out_pix_y0 - FILTER_DIM / 2 + get_local_id(0);
     int cache_ind_y = get_local_id(0);

@@ -1,7 +1,7 @@
 import numpy as np
 
 from _vivid import DeviceMatrix, DeviceMatrixCL
-from _vivid import _update_filter_bank
+from _vivid import _update_filter_bank_cl, _update_filter_bank_cuda
 
 from _vivid import _filter_frame_cuda_3
 from _vivid import _filter_frame_cuda_5
@@ -49,14 +49,15 @@ class FlexibleFilter:
                                                          self.filter_width, 
                                                          self.nchannels))
 
-        filter_bank_to_device = np.zeros((self.filter_bank_size, 
+        self.filter_bank_to_device = np.zeros((self.filter_bank_size, 
                                              self.filter_height, 
                                              self.filter_width * self.nchannels),dtype='float32')
 
         for chan_id in range(self.nchannels):
-            filter_bank_to_device[:,:,chan_id::self.nchannels] = self.filter_bank[:,:,:,chan_id]
+            self.filter_bank_to_device[:,:,chan_id::self.nchannels] = self.filter_bank[:,:,:,chan_id]
 
-        _update_filter_bank(filter_bank_to_device)
+        self.filter_set_cuda = False
+        self.filter_set_cl = False
 
         self.filter_half_height = int(self.filter_height / 2)
         self.filter_half_width  = int(self.filter_width / 2)
@@ -96,7 +97,7 @@ class FlexibleFilter:
         frame = cvmat2array(self.origin.get_frame(framenum))
 
         result =  cosine_filter_c(frame, self.filter_bank)
-        
+
         result[:, :self.apron_y,:] = -1
         result[:,-self.apron_y:,:] = -1
         result[:,:, :self.apron_x] = -1
@@ -105,6 +106,10 @@ class FlexibleFilter:
         return result
 
     def filter_frame_cuda(self, framenum):
+        if not self.filter_set_cuda:
+            _update_filter_bank_cuda(self.filter_bank_to_device)
+            self.filter_set_cuda = True
+
         frame = cvmat2array(self.origin.get_frame(framenum))
 
         if len(frame.shape) == 2:  #if this is a single channel image, fake the last channel
@@ -130,15 +135,19 @@ class FlexibleFilter:
                     self.optype)
 
         result = result.mat()
-        
+
         result[:, :self.apron_y,:] = -1
         result[:,-self.apron_y:,:] = -1
         result[:,:, :self.apron_x] = -1
         result[:,:,-self.apron_x:] = -1
 
-        return result  
+        return result
 
     def filter_frame_cl(self, framenum):
+        if not self.filter_set_cl:
+            _update_filter_bank_cl(self.filter_bank_to_device)
+            self.filter_set_cl = True
+
         frame = cvmat2array(self.origin.get_frame(framenum))
 
         if len(frame.shape) == 2:  #if this is a single channel image, fake the last channel
@@ -164,13 +173,13 @@ class FlexibleFilter:
                     self.optype)
 
         result = result.mat()
-        
+
         result[:, :self.apron_y,:] = -1
         result[:,-self.apron_y:,:] = -1
         result[:,:, :self.apron_x] = -1
         result[:,:,-self.apron_x:] = -1
 
-        return result  
+        return result
 
 #    def filter_frame_cuda_noargmin(self, framenum):
 #        frame = self.origin.get_frame(framenum)

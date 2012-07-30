@@ -9,7 +9,8 @@
 #define FF_OPTYPE_EUCLIDEAN 0
 #define FF_OPTYPE_COSINE 1
 
-int set_filter_bank(float* filter_bank, int size);
+int set_filter_bank_cuda(float* filter_bank, int size);
+int set_filter_bank_cl(float* filter_bank, int size);
 
 /*
 DeviceMatrix3D::Ptr filter_frame_cuda(const DeviceMatrix::Ptr& frame,

@@ -5,8 +5,48 @@
 
 #include <cuda_runtime.h>
 
-int set_filter_bank(float* filter_bank, int size){
+#define MAX_FILTERBANK_SIZE 10000
+#define N_MAX_
+#define N_MAX_CHANNELS 10
+
+int update_filter_bank_internal_cl(float* new_filter, int filter_size){
+		
+    if (filter_size > MAX_FILTERBANK_SIZE){
+        printf("ERROR: Filterbank too large\n");
+        return 1;
+    }
+    else {
+        //printf("Value in:%05f\n",new_filter[0]);
+		
+		TheContext* tc = new TheContext();
+		cl_context GPUContext = tc->getMyContext()->getContextCL();
+		cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
+		
+		MyKernels *kernels = new MyKernels(GPUContext,cdDevice);
+		
+	
+		
+		cl_int err;
+		
+		cl_mem filter_mem =  clCreateBuffer(GPUContext, CL_MEM_READ_ONLY, sizeof(float) * filter_size,     
+											NULL, &err);
+		err |= clEnqueueWriteBuffer(tc->getMyContext()->cqCommandQueue, filter_mem, CL_TRUE, 0, 
+									  sizeof(float) * filter_size, new_filter, 0, NULL,  NULL);
+		
+		kernels->getMyKernels()->c_FilterBank=filter_mem;
+		
+		
+        //printf("Value out:%04f\n",c_FilterBank[0]);
+        return 0;
+    }
+	
+}
+int set_filter_bank_cuda(float* filter_bank, int size){
     return update_filter_bank_internal(filter_bank,size); 
+}
+
+int set_filter_bank_cl(float* filter_bank, int size){
+    return update_filter_bank_internal_cl(filter_bank,size); 
 }
 
 DeviceMatrix3D::Ptr filter_frame_cuda_3(const DeviceMatrix::Ptr& frame,
@@ -79,7 +119,6 @@ DeviceMatrix3D::Ptr get_cell_histograms_cuda(const DeviceMatrix3D::Ptr& inds_and
 
     return out;
 }
-
 
 /**
  
@@ -292,7 +331,6 @@ void dist_filter2_d3_cl(const DeviceMatrixCL* frame,
 	 dim_t,
 	 optype);
 	 */
-	
 	
 	const int frame_width = int(frame->width);
 	const int frame_height = int(frame->height);
@@ -631,44 +669,6 @@ void hist_all_cells_cl(const DeviceMatrixCL3D* inds_and_weights,
 }
 
 
-#define MAX_FILTERBANK_SIZE 10000
-#define N_MAX_
-#define N_MAX_CHANNELS 10
 
 
-int update_filter_bank_internal_cl(float* new_filter, int filter_size){
-	
-		
-    cudaError_t cet;
-	
-    if (filter_size > MAX_FILTERBANK_SIZE){
-        printf("ERROR: Filterbank too large\n");
-        return 1;
-    }
-    else {
-        //printf("Value in:%05f\n",new_filter[0]);
-		
-		TheContext* tc = new TheContext();
-		cl_context GPUContext = tc->getMyContext()->getContextCL();
-		cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
-		
-		MyKernels *kernels = new MyKernels(GPUContext,cdDevice);
-		
-	
-		
-		cl_int err;
-		
-		cl_mem filter_mem =  clCreateBuffer(GPUContext, CL_MEM_READ_ONLY, sizeof(float) * filter_size,     
-											NULL, &err);
-		err |= clEnqueueWriteBuffer(tc->getMyContext()->cqCommandQueue, filter_mem, CL_TRUE, 0, 
-									  sizeof(float) * filter_size, new_filter, 0, NULL,  NULL);
-		
-		kernels->getMyKernels()->c_FilterBank=filter_mem;
-		
-		
-        //printf("Value out:%04f\n",c_FilterBank[0]);
-        return 0;
-    }
-	
-}
 

@@ -17,15 +17,15 @@ cs = vivid.ConvertedSource(iv, vivid.cv.CV_32FC3, 1.0 / 255.0)
 # Source for covnerting to grayscale 
 gs = vivid.GreySource(cs)
 
-
 #dictionary = np.load('media/dictionary_300.npy')
 
 #word_size = 3
 #dictionary = dictionary.reshape((-1, word_size, word_size))
 
-dictionary_size = 300
+dictionary_size = 1
 word_size = 3
-dictionary = np.random.random((dictionary_size, word_size, word_size))
+dictionary = np.ones((dictionary_size, word_size, word_size))
+#dictionary = np.random.random((dictionary_size, word_size, word_size))
 
 ff = vivid.FlexibleFilter(
     gs,

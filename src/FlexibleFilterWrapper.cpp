@@ -9,11 +9,20 @@
 
 using namespace boost::python;
 
-int update_filter_bank(object& filterbank_array){
+int update_filter_bank_cuda(object& filterbank_array){
     NumPyMatrix3D arr(filterbank_array);
     //Here turn it into a float array and pass it to the FlexibleFilter.cpp
     int data_size = arr.dim_t() * arr.dim_x() * arr.dim_y();
-    set_filter_bank(arr.data(), data_size);
+    set_filter_bank_cuda(arr.data(), data_size);
+
+    return 0;
+}
+
+int update_filter_bank_cl(object& filterbank_array){
+    NumPyMatrix3D arr(filterbank_array);
+    //Here turn it into a float array and pass it to the FlexibleFilter.cpp
+    int data_size = arr.dim_t() * arr.dim_x() * arr.dim_y();
+    set_filter_bank_cl(arr.data(), data_size);
 
     return 0;
 }
@@ -178,7 +187,8 @@ void export_FlexibleFilter()
 	
 	
 	
-    def ("_update_filter_bank", update_filter_bank);
+    def ("_update_filter_bank_cuda", update_filter_bank_cuda);
+    def ("_update_filter_bank_cl", update_filter_bank_cl);
 
     def("cosine_filter_c", cosine_filter_c);
 }
