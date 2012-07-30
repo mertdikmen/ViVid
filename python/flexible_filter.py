@@ -1,11 +1,17 @@
 import numpy as np
 
-from _vivid import DeviceMatrix
+from _vivid import DeviceMatrix, DeviceMatrixCL
 from _vivid import _update_filter_bank
+
 from _vivid import _filter_frame_cuda_3
 from _vivid import _filter_frame_cuda_5
 from _vivid import _filter_frame_cuda_7
+
+from _vivid import _filter_frame_cl_3
+from _vivid import _filter_frame_cl_5
+from _vivid import _filter_frame_cl_7
 from _vivid import cosine_filter_c
+
 from cv_conversions import *
 
 ##FLEXIBLE_FILTER CLASS
@@ -131,7 +137,41 @@ class FlexibleFilter:
         result[:,:,-self.apron_x:] = -1
 
         return result  
-#
+
+    def filter_frame_cl(self, framenum):
+        frame = cvmat2array(self.origin.get_frame(framenum))
+
+        if len(frame.shape) == 2:  #if this is a single channel image, fake the last channel
+            frame = np.reshape(frame,(frame.shape[0], frame.shape[1], 1))
+
+        #interleave the channels
+        frame_ilv = np.empty((frame.shape[0], frame.shape[1] * frame.shape[2]), dtype='float32')
+        for k in range(self.nchannels):
+            frame_ilv[:,k::self.nchannels] = frame[:,:,k]
+
+        frame_dm = DeviceMatrixCL(frame_ilv)
+
+        if self.filter_width == 3:
+            fn = _filter_frame_cl_3
+        elif self.filter_width == 5:
+            fn = _filter_frame_cl_5
+        elif self.filter_width == 7:
+            fn = _filter_frame_cl_7
+
+        result = fn(frame_dm,
+                    self.filter_bank_size,
+                    self.nchannels,
+                    self.optype)
+
+        result = result.mat()
+        
+        result[:, :self.apron_y,:] = -1
+        result[:,-self.apron_y:,:] = -1
+        result[:,:, :self.apron_x] = -1
+        result[:,:,-self.apron_x:] = -1
+
+        return result  
+
 #    def filter_frame_cuda_noargmin(self, framenum):
 #        frame = self.origin.get_frame(framenum)
 #
