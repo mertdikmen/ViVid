@@ -152,10 +152,8 @@ void export_FlexibleFilter()
 	def<DeviceMatrixCL3D::Ptr (const DeviceMatrixCL::Ptr&, 
                              const int dim_t, const int nchannels,
                              const int optype ) >
-	("_filter_frame_cl_3", filter_frame_cl_3);
+	    ("_filter_frame_cl_3", filter_frame_cl_3);
 	
-	
-
     def<DeviceMatrix3D::Ptr (const DeviceMatrix::Ptr&, 
                              const int dim_t, const int nchannels,
                              const int optype ) >
@@ -164,7 +162,7 @@ void export_FlexibleFilter()
 	def<DeviceMatrixCL3D::Ptr (const DeviceMatrixCL::Ptr&, 
                              const int dim_t, const int nchannels,
                              const int optype ) >
-	("_filter_frame_cl_5", filter_frame_cl_5);
+	    ("_filter_frame_cl_5", filter_frame_cl_5);
 
     def<DeviceMatrix3D::Ptr (const DeviceMatrix::Ptr&, 
                              const int dim_t, const int nchannels,
@@ -174,7 +172,8 @@ void export_FlexibleFilter()
 	def<DeviceMatrixCL3D::Ptr (const DeviceMatrixCL::Ptr&, 
                              const int dim_t, const int nchannels,
                              const int optype ) >
-	("_filter_frame_cl_7", filter_frame_cl_7);
+	    ("_filter_frame_cl_7", filter_frame_cl_7);
+
     def<DeviceMatrix3D::Ptr (const DeviceMatrix::Ptr&, 
                              const int dim_t, const int dim_y, const int dim_x, const int nchannels,
                              const int optype ) >
@@ -183,9 +182,7 @@ void export_FlexibleFilter()
 	def<DeviceMatrixCL3D::Ptr (const DeviceMatrixCL::Ptr&, 
                              const int dim_t, const int dim_y, const int dim_x, const int nchannels,
                              const int optype ) >
-	("_filter_frame_cl_noargmin", filter_frame_cl_noargmin);
-	
-	
+	    ("_filter_frame_cl_noargmin", filter_frame_cl_noargmin);
 	
     def ("_update_filter_bank_cuda", update_filter_bank_cuda);
     def ("_update_filter_bank_cl", update_filter_bank_cl);

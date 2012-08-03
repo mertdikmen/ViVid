@@ -16,6 +16,7 @@ int update_filter_bank_internal_cl(float* new_filter, int filter_size){
         return 1;
     }
     else {
+        //std::cout << "Loading the filterbank" << std::endl;
         //printf("Value in:%05f\n",new_filter[0]);
 		
 		TheContext* tc = new TheContext();
@@ -24,23 +25,24 @@ int update_filter_bank_internal_cl(float* new_filter, int filter_size){
 		
 		MyKernels *kernels = new MyKernels(GPUContext,cdDevice);
 		
-	
-		
 		cl_int err;
 		
 		cl_mem filter_mem =  clCreateBuffer(GPUContext, CL_MEM_READ_ONLY, sizeof(float) * filter_size,     
 											NULL, &err);
+
 		err |= clEnqueueWriteBuffer(tc->getMyContext()->cqCommandQueue, filter_mem, CL_TRUE, 0, 
 									  sizeof(float) * filter_size, new_filter, 0, NULL,  NULL);
 		
+        if (err != 0)
+            std::cout << "Error loading the filterbank: CL error: " << err << std::endl;
+
 		kernels->getMyKernels()->c_FilterBank=filter_mem;
 		
-		
-        //printf("Value out:%04f\n",c_FilterBank[0]);
         return 0;
     }
 	
 }
+
 int set_filter_bank_cuda(float* filter_bank, int size){
     return update_filter_bank_internal(filter_bank,size); 
 }
@@ -125,7 +127,6 @@ DeviceMatrix3D::Ptr get_cell_histograms_cuda(const DeviceMatrix3D::Ptr& inds_and
  OPENCL
  
  **/
-
 DeviceMatrixCL3D::Ptr filter_frame_cl_3(const DeviceMatrixCL::Ptr& frame,
 										const int dim_t, const int nchannels,
 										const int optype){
@@ -215,7 +216,7 @@ DeviceMatrixCL3D::Ptr get_cell_histograms_cl(const DeviceMatrixCL3D::Ptr& inds_a
 
 
 cl_int parameters_blockwise_distance_kernel(cl_kernel theKernel,const DeviceMatrixCL* matrix,
-		  DeviceMatrixCL3D* output,const int frame_width,const int frame_height,const int FD,const int optype, cl_mem filter){
+		  DeviceMatrixCL3D* output,const int frame_width,const int frame_height,const int FD,const int optype, cl_mem filter, const int n_filters){
 	cl_int err=0;
 	
     err |= clSetKernelArg(theKernel, 0, sizeof (cl_mem), &matrix->dataMatrix);
@@ -238,6 +239,7 @@ cl_int parameters_blockwise_distance_kernel(cl_kernel theKernel,const DeviceMatr
 	err |= clSetKernelArg(theKernel, 14, sizeof (const int), &BS);
 	err |= clSetKernelArg(theKernel, 15, sizeof (const int), &optype);
 	err |= clSetKernelArg(theKernel, 16, sizeof (cl_mem), &filter);
+	err |= clSetKernelArg(theKernel, 17, sizeof (const int), &n_filters);
 	return err;
 }
 
@@ -312,38 +314,16 @@ void dist_filter2_d3_cl(const DeviceMatrixCL* frame,
 						DeviceMatrixCL3D* output,
 						const int optype)
 {
-	/*  const int frame_width = int(frame->width);
-	 const int frame_height = int(frame->height);
-	 
-	 const int valid_region_h = frame_height - 3 + 1;
-	 const int valid_region_w = frame_width - 3 + 1;
-	 
-	 int grid_ry = valid_region_h / (BLOCK_SIZE * BLOCK_MULT) + 1;
-	 int grid_cx = valid_region_w / (BLOCK_SIZE * BLOCK_MULT) + 1;
-	 
-	 dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE);
-	 
-	 dim3 dimGrid(grid_cx, grid_ry);
-	 
-	    blockwise_distance_kernel<3><<<dimGrid, dimBlock>>>(*frame,
-	 *output,
-	 frame_width, frame_height,
-	 dim_t,
-	 optype);
-	 */
-	
 	const int frame_width = int(frame->width);
 	const int frame_height = int(frame->height);
 	
 	const int valid_region_h = frame_height - 3 + 1;
 	const int valid_region_w = frame_width - 3 + 1;
 	
-	
 	const size_t local_work_size[2] = {BLOCK_SIZE, BLOCK_SIZE}; 
 	const int n_blocks_x = (valid_region_h / (BLOCK_SIZE * BLOCK_MULT) + 1)* local_work_size[0];
 	const int n_blocks_y = (valid_region_w / (BLOCK_SIZE * BLOCK_MULT) + 1)* local_work_size[1];	
 	const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
-
 	
 	TheContext* tc = new TheContext();
 	
@@ -362,7 +342,8 @@ void dist_filter2_d3_cl(const DeviceMatrixCL* frame,
 	
     err =  parameters_blockwise_distance_kernel(theKernel, frame, output,
 												frame_width,frame_height,3,optype,
-												kernels->getMyKernels()->c_FilterBank);	
+												kernels->getMyKernels()->c_FilterBank,
+                                                dim_t);	
   	
     if (err != CL_SUCCESS) {
         printf("Error: Failed to set kernel arguments 3! %d\n", err);
@@ -439,7 +420,8 @@ void dist_filter2_d5_cl(const DeviceMatrixCL* frame,
 	
     err =  parameters_blockwise_distance_kernel(theKernel, frame, output,
 												frame_width,frame_height,5,optype,
-												kernels->getMyKernels()->c_FilterBank);	
+												kernels->getMyKernels()->c_FilterBank,
+                                                dim_t);	
   	
     if (err != CL_SUCCESS) {
         printf("Error: Failed to set kernel arguments 3! %d\n", err);
@@ -512,7 +494,8 @@ void dist_filter2_d7_cl(const DeviceMatrixCL* frame,
 	
     err =  parameters_blockwise_distance_kernel(theKernel, frame, output,
 												frame_width,frame_height,7,optype,
-												kernels->getMyKernels()->c_FilterBank);	
+												kernels->getMyKernels()->c_FilterBank,
+                                                dim_t);	
   	
     if (err != CL_SUCCESS) {
         printf("Error: Failed to set kernel arguments 3! %d\n", err);
