@@ -5,10 +5,102 @@
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\DeviceMatrixWrapper.hpp" />
+    <ClInclude Include="BlockHistogram.hpp" />
+    <ClInclude Include="BlockHistogramLocal.hpp" />
+    <ClInclude Include="BlockHistogramWrapper.hpp" />
+    <ClInclude Include="ContextOpenCL.h" />
+    <ClInclude Include="Convolution.hpp" />
+    <ClInclude Include="ConvolutionMCuda.hpp" />
+    <ClInclude Include="ConvolutionWrapper.hpp" />
+    <ClInclude Include="DeviceMatrix.hpp" />
+    <ClInclude Include="exceptions.hpp" />
+    <ClInclude Include="fastexp.h" />
+    <ClInclude Include="FlexibleFilter.hpp" />
+    <ClInclude Include="FlexibleFilterLocal.hpp" />
+    <ClInclude Include="FlexibleFilterWrapper.hpp" />
+    <ClInclude Include="NumPyWrapper.hpp" />
+    <ClInclude Include="OpenCLKernels.hpp" />
+    <ClInclude Include="OpenCLWrapper.hpp" />
+    <ClInclude Include="PairwiseDistance.hpp" />
+    <ClInclude Include="PairwiseDistanceLocal.hpp" />
+    <ClInclude Include="PairwiseDistanceWrapper.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\DeviceMatrixWrapper.cpp" />
+    <ClCompile Include="..\..\src\_vivid.cpp" />
+    <ClCompile Include="BlockHistogram.cpp" />
+    <ClCompile Include="BlockHistogramWrapper.cpp" />
+    <ClCompile Include="ContextOpenCL.cpp" />
+    <ClCompile Include="Convolution.cpp" />
+    <ClCompile Include="ConvolutionMCuda.cpp" />
+    <ClCompile Include="ConvolutionMCuda0.cpp" />
+    <ClCompile Include="ConvolutionMCuda2.cpp" />
+    <ClCompile Include="ConvolutionMCuda4.cpp" />
+    <ClCompile Include="ConvolutionWrapper.cpp" />
+    <ClCompile Include="DeviceMatrix.cpp" />
+    <ClCompile Include="exceptions.cpp" />
+    <ClCompile Include="FlexibleFilter.cpp" />
+    <ClCompile Include="FlexibleFilterWrapper.cpp" />
+    <ClCompile Include="NumPyWrapper.cpp" />
+    <ClCompile Include="OpenCLKernels.cpp" />
+    <ClCompile Include="OpenCLWrapper.cpp" />
+    <ClCompile Include="PairwiseDistance.cpp" />
+    <ClCompile Include="PairwiseDistanceWrapper.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="BlockHistogram.cu" />
+    <CudaCompile Include="Convolution.cu" />
+    <CudaCompile Include="FlexibleFilter.cu" />
+    <CudaCompile Include="PairwiseDistance.cu" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="argmaxKernel.cl" />
+    <None Include="argminKernel.cl" />
+    <None Include="blockwise_distance_kernel.cl" />
+    <None Include="blockwise_filter_kernel.cl" />
+    <None Include="cellHistogramKernel1.cl" />
+    <None Include="cellHistogramKernel2.cl" />
+    <None Include="cell_histogram_kernel.cl" />
+    <None Include="do_convolution0.cl" />
+    <None Include="do_convolution1.cl" />
+    <None Include="do_convolution2.cl" />
+    <None Include="do_convolution2_10.cl" />
+    <None Include="do_convolution2_12.cl" />
+    <None Include="do_convolution2_14.cl" />
+    <None Include="do_convolution3.cl" />
+    <None Include="do_convolution3_11.cl" />
+    <None Include="do_convolution3_7.cl" />
+    <None Include="do_convolution3_9.cl" />
+    <None Include="do_convolution4.cl" />
+    <None Include="do_convolution4_11.cl" />
+    <None Include="do_convolution4_13.cl" />
+    <None Include="do_convolution4_15.cl" />
+    <None Include="do_convolution4_7.cl" />
+    <None Include="do_convolution4_9.cl" />
+    <None Include="do_convolution5.cl" />
+    <None Include="do_convolution5_11.cl" />
+    <None Include="do_convolution5_7.cl" />
+    <None Include="do_convolution5_9.cl" />
+    <None Include="do_convolution_complex_t0.cl" />
+    <None Include="do_convolution_complex_t1.cl" />
+    <None Include="do_convolution_complex_t1_11.cl" />
+    <None Include="do_convolution_complex_t1_7.cl" />
+    <None Include="do_convolution_complex_t1_9.cl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D32A9731-3352-4B4C-A572-C32892EF1A23}</ProjectGuid>
@@ -18,59 +110,143 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <CLRSupport>true</CLRSupport>
+    <CLRSupport>false</CLRSupport>
     <CharacterSet>Unicode</CharacterSet>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CLRSupport>false</CLRSupport>
+    <CharacterSet>Unicode</CharacterSet>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <CLRSupport>true</CLRSupport>
     <CharacterSet>Unicode</CharacterSet>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CLRSupport>true</CLRSupport>
+    <CharacterSet>Unicode</CharacterSet>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 4.2.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <TargetName>_win_vivid</TargetName>
+    <TargetExt>.pyd</TargetExt>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <TargetName>_win_vivid</TargetName>
+    <TargetExt>.pyd</TargetExt>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
+    <TargetExt>.pyd</TargetExt>
+    <TargetName>_vivid</TargetName>
+    <IgnoreImportLibrary>false</IgnoreImportLibrary>
+    <ExtensionsToDeleteOnClean>*.pyd,*.cdf;*.cache;*.obj;*.ilk;*.resources;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;*.pgc;*.pgd;*.meta;*.tlog;*.manifest;*.res;*.pch;*.exp;*.idb;*.rep;*.xdc;*.pdb;*_manifest.rc;*.bsc;*.sbr;*.xml;*.metagen;*.bi</ExtensionsToDeleteOnClean>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <TargetExt>.pyd</TargetExt>
+    <TargetName>_win_vivid</TargetName>
+    <IgnoreImportLibrary>false</IgnoreImportLibrary>
+    <ExtensionsToDeleteOnClean>*.pyd,*.cdf;*.cache;*.obj;*.ilk;*.resources;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;*.pgc;*.pgd;*.meta;*.tlog;*.manifest;*.res;*.pch;*.exp;*.idb;*.rep;*.xdc;*.pdb;*_manifest.rc;*.bsc;*.sbr;*.xml;*.metagen;*.bi</ExtensionsToDeleteOnClean>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\Intel\OpenCL SDK\2.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>
-      </AdditionalDependencies>
+      <AdditionalDependencies>OpenCL.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Program Files %28x86%29\Intel\OpenCL SDK\2.0\lib\x64;C:\Program Files %28x86%29\Intel\OpenCL SDK\2.0\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>
+      </AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Python27\Lib\site-packages\numpy\core\include;C:\Python27\Lib\site-packages\scipy;C:\Python27\Lib\site-packages\numpy;C:\Python27\include;C:\Program Files %28x86%29\Intel\OpenCL SDK\2.0\include;C:\boost_1_47_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>cudart.lib;OpenCL.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\boost_1_47_0\libs;C:\Python27\libs;$(CUDA_LIB_PATH);../../common/lib;C:\Program Files %28x86%29\Intel\OpenCL SDK\2.0\lib\x64;C:\Program Files %28x86%29\Intel\OpenCL SDK\2.0\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>
+      </AdditionalOptions>
+      <TargetMachine>MachineX64</TargetMachine>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\boost_1_50_0;C:\Program Files %28x86%29\NVIDIA GPU Computing Toolkit\CUDA\v4.2\include;C:\Python27\libs;C:\Python27\Lib\site-packages\numpy\core\include;C:\Python27\include;C:\Program Files %28x86%29\Intel\OpenCL SDK\2.0\include\CL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>
-      </AdditionalDependencies>
+      <AdditionalDependencies>cudart.lib;OpenCL.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Program Files %28x86%29\NVIDIA GPU Computing Toolkit\CUDA\v4.2\lib\Win32;$(CUDA_LIB_PATH);../../common/lib;C:\boost_1_50_0\libs;C:\Python27\Lib\site-packages\numpy\core\lib;C:\Python27\Lib;C:\Python27\libs;C:\Program Files %28x86%29\Intel\OpenCL SDK\2.0\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>
+      </AdditionalOptions>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <CudaCompile>
+      <TargetMachinePlatform>32</TargetMachinePlatform>
+      <AdditionalDeps>C:\boost_1_50_0;%(AdditionalDeps)</AdditionalDeps>
+      <Include>C:\boost_1_50_0</Include>
+      <CodeGeneration>
+      </CodeGeneration>
+      <AdditionalOptions>-arch sm_20 %(AdditionalOptions)</AdditionalOptions>
+    </CudaCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\Intel\OpenCL SDK\2.0\include\CL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>OpenCL.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Program Files %28x86%29\Intel\OpenCL SDK\2.0\lib\x64;C:\Program Files %28x86%29\Intel\OpenCL SDK\2.0\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>
+      </AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 4.2.targets" />
   </ImportGroup>
 </Project>

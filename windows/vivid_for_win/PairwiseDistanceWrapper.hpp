@@ -1,0 +1,6 @@
+#ifndef _PAIRWISE_DISTANCE_WRAPPER_HPP
+#define _PAIRWISE_DISTANCE_WRAPPER_HPP 1
+
+void export_PairwiseDistance();
+
+#endif /* _PAIRWISE_DISTANCE_WRAPPER_HPP_ */
