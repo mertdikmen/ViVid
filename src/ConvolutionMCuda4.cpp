@@ -645,8 +645,8 @@ bool try_convolution4_m_cl(const MCLMatrix3D::Ptr& video,
     int grid_cx = output->dim_x / 16;
 	
 	
-	const int n_blocks_x = grid_ry* local_work_size[0];
-	const int n_blocks_y = grid_cx* local_work_size[1];
+	const unsigned int n_blocks_x = grid_ry* local_work_size[0];
+	const unsigned int n_blocks_y = grid_cx* local_work_size[1];
     
 	 size_t global_work_size[3] = {n_blocks_x, n_blocks_y,1};	
 	

@@ -3,7 +3,6 @@
 
 #include "DeviceMatrix.hpp"
 
-
 //! Perform a 3D convolution.
 void convolve3d(const DeviceMatrix3D::Ptr& video,
                 const DeviceMatrix3D::Ptr& kernel,

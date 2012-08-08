@@ -5,7 +5,7 @@
 #include "omp.h"
 
 #define PY_ARRAY_UNIQUE_SYMBOL tb
-#define NO_IMPORT_ARRAY
+#define NO_IMPORT
 #include <numpy/arrayobject.h>
 
 using namespace boost::python;
@@ -22,8 +22,8 @@ object cell_histogram_dense(object& input_mat, object& weight_mat,
     NumPyArray start_arr(start_inds);
     NumPyArray stop_arr(stop_inds);
 
-    int n_parts_y = (stop_arr.data()[0] - start_arr.data()[0] ) / cell_size;
-    int n_parts_x = (stop_arr.data()[1] - start_arr.data()[1] ) / cell_size;
+    int n_parts_y = (int)(stop_arr.data()[0] - start_arr.data()[0] ) / cell_size;
+    int n_parts_x = (int)(stop_arr.data()[1] - start_arr.data()[1] ) / cell_size;
 
     npy_intp dims[3] = {n_parts_y, n_parts_x, max_bin};
     
@@ -32,8 +32,8 @@ object cell_histogram_dense(object& input_mat, object& weight_mat,
     
     memset(out_data, 0, sizeof(float) * n_parts_y * n_parts_x * max_bin);
 
-    int start_i = start_arr.data()[0];
-    int start_j = start_arr.data()[1];
+    int start_i = (int) start_arr.data()[0];
+    int start_j = (int) start_arr.data()[1];
 
     //double tic = omp_get_wtime();
 

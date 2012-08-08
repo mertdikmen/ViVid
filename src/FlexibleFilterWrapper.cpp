@@ -2,10 +2,9 @@
 #include <boost/python.hpp>
 #include "NumPyWrapper.hpp"
 #include "omp.h"
-#include <numpy/arrayobject.h>
 #define PY_ARRAY_UNIQUE_SYMBOL tb
-#define NO_IMPORT_ARRAY
-
+#define NO_IMPORT
+#include <numpy/arrayobject.h>
 
 using namespace boost::python;
 

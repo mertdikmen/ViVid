@@ -470,19 +470,15 @@ boost::python::object MCLMatrix3D_copyFromDevice(const MCLMatrix3D& self)
     return retval;
 }
 
-
-
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 void export_DeviceMatrix()
 {
-	/*
     class_<DeviceMatrix, DeviceMatrix::Ptr >
         ("DeviceMatrix", no_init)
         .def("__init__",
              make_constructor<DeviceMatrix::Ptr (object&)>
              (makeDeviceMatrix))
         .def("mat", DeviceMatrix_copyFromDevice);
-	*/
 
     class_<DeviceMatrixCL, DeviceMatrixCL::Ptr >
         ("DeviceMatrixCL", no_init)
@@ -490,8 +486,7 @@ void export_DeviceMatrix()
                 make_constructor<DeviceMatrixCL::Ptr (object&)>
                 (makeDeviceMatrixCL))
         .def("mat", DeviceMatrixCL_copyFromDevice);
-
-	/*
+	
     class_<DeviceMatrix3D, DeviceMatrix3D::Ptr >
         ("DeviceMatrix3D", no_init)
         .def("__init__",
@@ -512,7 +507,7 @@ void export_DeviceMatrix()
 	.def("set", DeviceMatrixCL3D_copyToDevice)
 	.def("crop", cropDeviceMatrixCL3D)
 	;
-	
+
 	def("_makeDeviceMatrixCL3DPacked", makeDeviceMatrix3DPacked);
     // Don't tell python about the subclass relationship -- we should
     // try to keep this as distinct from DeviceMatrix3D as possible
@@ -523,10 +518,11 @@ void export_DeviceMatrix()
              (makeMCudaMatrix3D))
         .def("mat", MCudaMatrix3D_copyFromDevice)
       ;
-	
+
     class_<DeviceMatrix::PtrList >("DeviceMatrix3DList", no_init)
         .def(vector_indexing_suite<DeviceMatrix::PtrList, true>());
-  class_<MCLMatrix3D, MCLMatrix3D::Ptr >
+	
+	class_<MCLMatrix3D, MCLMatrix3D::Ptr >
         ("MCLMatrix3D", no_init)
         .def("__init__",
              make_constructor<MCLMatrix3D::Ptr (const object&)>
@@ -534,13 +530,9 @@ void export_DeviceMatrix()
         .def("mat", MCLMatrix3D_copyFromDevice)
       ;
 	
-    class_<DeviceMatrix::PtrList >("DeviceMCuda3DList", no_init)
+	class_<DeviceMatrix::PtrList >("DeviceMCuda3DList", no_init)
         .def(vector_indexing_suite<DeviceMatrix::PtrList, true>());
 
-
-class_<DeviceMatrixCL::PtrList >("DeviceMCL3DList", no_init)
+	class_<DeviceMatrixCL::PtrList >("DeviceMCL3DList", no_init)
         .def(vector_indexing_suite<DeviceMatrixCL::PtrList, true>());
-
-		*/
-
 }

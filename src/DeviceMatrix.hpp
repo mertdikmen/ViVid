@@ -11,13 +11,12 @@
 #include <vector>
 #include "ContextOpenCL.h"
 
-
 struct DeviceMatrix {
   typedef boost::shared_ptr<DeviceMatrix> Ptr;
   typedef std::vector<Ptr> PtrList;
 
-  size_t width; //!< width in floats
-  size_t height;//!< height in floats
+  unsigned int width; //!< width in floats
+  unsigned int height;//!< height in floats
   //! pitch in floats
   size_t pitch;
   float* data;
@@ -27,7 +26,6 @@ struct DeviceMatrix {
 
 DeviceMatrix::Ptr makeDeviceMatrix(size_t height,
                                    size_t width);
-
 
 struct DeviceMatrixCL {
     typedef boost::shared_ptr<DeviceMatrixCL> Ptr;
@@ -136,9 +134,6 @@ struct DeviceMatrixCL3D {
     // Fill the matrix with zeros
     void zero();
 };
-
-
-
 
 DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(size_t dim_t, size_t dim_y, 
                                        size_t dim_x);

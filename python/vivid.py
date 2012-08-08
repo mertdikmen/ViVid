@@ -4,15 +4,15 @@ import numpy as np
 
 from collections import deque
 
+#This is the source for C++ implementations
+from _vivid import *
+
 #Supplementary functions
-from vivid_kmeans import *
+from vivid_kmeans import Kmeans
 from flexible_filter import *
 from local_binary_pattern import *
 from cv_conversions import *
-from sift import *
-
-#This is the source for C++ implementations
-from _vivid import *
+#from sift import *
 
 #class FileVideo(object):
 #    def __init__(self, file_name):

@@ -2,7 +2,7 @@
 #include "PairwiseDistanceLocal.hpp"
 
 #include "omp.h"
-/*
+
 DeviceMatrix::Ptr pwdist_cuda( const DeviceMatrix::Ptr& features_train,
         const DeviceMatrix::Ptr& features_test){
 
@@ -79,13 +79,10 @@ DeviceMatrix::Ptr max_cuda(const DeviceMatrix::Ptr& matrix)
     DeviceMatrix::Ptr out = makeDeviceMatrix(matrix->height, 1);
     max_cuda_local(matrix.get(), out.get());
     return out;
-}*/
-
+}
 /**
-
   OpenCL function
-
- **/
+**/
 
 DeviceMatrixCL::Ptr pwdist_cl( const DeviceMatrixCL::Ptr& features_train,
         const DeviceMatrixCL::Ptr& features_test){
@@ -100,7 +97,6 @@ DeviceMatrixCL::Ptr pwdist_cl( const DeviceMatrixCL::Ptr& features_train,
     //std::cout << "OpenCL time: " << toc - tic << std::endl;
     return out;
 }
-
 
 DeviceMatrixCL::Ptr pwdot_cl( const DeviceMatrixCL::Ptr& features_train,
         const DeviceMatrixCL::Ptr& features_test){
@@ -129,7 +125,6 @@ DeviceMatrixCL::Ptr pwchisq_cl( const DeviceMatrixCL::Ptr& features_train,
     return out;
 }
 
-
 DeviceMatrixCL::Ptr pwcityblock_cl( const DeviceMatrixCL::Ptr& features_train,
         const DeviceMatrixCL::Ptr& features_test){
 
@@ -139,7 +134,6 @@ DeviceMatrixCL::Ptr pwcityblock_cl( const DeviceMatrixCL::Ptr& features_train,
     return out;
 }
 
-
 DeviceMatrixCL::Ptr argmin_cl(const DeviceMatrixCL::Ptr& matrix)
 {
     DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(matrix->height, 1);
@@ -147,16 +141,12 @@ DeviceMatrixCL::Ptr argmin_cl(const DeviceMatrixCL::Ptr& matrix)
     return out;
 }
 
-
-
 DeviceMatrixCL::Ptr argmax_cl(const DeviceMatrixCL::Ptr& matrix)
 {
     DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(matrix->height, 1);
     argmax_cl_local(matrix.get(), out.get());
     return out;
 }
-
-
 
 DeviceMatrixCL::Ptr min_cl(const DeviceMatrixCL::Ptr& matrix)
 {
@@ -242,8 +232,6 @@ void pwdist_genericCL(const DeviceMatrixCL* features_train,
     }
 }
 
-
-
 cl_int parameters_minmax_local(cl_kernel theKernel,const DeviceMatrixCL* matrix, DeviceMatrixCL* output){
 	cl_int err=0;
 	
@@ -306,9 +294,6 @@ cl_int parameters_minmax_local(cl_kernel theKernel,const DeviceMatrixCL* matrix,
 	return err;
 }
 
-
-
-
 void argmin_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
 {
    
@@ -346,13 +331,6 @@ void argmin_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
         exit(1);
     }
 }
-
-
-
-
-
-
-
 
 void argmax_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
 {
@@ -399,9 +377,6 @@ void argmax_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
     }
 }
 
-
- 
-
 void max_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
 {
 	
@@ -445,9 +420,6 @@ void max_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
         exit(1);
     }
 }
-
-
-
 
 void min_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
 {
@@ -493,4 +465,3 @@ void min_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
         exit(1);
     }
 }
- 

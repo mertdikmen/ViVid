@@ -8,7 +8,6 @@ void pwdist_generic( const DeviceMatrix* features_train,
                      DeviceMatrix* output,
                      int type);
 
-
 void pwdist_genericCL( const DeviceMatrixCL* features_train,
 					const DeviceMatrixCL* features_test,
 					DeviceMatrixCL* output,
@@ -20,15 +19,11 @@ void argmax_cuda_local(const DeviceMatrix* matrix, DeviceMatrix* output);
 void min_cuda_local(const DeviceMatrix* matrix, DeviceMatrix* output);
 void max_cuda_local(const DeviceMatrix* matrix, DeviceMatrix* output);
 
-
-void argmin_cl_local(
-					 const DeviceMatrixCL* matrix,
+void argmin_cl_local(const DeviceMatrixCL* matrix,
 					 DeviceMatrixCL* output);
 
-void argmax_cl_local(
-					 const DeviceMatrixCL* matrix,
+void argmax_cl_local(const DeviceMatrixCL* matrix,
 					 DeviceMatrixCL* output);
-
 
 void min_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output);
 void max_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output);

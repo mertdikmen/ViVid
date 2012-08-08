@@ -99,9 +99,8 @@ struct theKernels {
 		
 		// Creates the program
 		// Uses NVIDIA helper functions to get the code string and it's size (in bytes)
-		size_t src_size = 0;
-		
-		
+		//size_t src_size = 0;
+				
 		char *program_source = load_program_source(ruta);
 		if (program_source == NULL) {
 			printf("Error: Failed to read the OpenCL kernel $s: kernel.cl\n",kernel);
