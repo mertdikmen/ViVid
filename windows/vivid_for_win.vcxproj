@@ -19,88 +19,96 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\DeviceMatrixWrapper.hpp" />
-    <ClInclude Include="BlockHistogram.hpp" />
-    <ClInclude Include="BlockHistogramLocal.hpp" />
-    <ClInclude Include="BlockHistogramWrapper.hpp" />
-    <ClInclude Include="ContextOpenCL.h" />
-    <ClInclude Include="Convolution.hpp" />
-    <ClInclude Include="ConvolutionMCuda.hpp" />
-    <ClInclude Include="ConvolutionWrapper.hpp" />
-    <ClInclude Include="DeviceMatrix.hpp" />
-    <ClInclude Include="exceptions.hpp" />
-    <ClInclude Include="fastexp.h" />
-    <ClInclude Include="FlexibleFilter.hpp" />
-    <ClInclude Include="FlexibleFilterLocal.hpp" />
-    <ClInclude Include="FlexibleFilterWrapper.hpp" />
-    <ClInclude Include="NumPyWrapper.hpp" />
-    <ClInclude Include="OpenCLKernels.hpp" />
-    <ClInclude Include="OpenCLWrapper.hpp" />
-    <ClInclude Include="PairwiseDistance.hpp" />
-    <ClInclude Include="PairwiseDistanceLocal.hpp" />
-    <ClInclude Include="PairwiseDistanceWrapper.hpp" />
+    <ClCompile Include="..\src\BlockHistogram.cpp" />
+    <ClCompile Include="..\src\BlockHistogramWrapper.cpp" />
+    <ClCompile Include="..\src\ContextOpenCL.cpp" />
+    <ClCompile Include="..\src\Convolution.cpp" />
+    <ClCompile Include="..\src\ConvolutionMCuda.cpp" />
+    <ClCompile Include="..\src\ConvolutionMCuda0.cpp" />
+    <ClCompile Include="..\src\ConvolutionMCuda2.cpp" />
+    <ClCompile Include="..\src\ConvolutionMCuda4.cpp" />
+    <ClCompile Include="..\src\ConvolutionWrapper.cpp" />
+    <ClCompile Include="..\src\DeviceMatrix.cpp" />
+    <ClCompile Include="..\src\DeviceMatrixWrapper.cpp" />
+    <ClCompile Include="..\src\exceptions.cpp" />
+    <ClCompile Include="..\src\FlexibleFilter.cpp" />
+    <ClCompile Include="..\src\FlexibleFilterWrapper.cpp" />
+    <ClCompile Include="..\src\hello.cpp" />
+    <ClCompile Include="..\src\NumPyWrapper.cpp" />
+    <ClCompile Include="..\src\opencl.cpp" />
+    <ClCompile Include="..\src\OpenCLKernels.cpp" />
+    <ClCompile Include="..\src\OpenCLWrapper.cpp" />
+    <ClCompile Include="..\src\PairwiseDistance.cpp" />
+    <ClCompile Include="..\src\PairwiseDistanceWrapper.cpp" />
+    <ClCompile Include="..\src\_vivid.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\DeviceMatrixWrapper.cpp" />
-    <ClCompile Include="..\..\src\_vivid.cpp" />
-    <ClCompile Include="BlockHistogram.cpp" />
-    <ClCompile Include="BlockHistogramWrapper.cpp" />
-    <ClCompile Include="ContextOpenCL.cpp" />
-    <ClCompile Include="Convolution.cpp" />
-    <ClCompile Include="ConvolutionMCuda.cpp" />
-    <ClCompile Include="ConvolutionMCuda0.cpp" />
-    <ClCompile Include="ConvolutionMCuda2.cpp" />
-    <ClCompile Include="ConvolutionMCuda4.cpp" />
-    <ClCompile Include="ConvolutionWrapper.cpp" />
-    <ClCompile Include="DeviceMatrix.cpp" />
-    <ClCompile Include="exceptions.cpp" />
-    <ClCompile Include="FlexibleFilter.cpp" />
-    <ClCompile Include="FlexibleFilterWrapper.cpp" />
-    <ClCompile Include="NumPyWrapper.cpp" />
-    <ClCompile Include="OpenCLKernels.cpp" />
-    <ClCompile Include="OpenCLWrapper.cpp" />
-    <ClCompile Include="PairwiseDistance.cpp" />
-    <ClCompile Include="PairwiseDistanceWrapper.cpp" />
+    <ClInclude Include="..\src\BlockHistogram.hpp" />
+    <ClInclude Include="..\src\BlockHistogramLocal.hpp" />
+    <ClInclude Include="..\src\BlockHistogramWrapper.hpp" />
+    <ClInclude Include="..\src\ContextOpenCL.h" />
+    <ClInclude Include="..\src\Convolution.hpp" />
+    <ClInclude Include="..\src\ConvolutionMCuda.hpp" />
+    <ClInclude Include="..\src\ConvolutionWrapper.hpp" />
+    <ClInclude Include="..\src\DeviceMatrix.hpp" />
+    <ClInclude Include="..\src\DeviceMatrixWrapper.hpp" />
+    <ClInclude Include="..\src\exceptions.hpp" />
+    <ClInclude Include="..\src\fastexp.h" />
+    <ClInclude Include="..\src\FlexibleFilter.hpp" />
+    <ClInclude Include="..\src\FlexibleFilterLocal.hpp" />
+    <ClInclude Include="..\src\FlexibleFilterWrapper.hpp" />
+    <ClInclude Include="..\src\numpy.h" />
+    <ClInclude Include="..\src\NumPyWrapper.hpp" />
+    <ClInclude Include="..\src\omp_unix.h" />
+    <ClInclude Include="..\src\OpenCLKernels.hpp" />
+    <ClInclude Include="..\src\OpenCLWrapper.hpp" />
+    <ClInclude Include="..\src\PairwiseDistance.hpp" />
+    <ClInclude Include="..\src\PairwiseDistanceLocal.hpp" />
+    <ClInclude Include="..\src\PairwiseDistanceWrapper.hpp" />
+    <ClInclude Include="..\src\unistd_win.h" />
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="BlockHistogram.cu" />
-    <CudaCompile Include="Convolution.cu" />
-    <CudaCompile Include="FlexibleFilter.cu" />
-    <CudaCompile Include="PairwiseDistance.cu" />
+    <CudaCompile Include="..\src\BlockHistogram.cu" />
+    <CudaCompile Include="..\src\Convolution.cu" />
+    <CudaCompile Include="..\src\FlexibleFilter.cu" />
+    <CudaCompile Include="..\src\PairwiseDistance.cu" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="argmaxKernel.cl" />
-    <None Include="argminKernel.cl" />
-    <None Include="blockwise_distance_kernel.cl" />
-    <None Include="blockwise_filter_kernel.cl" />
-    <None Include="cellHistogramKernel1.cl" />
-    <None Include="cellHistogramKernel2.cl" />
-    <None Include="cell_histogram_kernel.cl" />
-    <None Include="do_convolution0.cl" />
-    <None Include="do_convolution1.cl" />
-    <None Include="do_convolution2.cl" />
-    <None Include="do_convolution2_10.cl" />
-    <None Include="do_convolution2_12.cl" />
-    <None Include="do_convolution2_14.cl" />
-    <None Include="do_convolution3.cl" />
-    <None Include="do_convolution3_11.cl" />
-    <None Include="do_convolution3_7.cl" />
-    <None Include="do_convolution3_9.cl" />
-    <None Include="do_convolution4.cl" />
-    <None Include="do_convolution4_11.cl" />
-    <None Include="do_convolution4_13.cl" />
-    <None Include="do_convolution4_15.cl" />
-    <None Include="do_convolution4_7.cl" />
-    <None Include="do_convolution4_9.cl" />
-    <None Include="do_convolution5.cl" />
-    <None Include="do_convolution5_11.cl" />
-    <None Include="do_convolution5_7.cl" />
-    <None Include="do_convolution5_9.cl" />
-    <None Include="do_convolution_complex_t0.cl" />
-    <None Include="do_convolution_complex_t1.cl" />
-    <None Include="do_convolution_complex_t1_11.cl" />
-    <None Include="do_convolution_complex_t1_7.cl" />
-    <None Include="do_convolution_complex_t1_9.cl" />
+    <None Include="..\src\argmaxKernel.cl" />
+    <None Include="..\src\argminKernel.cl" />
+    <None Include="..\src\blockwise_distance_kernel.cl" />
+    <None Include="..\src\blockwise_filter_kernel.cl" />
+    <None Include="..\src\cellHistogramKernel1.cl" />
+    <None Include="..\src\cellHistogramKernel2.cl" />
+    <None Include="..\src\cell_histogram_kernel.cl" />
+    <None Include="..\src\do_convolution0.cl" />
+    <None Include="..\src\do_convolution1.cl" />
+    <None Include="..\src\do_convolution2.cl" />
+    <None Include="..\src\do_convolution2_10.cl" />
+    <None Include="..\src\do_convolution2_12.cl" />
+    <None Include="..\src\do_convolution2_14.cl" />
+    <None Include="..\src\do_convolution3.cl" />
+    <None Include="..\src\do_convolution3_11.cl" />
+    <None Include="..\src\do_convolution3_7.cl" />
+    <None Include="..\src\do_convolution3_9.cl" />
+    <None Include="..\src\do_convolution4.cl" />
+    <None Include="..\src\do_convolution4_11.cl" />
+    <None Include="..\src\do_convolution4_13.cl" />
+    <None Include="..\src\do_convolution4_15.cl" />
+    <None Include="..\src\do_convolution4_7.cl" />
+    <None Include="..\src\do_convolution4_9.cl" />
+    <None Include="..\src\do_convolution5.cl" />
+    <None Include="..\src\do_convolution5_11.cl" />
+    <None Include="..\src\do_convolution5_7.cl" />
+    <None Include="..\src\do_convolution5_9.cl" />
+    <None Include="..\src\do_convolution_complex_t0.cl" />
+    <None Include="..\src\do_convolution_complex_t1.cl" />
+    <None Include="..\src\do_convolution_complex_t1_11.cl" />
+    <None Include="..\src\do_convolution_complex_t1_7.cl" />
+    <None Include="..\src\do_convolution_complex_t1_9.cl" />
+    <None Include="..\src\maxKernel.cl" />
+    <None Include="..\src\minKernel.cl" />
+    <None Include="..\src\PairwiseDistance.cl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D32A9731-3352-4B4C-A572-C32892EF1A23}</ProjectGuid>
@@ -120,6 +128,7 @@
     <CLRSupport>false</CLRSupport>
     <CharacterSet>Unicode</CharacterSet>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <UseDebugLibraries>false</UseDebugLibraries>
@@ -129,14 +138,18 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <UseDebugLibraries>false</UseDebugLibraries>
-    <CLRSupport>true</CLRSupport>
+    <CLRSupport>false</CLRSupport>
     <CharacterSet>Unicode</CharacterSet>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
     <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 4.2.props" />
   </ImportGroup>
+  <!--<ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 4.2.props" />
+  </ImportGroup>-->
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
@@ -159,9 +172,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <TargetName>_win_vivid</TargetName>
+    <TargetName>_vivid</TargetName>
     <TargetExt>.pyd</TargetExt>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)\..\bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -172,9 +185,10 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetExt>.pyd</TargetExt>
-    <TargetName>_win_vivid</TargetName>
+    <TargetName>_vivid</TargetName>
     <IgnoreImportLibrary>false</IgnoreImportLibrary>
     <ExtensionsToDeleteOnClean>*.pyd,*.cdf;*.cache;*.obj;*.ilk;*.resources;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;*.pgc;*.pgd;*.meta;*.tlog;*.manifest;*.res;*.pch;*.exp;*.idb;*.rep;*.xdc;*.pdb;*_manifest.rc;*.bsc;*.sbr;*.xml;*.metagen;*.bi</ExtensionsToDeleteOnClean>
+    <OutDir>$(SolutionDir)\..\bin\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -195,24 +209,29 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Python27\Lib\site-packages\numpy\core\include;C:\Python27\Lib\site-packages\scipy;C:\Python27\Lib\site-packages\numpy;C:\Python27\include;C:\Program Files %28x86%29\Intel\OpenCL SDK\2.0\include;C:\boost_1_47_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>BOOST_PYTHON_STATIC_LIB;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Python27\Lib\site-packages\numpy\core\include;C:\Python27\Lib\site-packages\scipy;C:\Python27\Lib\site-packages\numpy;C:\Python27\include;$(BOOST_PATH);$(CUDA_INC_PATH);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>cudart.lib;OpenCL.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\boost_1_47_0\libs;C:\Python27\libs;$(CUDA_LIB_PATH);../../common/lib;C:\Program Files %28x86%29\Intel\OpenCL SDK\2.0\lib\x64;C:\Program Files %28x86%29\Intel\OpenCL SDK\2.0\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(BOOST_PATH)\stage\lib;C:\Python27\libs;../../common/lib;$(CUDA_LIB_PATH);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>
       </AdditionalOptions>
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
+    <CudaCompile>
+      <Include>$(BOOST_PATH);%(Include)</Include>
+      <TargetMachinePlatform>64</TargetMachinePlatform>
+      <CodeGeneration>compute_20,sm_20</CodeGeneration>
+    </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\boost_1_50_0;C:\Program Files %28x86%29\NVIDIA GPU Computing Toolkit\CUDA\v4.2\include;C:\Python27\libs;C:\Python27\Lib\site-packages\numpy\core\include;C:\Python27\include;C:\Program Files %28x86%29\Intel\OpenCL SDK\2.0\include\CL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\boost_1_50_0;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include;C:\Python27\libs;C:\Python27\Lib\site-packages\numpy\core\include;C:\Python27\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -235,18 +254,28 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\Intel\OpenCL SDK\2.0\include\CL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(BOOST_PATH);C:\Python27\include;C:\Python27\Lib\site-packages\numpy\core\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>OpenCL.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Program Files %28x86%29\Intel\OpenCL SDK\2.0\lib\x64;C:\Program Files %28x86%29\Intel\OpenCL SDK\2.0\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>cudart.lib;OpenCL.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(BOOST_PATH)\stage\lib;c:\Python27\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>
       </AdditionalOptions>
     </Link>
+    <CudaCompile>
+      <Include>$(BOOST_PATH)</Include>
+      <CodeGeneration>compute_20,sm_20</CodeGeneration>
+      <TargetMachinePlatform>64</TargetMachinePlatform>
+      <FastMath>true</FastMath>
+      <Optimization>O2</Optimization>
+    </CudaCompile>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 4.2.targets" />
   </ImportGroup>
+  <!--<ImportGroup Label="ExtensionTargets">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 4.2.targets" />
+  </ImportGroup>-->
 </Project>

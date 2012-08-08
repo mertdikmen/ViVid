@@ -148,7 +148,7 @@ object pwdot_c(object a, object b){
 
 void export_PairwiseDistance()
 {
-    def<DeviceMatrix::Ptr (const DeviceMatrix::Ptr&, const DeviceMatrix::Ptr& ) >
+  /*  def<DeviceMatrix::Ptr (const DeviceMatrix::Ptr&, const DeviceMatrix::Ptr& ) >
         ("pwchisq_cuda",pwchisq_cuda);
 
     def<DeviceMatrix::Ptr (const DeviceMatrix::Ptr&, const DeviceMatrix::Ptr& ) >
@@ -206,5 +206,5 @@ void export_PairwiseDistance()
 	
 	
 	
-	
+	*/
 }

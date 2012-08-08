@@ -13,7 +13,6 @@
 #define PY_ARRAY_UNIQUE_SYMBOL tb
 #include <numpy/arrayobject.h>
 
-
 ////////////////////////
 // Faster operations
 ////////////////////////
@@ -89,7 +88,7 @@ boost::python::object fast_exp(boost::python::object& input_mat,
 std::vector<int> create_lbp_dictionary(
     const int u, const int num_bits)
 {
-    const int num_values = pow(2, num_bits);
+    int num_values = (int) pow(2.0f, num_bits);
 
     std::vector<int> lbp_map(num_values, 0);
 
@@ -362,12 +361,10 @@ object group_cell_histograms(object& cell_histograms,
 
 BOOST_PYTHON_MODULE(_vivid)
 {
-    //NumPyWrapper::init();
-
     import_array();
-
+		
     export_DeviceMatrix();
-    export_PairwiseDistance();
+	export_PairwiseDistance();
     export_FlexibleFilter();
     export_BlockHistogram();
     export_Convolution();
@@ -381,10 +378,5 @@ BOOST_PYTHON_MODULE(_vivid)
     def("add_cell_histograms", add_cell_histograms);
     def("create_lbp_dictionary", create_lbp_dictionary);
     def("compute_lbp_n8_r1", compute_lbp_n8_r1); 
-
-    //class_<VideoReader>("FileVideo", init<const std::string& >() )
-    //    .def("get_frame", &VideoReader::get_frame)
-    //    .def("n_frames", &VideoReader::get_num_total_frames)
-    //;
 }
 

@@ -1,0 +1,277 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{52848529-1e83-43dd-a6db-9064ec91153a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{714640b2-1aea-4393-ad67-9ec2d26b5e39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CUDA">
+      <UniqueIdentifier>{6d9557ca-25d1-4c22-a5b7-38a24566eb0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CL">
+      <UniqueIdentifier>{438d2019-7028-4f8e-b500-d400e50c6391}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\_vivid.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\BlockHistogram.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\BlockHistogramWrapper.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ContextOpenCL.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Convolution.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ConvolutionMCuda.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ConvolutionMCuda0.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ConvolutionMCuda2.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ConvolutionMCuda4.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ConvolutionWrapper.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DeviceMatrix.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DeviceMatrixWrapper.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\exceptions.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\FlexibleFilter.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\FlexibleFilterWrapper.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\hello.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\NumPyWrapper.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\opencl.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\OpenCLKernels.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\OpenCLWrapper.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\PairwiseDistance.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\PairwiseDistanceWrapper.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\ContextOpenCL.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\fastexp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\numpy.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\omp_unix.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\unistd_win.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\BlockHistogram.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\BlockHistogramLocal.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\BlockHistogramWrapper.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Convolution.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ConvolutionMCuda.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ConvolutionWrapper.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\DeviceMatrix.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\DeviceMatrixWrapper.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\exceptions.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\FlexibleFilter.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\FlexibleFilterLocal.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\FlexibleFilterWrapper.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\NumPyWrapper.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\OpenCLKernels.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\OpenCLWrapper.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\PairwiseDistance.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\PairwiseDistanceLocal.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\PairwiseDistanceWrapper.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="..\src\BlockHistogram.cu">
+      <Filter>CUDA</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\Convolution.cu">
+      <Filter>CUDA</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\FlexibleFilter.cu">
+      <Filter>CUDA</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\PairwiseDistance.cu">
+      <Filter>CUDA</Filter>
+    </CudaCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\src\argmaxKernel.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\argminKernel.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\blockwise_distance_kernel.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\blockwise_filter_kernel.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\cell_histogram_kernel.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\cellHistogramKernel1.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\cellHistogramKernel2.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\do_convolution_complex_t0.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\do_convolution_complex_t1.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\do_convolution_complex_t1_11.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\do_convolution_complex_t1_7.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\do_convolution_complex_t1_9.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\do_convolution0.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\do_convolution1.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\do_convolution2.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\do_convolution2_10.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\do_convolution2_12.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\do_convolution2_14.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\do_convolution3.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\do_convolution3_11.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\do_convolution3_7.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\do_convolution3_9.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\do_convolution4.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\do_convolution4_11.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\do_convolution4_13.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\do_convolution4_15.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\do_convolution4_7.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\do_convolution4_9.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\do_convolution5.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\do_convolution5_11.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\do_convolution5_7.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\do_convolution5_9.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\maxKernel.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\minKernel.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\PairwiseDistance.cl">
+      <Filter>CL</Filter>
+    </None>
+  </ItemGroup>
+</Project>

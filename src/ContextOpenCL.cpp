@@ -9,20 +9,14 @@
 
 #include "ContextOpenCL.h"
 
-
-
 myContexOpenCl *  TheContext::The_Context_Singleton=NULL;
 
-TheContext::TheContext(){
-	
-//	printf("Te Context()");
-	
+TheContext::TheContext()
+{
 	if (The_Context_Singleton==NULL){
 	//	printf("Is NULL");
 		The_Context_Singleton = new myContexOpenCl();
 	}
-	
-	
 }
 
 myContexOpenCl * TheContext::getMyContext(){

@@ -2,10 +2,10 @@
 #include <boost/python.hpp>
 #include "NumPyWrapper.hpp"
 #include "omp.h"
-
+#include <numpy/arrayobject.h>
 #define PY_ARRAY_UNIQUE_SYMBOL tb
 #define NO_IMPORT_ARRAY
-#include <numpy/arrayobject.h>
+
 
 using namespace boost::python;
 
@@ -66,7 +66,7 @@ object cosine_filter_c(object& frame, object& filter_bank)
 
     const int filter_bank_size = filter_size * n_filters;
 
-    int pixel_offsets[filter_size];
+	int *pixel_offsets=(int*) malloc(sizeof(int)*filter_size);
 
     int oi = 0;
     for (int ii=-apron_y; ii<=apron_y; ii++){
@@ -92,7 +92,7 @@ object cosine_filter_c(object& frame, object& filter_bank)
         float* ass_out = out_data + i * width + apron_x;
         float* wgt_out = ass_out + height * width;
 
-        float image_cache[filter_size];
+        float *image_cache=(float*) malloc(sizeof(float)*filter_size);
         for (int j=apron_x; j<(width - apron_x); j++){
 
             for (int ii=0; ii< filter_size; ii++){

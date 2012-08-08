@@ -2,7 +2,7 @@
 #include "PairwiseDistanceLocal.hpp"
 
 #include "omp.h"
-
+/*
 DeviceMatrix::Ptr pwdist_cuda( const DeviceMatrix::Ptr& features_train,
         const DeviceMatrix::Ptr& features_test){
 
@@ -79,7 +79,7 @@ DeviceMatrix::Ptr max_cuda(const DeviceMatrix::Ptr& matrix)
     DeviceMatrix::Ptr out = makeDeviceMatrix(matrix->height, 1);
     max_cuda_local(matrix.get(), out.get());
     return out;
-}
+}*/
 
 /**
 

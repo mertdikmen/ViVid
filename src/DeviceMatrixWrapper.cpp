@@ -1,7 +1,7 @@
 #include "DeviceMatrixWrapper.hpp"
 
 #define PY_ARRAY_UNIQUE_SYMBOL tb
-#define NO_IMPORT_ARRAY
+#define NO_IMPORT
 #include <numpy/arrayobject.h>
 
 #include <iostream>
@@ -475,12 +475,14 @@ boost::python::object MCLMatrix3D_copyFromDevice(const MCLMatrix3D& self)
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 void export_DeviceMatrix()
 {
+	/*
     class_<DeviceMatrix, DeviceMatrix::Ptr >
         ("DeviceMatrix", no_init)
         .def("__init__",
              make_constructor<DeviceMatrix::Ptr (object&)>
              (makeDeviceMatrix))
         .def("mat", DeviceMatrix_copyFromDevice);
+	*/
 
     class_<DeviceMatrixCL, DeviceMatrixCL::Ptr >
         ("DeviceMatrixCL", no_init)
@@ -489,6 +491,7 @@ void export_DeviceMatrix()
                 (makeDeviceMatrixCL))
         .def("mat", DeviceMatrixCL_copyFromDevice);
 
+	/*
     class_<DeviceMatrix3D, DeviceMatrix3D::Ptr >
         ("DeviceMatrix3D", no_init)
         .def("__init__",
@@ -537,5 +540,7 @@ void export_DeviceMatrix()
 
 class_<DeviceMatrixCL::PtrList >("DeviceMCL3DList", no_init)
         .def(vector_indexing_suite<DeviceMatrixCL::PtrList, true>());
+
+		*/
 
 }
