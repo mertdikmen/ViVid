@@ -93,7 +93,10 @@ CFLAGS += $(INCLUDES)
 ifneq ($(EMU),)
   NVCCFLAGS += --device-emulation
 endif
-  NVCCFLAGS +=-lOpenCL
+
+NVCCFLAGS +=-lOpenCL
+NVCCFLAGS +=$(shell python2.7-config --include)
+
 
 ifeq ($(OSARCH), i686)
 LIBS += -L$(CUDA_INSTALL_PATH)/lib -lcuda -lcudart -lOpenCL
