@@ -144,6 +144,15 @@ object cosine_filter_c(object& frame, object& filter_bank)
 
 void export_FlexibleFilter()
 {
+    /* For power testing purposes only */
+    def<DeviceMatrixCL3D::Ptr (const object&,
+                               const int dim_t, const int nchannels,
+                               const int optype) >
+        ("_filter_frame_cl_3_batch", filter_frame_cl_3_batch);
+
+    /* End test code */
+
+
     def<DeviceMatrix3D::Ptr (const DeviceMatrix::Ptr&, 
                              const int dim_t, const int nchannels,
                              const int optype ) >

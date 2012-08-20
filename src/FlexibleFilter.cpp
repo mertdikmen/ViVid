@@ -5,6 +5,10 @@
 
 #include <cuda_runtime.h>
 
+#define PY_ARRAY_UNIQUE_SYMBOL tb
+#define NO_IMPORT_ARRAY
+#include <numpy/arrayobject.h>
+
 #define MAX_FILTERBANK_SIZE 10000
 #define N_MAX_
 #define N_MAX_CHANNELS 10
@@ -138,6 +142,27 @@ DeviceMatrixCL3D::Ptr filter_frame_cl_3(const DeviceMatrixCL::Ptr& frame,
 }
 
 
+DeviceMatrixCL3D::Ptr filter_frame_cl_3_batch(const boost::python::object& npy_array,
+        const int dim_t, const int nchannels, const int optype)
+{
+    PyObject* contig
+        = PyArray_FromAny(npy_array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
+                      3, 3, NPY_CARRAY, NULL);
+    boost::python::handle<> temp(contig);
+    boost::python::object arr(temp);
+
+    const int d1 = PyArray_DIM(npy_array.ptr(), 0);
+    std::cout << d1 << std::endl;
+    const int d2 = PyArray_DIM(npy_array.ptr(), 1);
+    std::cout << d2 << std::endl;
+    const int d3 = PyArray_DIM(npy_array.ptr(), 2);
+    std::cout << d3 << std::endl;
+
+    DeviceMatrixCL3D::Ptr out = makeDeviceMatrixCL3D(2,100,100);
+    std::cout << "Everything is fine" << std::endl;
+
+    return out;
+}
 
 
 DeviceMatrixCL3D::Ptr filter_frame_cl_5(const DeviceMatrixCL::Ptr& frame,
