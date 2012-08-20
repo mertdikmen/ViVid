@@ -33,7 +33,6 @@
     <ClCompile Include="..\src\exceptions.cpp" />
     <ClCompile Include="..\src\FlexibleFilter.cpp" />
     <ClCompile Include="..\src\FlexibleFilterWrapper.cpp" />
-    <ClCompile Include="..\src\hello.cpp" />
     <ClCompile Include="..\src\NumPyWrapper.cpp" />
     <ClCompile Include="..\src\opencl.cpp" />
     <ClCompile Include="..\src\OpenCLKernels.cpp" />

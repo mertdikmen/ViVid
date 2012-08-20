@@ -60,9 +60,6 @@
     <ClCompile Include="..\src\FlexibleFilterWrapper.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\hello.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\NumPyWrapper.cpp">
       <Filter>Source</Filter>
     </ClCompile>
