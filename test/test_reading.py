@@ -10,7 +10,7 @@ from scipy.misc import fromimage
 
 class TestImageReading(unittest.TestCase):
     def setUp(self):
-        image_name = '../examples/media/kewell1.jpg'
+        image_name = '../media/kewell1.jpg'
         
         self.reference_image_uint8 = fromimage(Image.open(image_name))
 
@@ -23,7 +23,5 @@ class TestImageReading(unittest.TestCase):
 
         assert(np.allclose(frame_uint8[:,:,::-1], self.reference_image_uint8))
         
-        
-
 if __name__ == '__main__':
     unittest.main()        
