@@ -1,6 +1,5 @@
 #include "FlexibleFilter.hpp"
 #include "FlexibleFilterLocal.hpp"
-
 #include "DeviceMatrixWrapper.hpp"
 
 #ifdef _WIN32
@@ -10,10 +9,6 @@
 #endif
 
 #include <cuda_runtime.h>
-
-#define PY_ARRAY_UNIQUE_SYMBOL tb
-#define NO_IMPORT_ARRAY
-#include <numpy/arrayobject.h>
 
 #define MAX_FILTERBANK_SIZE 10000
 #define N_MAX_
@@ -59,46 +54,6 @@ int set_filter_bank_cuda(float* filter_bank, int size){
 
 int set_filter_bank_cl(float* filter_bank, int size){
     return update_filter_bank_internal_cl(filter_bank,size); 
-}
-
-/* Batch processing fuctions */
-
-DeviceMatrixCL3D::Ptr filter_frame_cl_3_batch(const boost::python::object& npy_array,
-        const int dim_t, const int nchannels, const int optype)
-{
-    PyObject* contig
-        = PyArray_FromAny(
-                npy_array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
-                3, 3, NPY_CARRAY, NULL);
-    boost::python::handle<> temp(contig);
-    boost::python::object arr(temp);
-
-    const int d0 = PyArray_DIM(contig, 0);
-    const int d1 = PyArray_DIM(contig, 1);
-    const int d2 = PyArray_DIM(contig, 2);
-
-    //std::cout << "d0: " << d0 << ", d1: " << d1 << ", d2: " << d2 << std::endl;
-
-    DeviceMatrixCL::Ptr frame = makeDeviceMatrixCL(d1, d2);
-    //DeviceMatrixCL_copyToDevice(frame
-
-    float* data = (float*)PyArray_DATA(contig);
-
-    //stride length for jumping frames
-    int frame_stride = PyArray_STRIDE(contig, 0);
-    
-    //Create the output array
-    DeviceMatrixCL3D::Ptr out = makeDeviceMatrixCL3D(2,d1,d2);
-
-    for (int i = 0; i<d0; i++)
-    {
-        std::cout << "Processing frame#: " << i << std::endl;
-        DeviceMatrixCL_copyToDevice(*frame, data);
-        dist_filter2_d3_cl(frame.get(), dim_t, nchannels, out.get(), optype);
-        data += frame_stride / sizeof(float);   
-    }
-
-    return out;
 }
 
 /* CUDA Functions */

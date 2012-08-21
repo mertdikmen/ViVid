@@ -1,8 +1,6 @@
 #ifndef _FLEXIBLE_FILTER_HPP_
 #define _FLEXIBLE_FILTER_HPP_ 1
 
-#include <boost/python.hpp>
-
 #include "DeviceMatrix.hpp"
 #include "OpenCLKernels.hpp"
 
@@ -41,10 +39,7 @@ DeviceMatrix3D::Ptr filter_frame_cuda_5(const DeviceMatrix::Ptr& frame,
 DeviceMatrix3D::Ptr filter_frame_cuda_7(const DeviceMatrix::Ptr& frame,
                                     const int dim_t, const int nchannels,
                                     const int optype);
-/**POWER TEST**/
-DeviceMatrixCL3D::Ptr filter_frame_cl_3_batch(const boost::python::object& npy_array,
-										const int dim_t, const int nchannels,
-										const int optype);
+
 /**
  
  OPENCL FUNCTIONS
@@ -74,6 +69,11 @@ DeviceMatrixCL3D::Ptr filter_frame_cl_7(const DeviceMatrixCL::Ptr& frame,
 										const int dim_t, const int nchannels,
 										const int optype);
 
+
+void dist_filter2_d3_cl(const DeviceMatrixCL* frame,
+						const int dim_t, const int nchannels,
+						DeviceMatrixCL3D* output,
+						const int optype);
 
 /**  CONST  **/
 static const unsigned int BLOCK_SIZE = 16;
