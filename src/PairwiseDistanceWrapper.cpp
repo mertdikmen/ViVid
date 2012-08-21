@@ -2,7 +2,12 @@
 #include "PairwiseDistance.hpp"
 #include <boost/python.hpp>
 #include "NumPyWrapper.hpp"
+
+#ifdef _WIN32
 #include "omp.h"
+#else
+#include "omp_unix.h"
+#endif
 
 using namespace boost::python;
 

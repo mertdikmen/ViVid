@@ -2,7 +2,12 @@
 #include "BlockHistogram.hpp"
 #include <boost/python.hpp>
 #include "NumPyWrapper.hpp"
+
+#ifdef _WIN32
 #include "omp.h"
+#else
+#include "omp_unix.h"
+#endif
 
 #define PY_ARRAY_UNIQUE_SYMBOL tb
 #define NO_IMPORT

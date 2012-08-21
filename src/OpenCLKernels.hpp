@@ -6,8 +6,6 @@
  *  Copyright 2012 __MyCompanyName__. All rights reserved.
  *
  */
-
-
 #include "CL/cl.h"
 #include <stdio.h>
 #include <iostream>
@@ -19,7 +17,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <error.h>
-
 
 static char * load_program_source(const char *filename) {
 	
@@ -39,11 +36,7 @@ static char * load_program_source(const char *filename) {
     return source;
 }
 
-
-
-
 struct theKernels {
-	
 	cl_kernel kernel_list[50];
 	cl_program program_list[50]; 
 	cl_context GPUContext_K;
@@ -127,28 +120,17 @@ struct theKernels {
 			
 		}
 		
-		
-		
 		kernel_list[indice] = clCreateKernel(program_list[indice], kernel, &err);
 		if (!kernel_list[indice] || err != CL_SUCCESS) {
 			printf("Error: Failed to create compute kernel for device %d Kernel: (%s)!\n", indice,kernel);
 			exit(1);
 		}
-		
 	}
-	
-	
-
-	
-}  ;
-
-
+};
 
 class MyKernels{
-	
- 	
 public:
-	static theKernels *  My_Kernels;
+	static theKernels*  My_Kernels;
 	
 	MyKernels(cl_context GPUContext_K1,
 			  cl_device_id cdDevice_K1);
@@ -161,21 +143,17 @@ public:
 		return My_Kernels->kernel_list[0];
 	}
 	
-	
 	cl_kernel getArgminKernel(){
 		return My_Kernels->kernel_list[1];
 	}
-	
 	
 	cl_kernel getArgmaxKernel(){
 		return My_Kernels->kernel_list[2];
 	}
 	
-	
 	cl_kernel getMinKernel(){
 		return My_Kernels->kernel_list[3];
 	}
-	
 	
 	cl_kernel getMaxKernel(){
 		return My_Kernels->kernel_list[4];
@@ -196,7 +174,6 @@ public:
 	cl_kernel getCellHistogramKernel1(){
 		return My_Kernels->kernel_list[8];
 	}
-	
 	
 	cl_kernel getCellHistogramKernel2(){
 		return My_Kernels->kernel_list[9];
@@ -272,8 +249,6 @@ public:
 	cl_kernel getDoConvolution5_11(){
 		return My_Kernels->kernel_list[29];
 	}
-	
-
 	
 	cl_kernel getDoConvolutionComplexT0(){
 		return My_Kernels->kernel_list[30];
