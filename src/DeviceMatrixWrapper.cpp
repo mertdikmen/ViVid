@@ -128,24 +128,29 @@ void DeviceMatrixCL_copyToDevice(DeviceMatrixCL& self,
     assert(self.width == matrix.width());
     assert(self.height == matrix.height());
 	
-	
+    DeviceMatrixCL_copyToDevice(self, matrix.data());
+}
+
+
+void DeviceMatrixCL_copyToDevice(DeviceMatrixCL& self, const float* data)
+{
     const int mem_size = self.height * self.pitch;
     TheContext * tc = new TheContext();
 
-	
     size_t buffer_origin[3] = {0,0,0};
     size_t host_origin[3] = {0,0,0};	
-    size_t region[3] = {matrix.width() * sizeof(float),
-        matrix.height(),
+    size_t region[3] = {
+        self.width * sizeof(float),
+        self.height,
         1};	
 	
     int err = clEnqueueWriteBufferRect(
-									   tc->getMyContext()->cqCommandQueue,
-									   self.dataMatrix, CL_TRUE,
-									   buffer_origin, host_origin, region,
-									   self.pitch, 0,
-									   sizeof(float) * matrix.width(), 0,
-									   matrix.data(), 0, NULL, NULL);
+            tc->getMyContext()->cqCommandQueue,
+		    self.dataMatrix, CL_TRUE,
+            buffer_origin, host_origin, region,
+            self.pitch, 0,
+            sizeof(float) * self.width, 0,
+            data, 0, NULL, NULL);
 	
     if (err != 0){
         std::cout << "Error in copyToDevice (CODE: " << err << ")" << std::endl;
