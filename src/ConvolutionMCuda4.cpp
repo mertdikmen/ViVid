@@ -2,7 +2,13 @@
 #include "exceptions.hpp"
 #include <vector_types.h>
 #include <string.h>
-#include <omp.h>
+
+#ifdef _WIN32
+#include "omp.h"
+#else
+#include "omp_unix.h"
+#endif
+
 #include "OpenCLKernels.hpp"
 static const unsigned int CONSTANT_KERNEL_SIZE = 4096;
 static float constant_kernel[CONSTANT_KERNEL_SIZE];

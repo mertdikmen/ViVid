@@ -3,7 +3,11 @@
 
 #include "DeviceMatrixWrapper.hpp"
 
-#include <omp.h>
+#ifdef _WIN32
+#include "omp.h"
+#else
+#include "omp_unix.h"
+#endif
 
 #include <cuda_runtime.h>
 

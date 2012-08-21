@@ -1,7 +1,12 @@
 #include "PairwiseDistance.hpp"
 #include "PairwiseDistanceLocal.hpp"
 
+#ifdef _WIN32
 #include "omp.h"
+#else
+#include "omp_unix.h"
+#endif
+
 
 DeviceMatrix::Ptr pwdist_cuda( const DeviceMatrix::Ptr& features_train,
         const DeviceMatrix::Ptr& features_test){
