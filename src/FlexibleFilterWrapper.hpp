@@ -7,6 +7,11 @@
 
 using namespace boost::python;
 
+/**POWER TEST**/
+DeviceMatrixCL3D::Ptr filter_frame_cl_3_batch(object& npy_array,
+										const int dim_t, const int nchannels,
+										const int optype);
+
 void export_FlexibleFilter();
 
 int update_filter_bank(object& filterbank_array);

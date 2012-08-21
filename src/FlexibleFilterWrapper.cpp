@@ -1,4 +1,7 @@
 #include "FlexibleFilterWrapper.hpp"
+#include "FlexibleFilter.hpp"
+#include "DeviceMatrixWrapper.hpp"
+
 #include <boost/python.hpp>
 #include "NumPyWrapper.hpp"
 
@@ -146,6 +149,46 @@ object cosine_filter_c(object& frame, object& filter_bank)
     handle<> temp_out(arr);
     return boost::python::object(temp_out);
 }
+
+/* Batch processing fuctions */
+DeviceMatrixCL3D::Ptr filter_frame_cl_3_batch(const boost::python::object& npy_array,
+        const int dim_t, const int nchannels, const int optype)
+{
+    PyObject* contig
+        = PyArray_FromAny(
+                npy_array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
+                3, 3, NPY_CARRAY, NULL);
+    handle<> temp(contig);
+    object arr(temp);
+
+    const int d0 = PyArray_DIM(contig, 0);
+    const int d1 = PyArray_DIM(contig, 1);
+    const int d2 = PyArray_DIM(contig, 2);
+
+    //std::cout << "d0: " << d0 << ", d1: " << d1 << ", d2: " << d2 << std::endl;
+
+    DeviceMatrixCL::Ptr frame = makeDeviceMatrixCL(d1, d2);
+    //DeviceMatrixCL_copyToDevice(frame
+
+    float* data = (float*)PyArray_DATA(contig);
+
+    //stride length for jumping frames
+    int frame_stride = PyArray_STRIDE(contig, 0);
+    
+    //Create the output array
+    DeviceMatrixCL3D::Ptr out = makeDeviceMatrixCL3D(2,d1,d2);
+
+    for (int i = 0; i<d0; i++)
+    {
+        std::cout << "Processing frame#: " << i << std::endl;
+        DeviceMatrixCL_copyToDevice(*frame, data);
+        dist_filter2_d3_cl(frame.get(), dim_t, nchannels, out.get(), optype);
+        data += frame_stride / sizeof(float);   
+    }
+
+    return out;
+}
+
 
 void export_FlexibleFilter()
 {
