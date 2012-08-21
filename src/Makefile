@@ -14,7 +14,7 @@ OBJS += OpenCLKernels.o
 OBJDIR := release
 OBJS := $(addprefix $(OBJDIR)/, $(OBJS))
 
-CUDA_INSTALL_PATH := /usr/local/cuda
+CUDA_INSTALL_PATH := /opt/cuda-toolkit
 
 SM_VERSIONS   := 10 11 12 13 20 21
 
@@ -22,8 +22,8 @@ OSARCH = $(shell uname -m)
 
 GCC44_PATH := /opt
 
-GCC := gcc
-GPP := g++
+GCC := /opt/gcc-4.4/gcc
+GPP := /opt/gcc-4.4/g++
 
 NVCC := $(CUDA_INSTALL_PATH)/bin/nvcc --compiler-bindir $(GCC)
 CXX  := $(GPP) -fPIC
@@ -93,7 +93,10 @@ CFLAGS += $(INCLUDES)
 ifneq ($(EMU),)
   NVCCFLAGS += --device-emulation
 endif
-  NVCCFLAGS +=-lOpenCL
+
+NVCCFLAGS +=-lOpenCL
+NVCCFLAGS +=$(shell python2.7-config --include)
+
 
 ifeq ($(OSARCH), i686)
 LIBS += -L$(CUDA_INSTALL_PATH)/lib -lcuda -lcudart -lOpenCL

@@ -7,6 +7,12 @@ import numpy as np
 
 import time
 
+import matplotlib.pyplot as plt
+
+from cv_conversions import cvmat2array
+
+plt.ion()
+
 # Create the reader for a list of image files
 iv = vivid.ImageSource(
     imlist=['media/kewell1.jpg'])
@@ -17,15 +23,17 @@ cs = vivid.ConvertedSource(iv, vivid.cv.CV_32FC3, 1.0 / 255.0)
 # Source for covnerting to grayscale 
 gs = vivid.GreySource(cs)
 
+frame = cvmat2array(gs.get_frame(0))
+
 #dictionary = np.load('media/dictionary_300.npy')
 
 #word_size = 3
 #dictionary = dictionary.reshape((-1, word_size, word_size))
 
-dictionary_size = 1
-word_size = 3
-dictionary = np.ones((dictionary_size, word_size, word_size))
-#dictionary = np.random.random((dictionary_size, word_size, word_size))
+dictionary_size = 100
+word_size = 7
+#dictionary = np.ones((dictionary_size, word_size, word_size))
+dictionary = np.random.random((dictionary_size, word_size, word_size))
 
 ff = vivid.FlexibleFilter(
     gs,

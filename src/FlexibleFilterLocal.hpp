@@ -20,10 +20,12 @@ void dist_filter2_d3(const DeviceMatrix* frame,
                   const int dim_t, const int nchannels,
                   DeviceMatrix3D* output,
                   const int optype);
+
 void dist_filter2_d5(const DeviceMatrix* frame,
                   const int dim_t, const int nchannels,
                   DeviceMatrix3D* output,
                   const int optype);
+
 void dist_filter2_d7(const DeviceMatrix* frame,
                   const int dim_t, const int nchannels,
                   DeviceMatrix3D* output,
@@ -35,9 +37,6 @@ void hist_all_cells(const DeviceMatrix3D* inds_and_weights,
                     const int offset_y,
                     const int offset_x,
                     const int max_bin);
-
-
-
 
 void dist_filter2_d3_cl(const DeviceMatrixCL* frame,
 					 const int dim_t, const int nchannels,

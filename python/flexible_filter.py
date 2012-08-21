@@ -7,6 +7,8 @@ from _vivid import _filter_frame_cuda_3
 from _vivid import _filter_frame_cuda_5
 from _vivid import _filter_frame_cuda_7
 
+from _vivid import _filter_frame_cl_3_batch
+
 from _vivid import _filter_frame_cl_3
 from _vivid import _filter_frame_cl_5
 from _vivid import _filter_frame_cl_7
@@ -180,6 +182,18 @@ class FlexibleFilter:
         result[:,:,-self.apron_x:] = -1
 
         return result
+
+    def filter_frame_cl_batch(self, images):
+        if not self.filter_set_cl:
+            _update_filter_bank_cl(self.filter_bank_to_device)
+            self.filter_set_cl = True
+            
+        assert(self.filter_width == 3)
+
+        result = _filter_frame_cl_3_batch(
+                images, 
+                self.filter_bank_size, 
+                self.nchannels, self.optype)
 
 #    def filter_frame_cuda_noargmin(self, framenum):
 #        frame = self.origin.get_frame(framenum)
