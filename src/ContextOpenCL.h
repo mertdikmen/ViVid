@@ -16,11 +16,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <error.h>
-
-
 using namespace std;
 
-#include <CL/opencl.h>
+
 #include <CL/cl.h>
 #include <boost/shared_ptr.hpp>
 
@@ -71,7 +69,7 @@ struct myContexOpenCl {
 			}else{
 				printf("Getting CPU device\n");
 				const cl_device_type opncl_device_type[]={CL_DEVICE_TYPE_CPU,CL_DEVICE_TYPE_GPU};
-				if (clGetDeviceIDs(cpPlatform, opncl_device_type[1], NUM_ENTRIES, cdDeviceTEST, &n_devices) == CL_SUCCESS)
+				if (clGetDeviceIDs(cpPlatform, opncl_device_type[0], NUM_ENTRIES, cdDeviceTEST, &n_devices) == CL_SUCCESS)
 				{
 					printf("NUM DEVICES: %d\n", n_devices);
 					for (int i=0; i<n_devices; i++)
