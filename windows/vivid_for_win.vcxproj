@@ -28,17 +28,21 @@
     <ClCompile Include="..\src\ConvolutionMCuda2.cpp" />
     <ClCompile Include="..\src\ConvolutionMCuda4.cpp" />
     <ClCompile Include="..\src\ConvolutionWrapper.cpp" />
+    <ClCompile Include="..\src\cpucounters.cpp" />
     <ClCompile Include="..\src\DeviceMatrix.cpp" />
     <ClCompile Include="..\src\DeviceMatrixWrapper.cpp" />
     <ClCompile Include="..\src\exceptions.cpp" />
     <ClCompile Include="..\src\FlexibleFilter.cpp" />
     <ClCompile Include="..\src\FlexibleFilterWrapper.cpp" />
+    <ClCompile Include="..\src\msr.cpp" />
     <ClCompile Include="..\src\NumPyWrapper.cpp" />
     <ClCompile Include="..\src\opencl.cpp" />
     <ClCompile Include="..\src\OpenCLKernels.cpp" />
     <ClCompile Include="..\src\OpenCLWrapper.cpp" />
     <ClCompile Include="..\src\PairwiseDistance.cpp" />
     <ClCompile Include="..\src\PairwiseDistanceWrapper.cpp" />
+    <ClCompile Include="..\src\pci.cpp" />
+    <ClCompile Include="..\src\PCM-Power_Win\stdafx.cpp" />
     <ClCompile Include="..\src\_vivid.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -49,6 +53,8 @@
     <ClInclude Include="..\src\Convolution.hpp" />
     <ClInclude Include="..\src\ConvolutionMCuda.hpp" />
     <ClInclude Include="..\src\ConvolutionWrapper.hpp" />
+    <ClInclude Include="..\src\cpuasynchcounter.h" />
+    <ClInclude Include="..\src\cpucounters.h" />
     <ClInclude Include="..\src\DeviceMatrix.hpp" />
     <ClInclude Include="..\src\DeviceMatrixWrapper.hpp" />
     <ClInclude Include="..\src\exceptions.hpp" />
@@ -56,6 +62,7 @@
     <ClInclude Include="..\src\FlexibleFilter.hpp" />
     <ClInclude Include="..\src\FlexibleFilterLocal.hpp" />
     <ClInclude Include="..\src\FlexibleFilterWrapper.hpp" />
+    <ClInclude Include="..\src\msr.h" />
     <ClInclude Include="..\src\numpy.h" />
     <ClInclude Include="..\src\NumPyWrapper.hpp" />
     <ClInclude Include="..\src\omp_unix.h" />
@@ -64,7 +71,11 @@
     <ClInclude Include="..\src\PairwiseDistance.hpp" />
     <ClInclude Include="..\src\PairwiseDistanceLocal.hpp" />
     <ClInclude Include="..\src\PairwiseDistanceWrapper.hpp" />
+    <ClInclude Include="..\src\pci.h" />
+    <ClInclude Include="..\src\PCM-Power_Win\stdafx.h" />
+    <ClInclude Include="..\src\types.h" />
     <ClInclude Include="..\src\unistd_win.h" />
+    <ClInclude Include="..\src\width_extender.h" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\BlockHistogram.cu" />
@@ -254,12 +265,12 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(BOOST_PATH);C:\Python27\include;C:\Python27\Lib\site-packages\numpy\core\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\garcmrtn\Documents\pthreads.2;$(BOOST_PATH);C:\Python27\include;C:\Python27\Lib\site-packages\numpy\core\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>cudart.lib;OpenCL.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(BOOST_PATH)\stage\lib;c:\Python27\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Program Files %28x86%29\Intel\OpenCL SDK\2.0\lib\x64;C:\Program Files %28x86%29\Intel\OpenCL SDK\2.0\bin\x64;$(BOOST_PATH)\stage\lib;c:\Python27\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>
       </AdditionalOptions>
     </Link>

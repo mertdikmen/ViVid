@@ -78,6 +78,18 @@
     <ClCompile Include="..\src\PairwiseDistanceWrapper.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\cpucounters.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\pci.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\msr.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\PCM-Power_Win\stdafx.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ContextOpenCL.h">
@@ -147,6 +159,27 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\src\PairwiseDistanceWrapper.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\pci.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\width_extender.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\cpucounters.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\cpuasynchcounter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\msr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\PCM-Power_Win\stdafx.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>
