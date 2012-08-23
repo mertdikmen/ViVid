@@ -175,9 +175,19 @@ class TheContext{
 public:
 	static myContexOpenCl *  The_Context_GPU;
 	static myContexOpenCl* The_Context_CPU;
+	static int type_gpu;
 	TheContext();
+	TheContext(int cpu);
 	myContexOpenCl * getMyContext();
 	myContexOpenCl * getMyContextCPU();
+	void changeContextGPU(){
+		type_gpu = 1;
+	}
+
+	void changeContextCPU(){
+		type_gpu = 0;
+	}
+
 	~TheContext(){};
 };
 
