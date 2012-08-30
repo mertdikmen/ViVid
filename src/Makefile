@@ -11,6 +11,7 @@ OBJS += OpenCLWrapper.o
 OBJS += OpenCLKernels.o
 OBJS += ContextOpenCL.o
 OBJS += OpenCLKernels.o
+OBJS += VideoReader.o
 OBJDIR := release
 OBJS := $(addprefix $(OBJDIR)/, $(OBJS))
 
@@ -99,9 +100,9 @@ NVCCFLAGS +=$(shell python2.7-config --include)
 
 
 ifeq ($(OSARCH), i686)
-LIBS += -L$(CUDA_INSTALL_PATH)/lib -lcuda -lcudart -lOpenCL
+LIBS += -L$(CUDA_INSTALL_PATH)/lib -lcuda -lcudart -lOpenCL -lmagic
 else 
-LIBS += -L$(CUDA_INSTALL_PATH)/lib64 -lcuda -lcudart -lOpenCL
+LIBS += -L$(CUDA_INSTALL_PATH)/lib64 -lcuda -lcudart -lOpenCL -lmagic
 endif
 
 #

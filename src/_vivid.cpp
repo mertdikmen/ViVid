@@ -6,6 +6,7 @@
 #include "ConvolutionWrapper.hpp"
 #include "OpenCLWrapper.hpp"
 #include "fastexp.h"
+#include "VideoReader.hpp"
 
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
@@ -378,5 +379,10 @@ BOOST_PYTHON_MODULE(_vivid)
     def("add_cell_histograms", add_cell_histograms);
     def("create_lbp_dictionary", create_lbp_dictionary);
     def("compute_lbp_n8_r1", compute_lbp_n8_r1); 
+
+    class_<VideoReader>("FileVideo", init<const std::string& >() )
+        .def("get_frame", &VideoReader::get_frame)
+        .def("get_num_total_frames", &VideoReader::get_num_total_frames)
+    ;
 }
 
