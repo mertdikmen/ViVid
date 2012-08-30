@@ -516,6 +516,7 @@ void export_DeviceMatrix()
 	def("_makeDeviceMatrixCL3DPacked", makeDeviceMatrix3DPacked);
     // Don't tell python about the subclass relationship -- we should
     // try to keep this as distinct from DeviceMatrix3D as possible
+    /*
     class_<MCudaMatrix3D, MCudaMatrix3D::Ptr >
         ("MCudaMatrix3D", no_init)
         .def("__init__",
@@ -524,9 +525,6 @@ void export_DeviceMatrix()
         .def("mat", MCudaMatrix3D_copyFromDevice)
       ;
 
-    class_<DeviceMatrix::PtrList >("DeviceMatrix3DList", no_init)
-        .def(vector_indexing_suite<DeviceMatrix::PtrList, true>());
-	
 	class_<MCLMatrix3D, MCLMatrix3D::Ptr >
         ("MCLMatrix3D", no_init)
         .def("__init__",
@@ -534,10 +532,14 @@ void export_DeviceMatrix()
              (makeMCLMatrix3D))
         .def("mat", MCLMatrix3D_copyFromDevice)
       ;
-	
+
+    class_<DeviceMatrix::PtrList >("DeviceMatrix3DList", no_init)
+        .def(vector_indexing_suite<DeviceMatrix::PtrList, true>());
+
 	class_<DeviceMatrix::PtrList >("DeviceMCuda3DList", no_init)
         .def(vector_indexing_suite<DeviceMatrix::PtrList, true>());
 
 	class_<DeviceMatrixCL::PtrList >("DeviceMCL3DList", no_init)
         .def(vector_indexing_suite<DeviceMatrixCL::PtrList, true>());
+    */
 }

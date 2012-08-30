@@ -277,16 +277,8 @@ DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(size_t dim_t, size_t dim_y,
         printf("Error Code create buffer: %d\n",err);
     }
 	
-	
-	
-	
-	
     return DeviceMatrixCL3D::Ptr(mat, deleteDeviceMatrixCL3D);
 }
-
-
-
-
 
 /**
  * This function is useful for generating matrices for use with CUFFT.
@@ -305,17 +297,11 @@ DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3DPacked(size_t dim_t, size_t dim_y,
     cl_context GPUContext = tc->getMyContext()->getContextCL();
     cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
 	
-    	
-
-	
     mat->pitch_y = dim_x;
 	mat->pitch_t = dim_y*mat->pitch_y;
 	
-    
-	
     const int mem_size = mat->dim_t * mat->pitch_t;
 	
-   	
     int err;
 	
     mat->dataMatrix = clCreateBuffer(GPUContext, CL_MEM_READ_WRITE, mem_size, NULL, &err);
@@ -323,10 +309,6 @@ DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3DPacked(size_t dim_t, size_t dim_y,
     {
         printf("Error Code create buffer: %d\n",err);
     }
-	
-	
-	
-	
 	
     return DeviceMatrixCL3D::Ptr(mat, deleteDeviceMatrixCL3D);	
 }
