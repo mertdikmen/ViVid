@@ -1,7 +1,7 @@
 
 	__constant int MAX_FILTERBANK_SIZE  = 10000;
 	__constant int N_MAX_CHANNELS = 10;
-	__constant float c_FilterBank[10000];
+
 	
 	__constant int HIST_CACHE_SIZE  = 10;
 	__constant int FF_OPTYPE_EUCLIDEAN = 0;
