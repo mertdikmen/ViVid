@@ -1,7 +1,7 @@
 #include "DeviceMatrixWrapper.hpp"
 
 #define PY_ARRAY_UNIQUE_SYMBOL tb
-#define NO_IMPORT_ARRAY
+#define NO_IMPORT
 #include <numpy/arrayobject.h>
 
 #include <iostream>
@@ -128,24 +128,29 @@ void DeviceMatrixCL_copyToDevice(DeviceMatrixCL& self,
     assert(self.width == matrix.width());
     assert(self.height == matrix.height());
 	
-	
+    DeviceMatrixCL_copyToDevice(self, matrix.data());
+}
+
+
+void DeviceMatrixCL_copyToDevice(DeviceMatrixCL& self, const float* data)
+{
     const int mem_size = self.height * self.pitch;
     TheContext * tc = new TheContext();
 
-	
     size_t buffer_origin[3] = {0,0,0};
     size_t host_origin[3] = {0,0,0};	
-    size_t region[3] = {matrix.width() * sizeof(float),
-        matrix.height(),
+    size_t region[3] = {
+        self.width * sizeof(float),
+        self.height,
         1};	
 	
     int err = clEnqueueWriteBufferRect(
-									   tc->getMyContext()->cqCommandQueue,
-									   self.dataMatrix, CL_TRUE,
-									   buffer_origin, host_origin, region,
-									   self.pitch, 0,
-									   sizeof(float) * matrix.width(), 0,
-									   matrix.data(), 0, NULL, NULL);
+            tc->getMyContext()->cqCommandQueue,
+		    self.dataMatrix, CL_TRUE,
+            buffer_origin, host_origin, region,
+            self.pitch, 0,
+            sizeof(float) * self.width, 0,
+            data, 0, NULL, NULL);
 	
     if (err != 0){
         std::cout << "Error in copyToDevice (CODE: " << err << ")" << std::endl;
@@ -470,8 +475,6 @@ boost::python::object MCLMatrix3D_copyFromDevice(const MCLMatrix3D& self)
     return retval;
 }
 
-
-
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 void export_DeviceMatrix()
 {
@@ -488,7 +491,7 @@ void export_DeviceMatrix()
                 make_constructor<DeviceMatrixCL::Ptr (object&)>
                 (makeDeviceMatrixCL))
         .def("mat", DeviceMatrixCL_copyFromDevice);
-
+	
     class_<DeviceMatrix3D, DeviceMatrix3D::Ptr >
         ("DeviceMatrix3D", no_init)
         .def("__init__",
@@ -509,7 +512,7 @@ void export_DeviceMatrix()
 	.def("set", DeviceMatrixCL3D_copyToDevice)
 	.def("crop", cropDeviceMatrixCL3D)
 	;
-	
+
 	def("_makeDeviceMatrixCL3DPacked", makeDeviceMatrix3DPacked);
     // Don't tell python about the subclass relationship -- we should
     // try to keep this as distinct from DeviceMatrix3D as possible
@@ -520,10 +523,11 @@ void export_DeviceMatrix()
              (makeMCudaMatrix3D))
         .def("mat", MCudaMatrix3D_copyFromDevice)
       ;
-	
+
     class_<DeviceMatrix::PtrList >("DeviceMatrix3DList", no_init)
         .def(vector_indexing_suite<DeviceMatrix::PtrList, true>());
-  class_<MCLMatrix3D, MCLMatrix3D::Ptr >
+	
+	class_<MCLMatrix3D, MCLMatrix3D::Ptr >
         ("MCLMatrix3D", no_init)
         .def("__init__",
              make_constructor<MCLMatrix3D::Ptr (const object&)>
@@ -531,11 +535,9 @@ void export_DeviceMatrix()
         .def("mat", MCLMatrix3D_copyFromDevice)
       ;
 	
-    class_<DeviceMatrix::PtrList >("DeviceMCuda3DList", no_init)
+	class_<DeviceMatrix::PtrList >("DeviceMCuda3DList", no_init)
         .def(vector_indexing_suite<DeviceMatrix::PtrList, true>());
 
-
-class_<DeviceMatrixCL::PtrList >("DeviceMCL3DList", no_init)
+	class_<DeviceMatrixCL::PtrList >("DeviceMCL3DList", no_init)
         .def(vector_indexing_suite<DeviceMatrixCL::PtrList, true>());
-
 }

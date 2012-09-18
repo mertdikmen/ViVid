@@ -2,7 +2,13 @@
 #include "exceptions.hpp"
 #include <vector_types.h>
 #include <string.h>
-#include <omp.h>
+
+#ifdef _WIN32
+#include "omp.h"
+#else
+#include "omp_unix.h"
+#endif
+
 #include "OpenCLKernels.hpp"
 static const unsigned int CONSTANT_KERNEL_SIZE = 4096;
 static float constant_kernel[CONSTANT_KERNEL_SIZE];
@@ -645,8 +651,8 @@ bool try_convolution4_m_cl(const MCLMatrix3D::Ptr& video,
     int grid_cx = output->dim_x / 16;
 	
 	
-	const int n_blocks_x = grid_ry* local_work_size[0];
-	const int n_blocks_y = grid_cx* local_work_size[1];
+	const unsigned int n_blocks_x = grid_ry* local_work_size[0];
+	const unsigned int n_blocks_y = grid_cx* local_work_size[1];
     
 	 size_t global_work_size[3] = {n_blocks_x, n_blocks_y,1};	
 	

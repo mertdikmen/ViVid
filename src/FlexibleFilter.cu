@@ -21,7 +21,6 @@ static __device__ float* getPtr(const DeviceMatrix3D mat,
     return mat.data + t*mat.pitch_t + y*mat.pitch_y + x;
 }
 
-
 #define HIST_CACHE_SIZE 10
 static const unsigned int MAX_HISTOGRAM_SIZE = 512;
 static const unsigned int MAX_FOLDS = MAX_HISTOGRAM_SIZE / (BLOCK_8 * BLOCK_8);

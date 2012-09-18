@@ -1,7 +1,12 @@
 #include "FlexibleFilter.hpp"
 #include "FlexibleFilterLocal.hpp"
+#include "DeviceMatrixWrapper.hpp"
 
-#include <omp.h>
+#ifdef _WIN32
+#include "omp.h"
+#else
+#include "omp_unix.h"
+#endif
 
 #include <cuda_runtime.h>
 
@@ -51,6 +56,8 @@ int set_filter_bank_cl(float* filter_bank, int size){
     return update_filter_bank_internal_cl(filter_bank,size); 
 }
 
+/* CUDA Functions */
+
 DeviceMatrix3D::Ptr filter_frame_cuda_3(const DeviceMatrix::Ptr& frame,
                                     const int dim_t, const int nchannels,
                                     const int optype){
@@ -95,15 +102,6 @@ DeviceMatrix3D::Ptr get_cell_histograms_cuda(const DeviceMatrix3D::Ptr& inds_and
                                              const int cell_size,
                                              const int offset_y, const int offset_x,
                                              const int n_bins){
-/**
- 
- 
- OPENCL FUNCTIONS
- 
- **/
-	
-	
-
 #ifndef CUDA_NO_SM_11_ATOMIC_INTRINSICS
 //	printf("WARNING! Not using atomics!\n");
 #endif
@@ -122,11 +120,8 @@ DeviceMatrix3D::Ptr get_cell_histograms_cuda(const DeviceMatrix3D::Ptr& inds_and
     return out;
 }
 
-/**
- 
- OPENCL
- 
- **/
+/* OPENCL FUNCTIONS */
+
 DeviceMatrixCL3D::Ptr filter_frame_cl_3(const DeviceMatrixCL::Ptr& frame,
 										const int dim_t, const int nchannels,
 										const int optype){
@@ -136,7 +131,6 @@ DeviceMatrixCL3D::Ptr filter_frame_cl_3(const DeviceMatrixCL::Ptr& frame,
     dist_filter2_d3_cl(frame.get(), dim_t, nchannels, out.get(), optype);
     return out;
 }
-
 
 
 
@@ -159,6 +153,7 @@ DeviceMatrixCL3D::Ptr filter_frame_cl_7(const DeviceMatrixCL::Ptr& frame,
 	
     return out;
 }
+
 DeviceMatrixCL3D::Ptr filter_frame_cl_noargmin(const DeviceMatrixCL::Ptr& frame,
 											   const int dim_t, const int dim_y, const int dim_x, const int nchannels,
 											   const int optype){
@@ -174,15 +169,6 @@ DeviceMatrixCL3D::Ptr get_cell_histograms_cl(const DeviceMatrixCL3D::Ptr& inds_a
                                              const int cell_size,
                                              const int offset_y, const int offset_x,
                                              const int n_bins){
-	/**
-	 
-	 
-	 OPENCL FUNCTIONS
-	 
-	 **/
-	
-	
-	
 #ifndef CUDA_NO_SM_11_ATOMIC_INTRINSICS
 	//	printf("WARNING! Not using atomics!\n");
 #endif
@@ -202,21 +188,18 @@ DeviceMatrixCL3D::Ptr get_cell_histograms_cl(const DeviceMatrixCL3D::Ptr& inds_a
 }
 
 
-
-
-
-
 #define BLOCK_MULT 2
 
+/* AUXILIARY OPENCL FUNCTIONS THAT WERE DEFINED IN CL FILE */
 
+/* OPENCL */
 
-/** AUXILIAR OPENCL FUNCTIONS THAT WERE DEFINED IN CU FILE **/
-
-/** OPENCL **/
-
-
-cl_int parameters_blockwise_distance_kernel(cl_kernel theKernel,const DeviceMatrixCL* matrix,
-		  DeviceMatrixCL3D* output,const int frame_width,const int frame_height,const int FD,const int optype, cl_mem filter, const int n_filters){
+cl_int parameters_blockwise_distance_kernel(
+        cl_kernel theKernel,const DeviceMatrixCL* matrix,
+        DeviceMatrixCL3D* output,
+        const int frame_width, const int frame_height, 
+        const int FD, const int optype, 
+        cl_mem filter, const int n_filters){
 	cl_int err=0;
 	
     err |= clSetKernelArg(theKernel, 0, sizeof (cl_mem), &matrix->dataMatrix);
@@ -242,8 +225,6 @@ cl_int parameters_blockwise_distance_kernel(cl_kernel theKernel,const DeviceMatr
 	err |= clSetKernelArg(theKernel, 17, sizeof (const int), &n_filters);
 	return err;
 }
-
-
 
 cl_int parameters_blockwise_filter_kernel(cl_kernel theKernel,const DeviceMatrixCL* matrix,
 				DeviceMatrixCL3D* output,const int frame_width,const int frame_height,
@@ -361,9 +342,6 @@ void dist_filter2_d3_cl(const DeviceMatrixCL* frame,
     }
 }
 
-
-
-
 void dist_filter2_d5_cl(const DeviceMatrixCL* frame,
 					 const int dim_t, const int nchannels,
 					 DeviceMatrixCL3D* output,
@@ -439,29 +417,12 @@ void dist_filter2_d5_cl(const DeviceMatrixCL* frame,
     }
 	
 }
+
 void dist_filter2_d7_cl(const DeviceMatrixCL* frame,
 					 const int dim_t, const int nchannels,
 					 DeviceMatrixCL3D* output,
 					 const int optype)
 {
-   /* const int frame_width = int(frame->width);
-    const int frame_height = int(frame->height);
-	
-    const int valid_region_h = frame_height - 7 + 1;
-    const int valid_region_w = frame_width - 7 + 1;
-	
-    int grid_ry = valid_region_h / (BLOCK_SIZE * BLOCK_MULT) + 1;
-    int grid_cx = valid_region_w / (BLOCK_SIZE * BLOCK_MULT) + 1;
-	
-    dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE);
-	
-    dim3 dimGrid(grid_cx, grid_ry);
-	
-    blockwise_distance_kernel<7><<<dimGrid, dimBlock>>>(*frame,
-														*output,
-														frame_width, frame_height,
-														dim_t,
-														optype);*/
 	const int frame_width = int(frame->width);
 	const int frame_height = int(frame->height);
 	
@@ -484,7 +445,6 @@ void dist_filter2_d7_cl(const DeviceMatrixCL* frame,
 	
     // Creates the program
     // Uses NVIDIA helper functions to get the code string and it's size (in bytes)
-  	
 	MyKernels *kernels = new MyKernels(GPUContext,cdDevice);
 	
 	cl_kernel theKernel= kernels->getBlockWiseDistanceKernel();
@@ -512,9 +472,6 @@ void dist_filter2_d7_cl(const DeviceMatrixCL* frame,
         exit(1);
     }
 }
-
-
-
 
 //new dist filter implementation
 void dist_filter_noargmin_cl(const DeviceMatrixCL* frame,
@@ -586,65 +543,49 @@ void hist_all_cells_cl(const DeviceMatrixCL3D* inds_and_weights,
                     const int cell_size,
                     const int offset_y,
                     const int offset_x,
-                    const int max_bin){
-	
-/*    const int frame_height = inds_and_weights->dim_y;
+                    const int max_bin)
+{
+    const int frame_height = inds_and_weights->dim_y;
     const int frame_width = inds_and_weights->dim_x;
-	
-    dim3 dimBlock(BLOCK_8, BLOCK_8);
-	
-    int grid_ry = (frame_height - offset_y) / cell_size + 1 ;
-    int grid_cx = (frame_width  - offset_x) / cell_size + 1 ;
-	
-    dim3 dimGrid(grid_cx, grid_ry);
     
-    cell_histogram_kernel<<<dimGrid, dimBlock>>>(*inds_and_weights,*output,cell_size,offset_y, offset_x, max_bin);
-	
-    cudaThreadSynchronize();*/
-	
-	
-	const int frame_height = inds_and_weights->dim_y;
-    const int frame_width = inds_and_weights->dim_x;
-	
-	
-	const size_t local_work_size[2] = {BLOCK_8, BLOCK_8}; 
-	
-	
-	const int n_blocks_x = ((frame_height - offset_y) / cell_size + 1)* local_work_size[0];
-	
-	const int n_blocks_y = ((frame_width  - offset_x) / cell_size + 1)* local_work_size[1];
+    const size_t local_work_size[2] = {BLOCK_8, BLOCK_8}; 
+    
+    
+    const int n_blocks_x = ((frame_height - offset_y) / cell_size + 1)* local_work_size[0];
+    
+    const int n_blocks_y = ((frame_width  - offset_x) / cell_size + 1)* local_work_size[1];
     
     const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
-	
-	TheContext* tc = new TheContext();
-	
+    
+    TheContext* tc = new TheContext();
+    
     cl_context GPUContext = tc->getMyContext()->getContextCL();
     cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
-	
+    
     // Creates the program
     // Uses NVIDIA helper functions to get the code string and it's size (in bytes)
-  	
-	MyKernels *kernels = new MyKernels(GPUContext,cdDevice);
-	
-	cl_kernel theKernel= kernels->getCellHistogramKernel();
-	
-	cl_int err;
-	err=0;
-	
+    
+    MyKernels *kernels = new MyKernels(GPUContext,cdDevice);
+    
+    cl_kernel theKernel= kernels->getCellHistogramKernel();
+    
+    cl_int err;
+    err=0;
+    
     err =  parameters_histogram(theKernel, inds_and_weights, output,
-								 cell_size, offset_y,offset_x, 
-								 max_bin);	
-  	
+    							 cell_size, offset_y,offset_x, 
+    							 max_bin);	
+    
     if (err != CL_SUCCESS) {
         printf("Error: Failed to set kernel arguments 3! %d\n", err);
         exit(1);
     }
-	
-	
-	err = clEnqueueNDRangeKernel(tc->getMyContext()->cqCommandQueue, 
-								 theKernel, 2, NULL, 
-								 global_work_size, local_work_size, 0, NULL, NULL);
-	
+    
+    
+    err = clEnqueueNDRangeKernel(tc->getMyContext()->cqCommandQueue, 
+    							 theKernel, 2, NULL, 
+    							 global_work_size, local_work_size, 0, NULL, NULL);
+    
     if (err) {
         printf("Error: Failed to execute kernel! %d\n", err);
         exit(1);

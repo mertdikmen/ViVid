@@ -13,8 +13,6 @@
 DeviceMatrix::Ptr pwdist_cuda( const DeviceMatrix::Ptr& features_train,
                                const DeviceMatrix::Ptr& features_test);
 
-
-
 DeviceMatrix::Ptr pwdot_cuda( const DeviceMatrix::Ptr& features_train, 
                               const DeviceMatrix::Ptr& features_test);
 
@@ -24,10 +22,8 @@ DeviceMatrix::Ptr pwabsdot_cuda( const DeviceMatrix::Ptr& features_train,
 DeviceMatrix::Ptr pwchisq_cuda( const DeviceMatrix::Ptr& features_train,
                                 const DeviceMatrix::Ptr& features_test);
 
-
 DeviceMatrix::Ptr pwcityblock_cuda( const DeviceMatrix::Ptr& features_train,
                                      const DeviceMatrix::Ptr& features_test);
-
 
 DeviceMatrix::Ptr argmin_cuda(const DeviceMatrix::Ptr& matrix);
 DeviceMatrix::Ptr argmax_cuda(const DeviceMatrix::Ptr& matrix);
@@ -35,11 +31,9 @@ DeviceMatrix::Ptr argmax_cuda(const DeviceMatrix::Ptr& matrix);
 DeviceMatrix::Ptr min_cuda(const DeviceMatrix::Ptr& matrix);
 DeviceMatrix::Ptr max_cuda(const DeviceMatrix::Ptr& matrix);
 
-/**
- 
- 
+/*
 OpenCL
- **/
+ */
 DeviceMatrixCL::Ptr pwdist_cl( const DeviceMatrixCL::Ptr& features_train,
 							  const DeviceMatrixCL::Ptr& features_test);
 
@@ -62,10 +56,8 @@ DeviceMatrixCL::Ptr argmax_cl(const DeviceMatrixCL::Ptr& matrix);
 DeviceMatrixCL::Ptr min_cl(const DeviceMatrixCL::Ptr& matrix);
 DeviceMatrixCL::Ptr max_cl(const DeviceMatrixCL::Ptr& matrix);
 
-
 /**
  Additional functions
  **/
-
 
 #endif /* _PAIRWISE_DISTANCE_HPP_ */

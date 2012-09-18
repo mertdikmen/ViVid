@@ -9,6 +9,7 @@
 #define FF_OPTYPE_EUCLIDEAN 0
 #define FF_OPTYPE_COSINE 1
 
+
 int set_filter_bank_cuda(float* filter_bank, int size);
 int set_filter_bank_cl(float* filter_bank, int size);
 
@@ -68,6 +69,11 @@ DeviceMatrixCL3D::Ptr filter_frame_cl_7(const DeviceMatrixCL::Ptr& frame,
 										const int dim_t, const int nchannels,
 										const int optype);
 
+
+void dist_filter2_d3_cl(const DeviceMatrixCL* frame,
+						const int dim_t, const int nchannels,
+						DeviceMatrixCL3D* output,
+						const int optype);
 
 /**  CONST  **/
 static const unsigned int BLOCK_SIZE = 16;

@@ -2,7 +2,12 @@
 #include "PairwiseDistance.hpp"
 #include <boost/python.hpp>
 #include "NumPyWrapper.hpp"
+
+#ifdef _WIN32
 #include "omp.h"
+#else
+#include "omp_unix.h"
+#endif
 
 using namespace boost::python;
 
@@ -203,8 +208,5 @@ void export_PairwiseDistance()
 	("min_cl", min_cl);
     def<DeviceMatrixCL::Ptr (const DeviceMatrixCL::Ptr&) >
 	("max_cl", max_cl);
-	
-	
-	
 	
 }

@@ -9,13 +9,11 @@
 #include "CL/cl.h"
 #include <stdio.h>
 #include <iostream>
-
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <error.h>
@@ -94,9 +92,8 @@ struct theKernels {
 		
 		// Creates the program
 		// Uses NVIDIA helper functions to get the code string and it's size (in bytes)
-		size_t src_size = 0;
-		
-		
+		//size_t src_size = 0;
+				
 		char *program_source = load_program_source(ruta);
 		if (program_source == NULL) {
 			printf("Error: Failed to read the OpenCL kernel $s: kernel.cl\n",kernel);
@@ -146,21 +143,17 @@ public:
 		return My_Kernels->kernel_list[0];
 	}
 	
-	
 	cl_kernel getArgminKernel(){
 		return My_Kernels->kernel_list[1];
 	}
-	
 	
 	cl_kernel getArgmaxKernel(){
 		return My_Kernels->kernel_list[2];
 	}
 	
-	
 	cl_kernel getMinKernel(){
 		return My_Kernels->kernel_list[3];
 	}
-	
 	
 	cl_kernel getMaxKernel(){
 		return My_Kernels->kernel_list[4];
@@ -181,7 +174,6 @@ public:
 	cl_kernel getCellHistogramKernel1(){
 		return My_Kernels->kernel_list[8];
 	}
-	
 	
 	cl_kernel getCellHistogramKernel2(){
 		return My_Kernels->kernel_list[9];
@@ -257,8 +249,6 @@ public:
 	cl_kernel getDoConvolution5_11(){
 		return My_Kernels->kernel_list[29];
 	}
-	
-
 	
 	cl_kernel getDoConvolutionComplexT0(){
 		return My_Kernels->kernel_list[30];
