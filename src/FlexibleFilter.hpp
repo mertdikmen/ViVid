@@ -47,7 +47,6 @@ DeviceMatrix3D::Ptr filter_frame_cuda_7(const DeviceMatrix::Ptr& frame,
  
 **/
 
-
 DeviceMatrixCL3D::Ptr filter_frame_cl_noargmin(const DeviceMatrixCL::Ptr& frame,
 											   const int dim_t, const int dim_y, const int dim_x, const int nchannels,
 											   const int optype);
