@@ -28,21 +28,17 @@
     <ClCompile Include="..\src\ConvolutionMCuda2.cpp" />
     <ClCompile Include="..\src\ConvolutionMCuda4.cpp" />
     <ClCompile Include="..\src\ConvolutionWrapper.cpp" />
-    <ClCompile Include="..\src\cpucounters.cpp" />
     <ClCompile Include="..\src\DeviceMatrix.cpp" />
     <ClCompile Include="..\src\DeviceMatrixWrapper.cpp" />
     <ClCompile Include="..\src\exceptions.cpp" />
     <ClCompile Include="..\src\FlexibleFilter.cpp" />
     <ClCompile Include="..\src\FlexibleFilterWrapper.cpp" />
-    <ClCompile Include="..\src\msr.cpp" />
     <ClCompile Include="..\src\NumPyWrapper.cpp" />
     <ClCompile Include="..\src\opencl.cpp" />
     <ClCompile Include="..\src\OpenCLKernels.cpp" />
     <ClCompile Include="..\src\OpenCLWrapper.cpp" />
     <ClCompile Include="..\src\PairwiseDistance.cpp" />
     <ClCompile Include="..\src\PairwiseDistanceWrapper.cpp" />
-    <ClCompile Include="..\src\pci.cpp" />
-    <ClCompile Include="..\src\PCM-Power_Win\stdafx.cpp" />
     <ClCompile Include="..\src\_vivid.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -53,8 +49,6 @@
     <ClInclude Include="..\src\Convolution.hpp" />
     <ClInclude Include="..\src\ConvolutionMCuda.hpp" />
     <ClInclude Include="..\src\ConvolutionWrapper.hpp" />
-    <ClInclude Include="..\src\cpuasynchcounter.h" />
-    <ClInclude Include="..\src\cpucounters.h" />
     <ClInclude Include="..\src\DeviceMatrix.hpp" />
     <ClInclude Include="..\src\DeviceMatrixWrapper.hpp" />
     <ClInclude Include="..\src\exceptions.hpp" />
@@ -62,20 +56,13 @@
     <ClInclude Include="..\src\FlexibleFilter.hpp" />
     <ClInclude Include="..\src\FlexibleFilterLocal.hpp" />
     <ClInclude Include="..\src\FlexibleFilterWrapper.hpp" />
-    <ClInclude Include="..\src\msr.h" />
     <ClInclude Include="..\src\numpy.h" />
     <ClInclude Include="..\src\NumPyWrapper.hpp" />
-    <ClInclude Include="..\src\omp_unix.h" />
     <ClInclude Include="..\src\OpenCLKernels.hpp" />
     <ClInclude Include="..\src\OpenCLWrapper.hpp" />
     <ClInclude Include="..\src\PairwiseDistance.hpp" />
     <ClInclude Include="..\src\PairwiseDistanceLocal.hpp" />
     <ClInclude Include="..\src\PairwiseDistanceWrapper.hpp" />
-    <ClInclude Include="..\src\pci.h" />
-    <ClInclude Include="..\src\PCM-Power_Win\stdafx.h" />
-    <ClInclude Include="..\src\types.h" />
-    <ClInclude Include="..\src\unistd_win.h" />
-    <ClInclude Include="..\src\width_extender.h" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\BlockHistogram.cu" />
@@ -155,7 +142,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 4.2.props" />
+    <Import Project="C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.2\extras\visual_studio_integration\MSBuildExtensions\CUDA 4.2.props" />
   </ImportGroup>
   <!--<ImportGroup Label="ExtensionSettings">
     <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 4.2.props" />
@@ -242,20 +229,20 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\boost_1_50_0;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include;C:\Python27\libs;C:\Python27\Lib\site-packages\numpy\core\include;C:\Python27\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(BOOST_PATH);C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.0\include;C:\Python27\libs;C:\Python27\Lib\site-packages\numpy\core\include;C:\Python27\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>cudart.lib;OpenCL.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Program Files %28x86%29\NVIDIA GPU Computing Toolkit\CUDA\v4.2\lib\Win32;$(CUDA_LIB_PATH);../../common/lib;C:\boost_1_50_0\libs;C:\Python27\Lib\site-packages\numpy\core\lib;C:\Python27\Lib;C:\Python27\libs;C:\Program Files %28x86%29\Intel\OpenCL SDK\2.0\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(BOOST_PATH)\stage\lib;$(CUDA_LIB_PATH);C:\Program Files %28x86%29\NVIDIA GPU Computing Toolkit\CUDA\v4.2\lib\Win32;../../common/lib;C:\Python27\Lib\site-packages\numpy\core\lib;C:\Python27\libs;C:\Program Files %28x86%29\Intel\OpenCL SDK\2.0\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>
       </AdditionalOptions>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>32</TargetMachinePlatform>
-      <AdditionalDeps>C:\boost_1_50_0;%(AdditionalDeps)</AdditionalDeps>
-      <Include>C:\boost_1_50_0</Include>
+      <AdditionalDeps>$(BOOST_PATH);%(AdditionalDeps)</AdditionalDeps>
+      <Include>$(BOOST_PATH)</Include>
       <CodeGeneration>
       </CodeGeneration>
       <AdditionalOptions>-arch sm_20 %(AdditionalOptions)</AdditionalOptions>
@@ -285,7 +272,7 @@
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 4.2.targets" />
+    <Import Project="C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.2\extras\visual_studio_integration\MSBuildExtensions\CUDA 4.2.targets" />
   </ImportGroup>
   <!--<ImportGroup Label="ExtensionTargets">
     <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 4.2.targets" />
