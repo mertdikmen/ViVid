@@ -34,9 +34,7 @@
     <ClCompile Include="..\src\FlexibleFilter.cpp" />
     <ClCompile Include="..\src\FlexibleFilterWrapper.cpp" />
     <ClCompile Include="..\src\NumPyWrapper.cpp" />
-    <ClCompile Include="..\src\opencl.cpp" />
     <ClCompile Include="..\src\OpenCLKernels.cpp" />
-    <ClCompile Include="..\src\OpenCLWrapper.cpp" />
     <ClCompile Include="..\src\PairwiseDistance.cpp" />
     <ClCompile Include="..\src\PairwiseDistanceWrapper.cpp" />
     <ClCompile Include="..\src\_vivid.cpp" />

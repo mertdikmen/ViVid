@@ -63,13 +63,7 @@
     <ClCompile Include="..\src\NumPyWrapper.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\opencl.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\OpenCLKernels.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\OpenCLWrapper.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="..\src\PairwiseDistance.cpp">

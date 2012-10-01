@@ -89,35 +89,11 @@ DeviceMatrixCL::Ptr makeDeviceMatrixCL(boost::python::object& array)
     return retval;
 }
 
-boost::python::object DeviceMatrixCL_copyFromDevice(const DeviceMatrixCL& self)
+boost::python::object DeviceMatrixCL_copyFromDevicePy(const DeviceMatrixCL& self)
 {
     NumPyMatrix retval(self.height, self.width);
 	
-    if ((self.width > 0) && (self.height > 0)) {
-        const int mem_size = self.height * self.pitch;
-		
-        TheContext * tc = new TheContext();
-        
-       size_t buffer_origin[3] = {0,0,0};
-       size_t host_origin[3] = {0,0,0};	
-        size_t region[3] = {self.width * sizeof(float),
-            self.height,
-            1};	
-		
-        cl_int err =
-		clEnqueueReadBufferRect(
-								tc->getMyContext()->cqCommandQueue,
-								self.dataMatrix, CL_TRUE,
-								buffer_origin, host_origin, region,
-								self.pitch, 0,
-								self.width * sizeof(float), 0,
-								retval.data(),
-								0, NULL, NULL);
-		
-        if (err != 0){
-            std::cout << "Error in copyFromDevice (CODE: " << err << ")" << std::endl;
-        }
-    }
+	DeviceMatrixCL_copyFromDevice(self, retval.data());
 	
     return retval.array;
 }
@@ -131,31 +107,6 @@ void DeviceMatrixCL_copyToDevice(DeviceMatrixCL& self,
     DeviceMatrixCL_copyToDevice(self, matrix.data());
 }
 
-
-void DeviceMatrixCL_copyToDevice(DeviceMatrixCL& self, const float* data)
-{
-    const int mem_size = self.height * self.pitch;
-    TheContext * tc = new TheContext();
-
-    size_t buffer_origin[3] = {0,0,0};
-    size_t host_origin[3] = {0,0,0};	
-    size_t region[3] = {
-        self.width * sizeof(float),
-        self.height,
-        1};	
-	
-    int err = clEnqueueWriteBufferRect(
-            tc->getMyContext()->cqCommandQueue,
-		    self.dataMatrix, CL_TRUE,
-            buffer_origin, host_origin, region,
-            self.pitch, 0,
-            sizeof(float) * self.width, 0,
-            data, 0, NULL, NULL);
-	
-    if (err != 0){
-        std::cout << "Error in copyToDevice (CODE: " << err << ")" << std::endl;
-    }
-}
 
 ///////////////////////////
 
@@ -490,7 +441,7 @@ void export_DeviceMatrix()
         .def("__init__",
                 make_constructor<DeviceMatrixCL::Ptr (object&)>
                 (makeDeviceMatrixCL))
-        .def("mat", DeviceMatrixCL_copyFromDevice);
+        .def("mat", DeviceMatrixCL_copyFromDevicePy);
 	
     class_<DeviceMatrix3D, DeviceMatrix3D::Ptr >
         ("DeviceMatrix3D", no_init)

@@ -97,15 +97,66 @@ boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(size_t height, size_t width
     return boost::shared_ptr<DeviceMatrixCL>(mat, deleteDeviceMatrixCL);
 }
 
+void DeviceMatrixCL_copyToDevice(DeviceMatrixCL& self, const float* data)
+{
+    const int mem_size = self.height * self.pitch;
+    TheContext * tc = new TheContext();
+
+    size_t buffer_origin[3] = {0,0,0};
+    size_t host_origin[3] = {0,0,0};	
+    size_t region[3] = {
+        self.width * sizeof(float),
+        self.height,
+        1};	
+	
+    int err = clEnqueueWriteBufferRect(
+            tc->getMyContext()->cqCommandQueue,
+		    self.dataMatrix, CL_TRUE,
+            buffer_origin, host_origin, region,
+            self.pitch, 0,
+            sizeof(float) * self.width, 0,
+            data, 0, NULL, NULL);
+	
+    if (err != 0){
+        std::cout << "Error in copyToDevice (CODE: " << err << ")" << std::endl;
+    }
+}
+
+void DeviceMatrixCL_copyFromDevice(const DeviceMatrixCL& self, float* dst)
+{
+	if ((self.width > 0) && (self.height > 0)) {
+		const int mem_size = self.height * self.pitch;
+
+		TheContext * tc = new TheContext();
+
+		size_t buffer_origin[3] = {0,0,0};
+		size_t host_origin[3] = {0,0,0};	
+		size_t region[3] = {self.width * sizeof(float),
+			self.height,
+			1};	
+
+		cl_int err =
+			clEnqueueReadBufferRect(
+			tc->getMyContext()->cqCommandQueue,
+			self.dataMatrix, CL_TRUE,
+			buffer_origin, host_origin, region,
+			self.pitch, 0,
+			self.width * sizeof(float), 0,
+			dst,
+			0, NULL, NULL);
+
+		if (err != 0){
+			std::cout << "Error in copyFromDevice (CODE: " << err << ")" << std::endl;
+		}
+	}
+}
+
 static void deleteDeviceMatrix3D(DeviceMatrix3D* mat)
 {
     //printf("cudaFree: %p\n", mat->data);
     CUDA_CALL(cudaFree(mat->data));
     delete mat;
 }
-
-
-
 
 DeviceMatrix3D::Ptr makeDeviceMatrix3D(size_t dim_t, size_t dim_y, 
         size_t dim_x){

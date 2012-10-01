@@ -18,10 +18,8 @@
 #include <error.h>
 using namespace std;
 
-
 #include <CL/cl.h>
 #include <boost/shared_ptr.hpp>
-
 
 //Get an OpenCL platform
 struct myContexOpenCl {
@@ -166,11 +164,7 @@ struct myContexOpenCl {
 	
 }  ;
 
-
-
-
 class TheContext{
-	
  	
 public:
 	static myContexOpenCl *  The_Context_GPU;
@@ -190,8 +184,6 @@ public:
 
 	~TheContext(){};
 };
-
-
 
 //boost::shared_ptr<myContexOpenCl> myContex  (new myContexOpenCl());
 /*

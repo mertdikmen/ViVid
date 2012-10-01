@@ -27,6 +27,8 @@ struct DeviceMatrix {
 DeviceMatrix::Ptr makeDeviceMatrix(size_t height,
                                    size_t width);
 
+void DeviceMatrix_copyToDevice(DeviceMatrix& self, const float* data);
+
 struct DeviceMatrixCL {
     typedef boost::shared_ptr<DeviceMatrixCL> Ptr;
     typedef std::vector<Ptr> PtrList;
@@ -43,6 +45,9 @@ struct DeviceMatrixCL {
 };
 
 DeviceMatrixCL::Ptr makeDeviceMatrixCL(size_t height, size_t width);
+
+void DeviceMatrixCL_copyToDevice(DeviceMatrixCL& self, const float* data);
+void DeviceMatrixCL_copyFromDevice(const DeviceMatrixCL& self, float* dst);
 
 struct DeviceMatrix3D {
     typedef boost::shared_ptr<DeviceMatrix3D> Ptr;

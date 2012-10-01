@@ -368,7 +368,6 @@ BOOST_PYTHON_MODULE(_vivid)
     export_FlexibleFilter();
     export_BlockHistogram();
     export_Convolution();
-    export_OpenCL();
 
     class_< std::vector<int> >("std::vectorOfInt")
                  .def(vector_indexing_suite< std::vector<int>, true>());
