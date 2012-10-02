@@ -10,7 +10,6 @@
 #include "DeviceMatrix.hpp"
 #include "OpenCLKernels.hpp"
 
-/*
 DeviceMatrix::Ptr pwdist_cuda( const DeviceMatrix::Ptr& features_train,
                                const DeviceMatrix::Ptr& features_test);
 
@@ -31,8 +30,6 @@ DeviceMatrix::Ptr argmax_cuda(const DeviceMatrix::Ptr& matrix);
 
 DeviceMatrix::Ptr min_cuda(const DeviceMatrix::Ptr& matrix);
 DeviceMatrix::Ptr max_cuda(const DeviceMatrix::Ptr& matrix);
-
-*/
 
 /*
 OpenCL

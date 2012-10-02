@@ -7,7 +7,6 @@
 #include "omp_unix.h"
 #endif
 
-/*
 DeviceMatrix::Ptr pwdist_cuda( const DeviceMatrix::Ptr& features_train,
         const DeviceMatrix::Ptr& features_test){
 
@@ -85,7 +84,6 @@ DeviceMatrix::Ptr max_cuda(const DeviceMatrix::Ptr& matrix)
     max_cuda_local(matrix.get(), out.get());
     return out;
 }
-*/
 
 /**
   OpenCL function

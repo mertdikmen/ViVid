@@ -1,5 +1,5 @@
-#include "vivid.hpp"
 #include <opencv2\opencv.hpp>
+#include "vivid.hpp"
 
 const char* exampleImagePath = "..\\..\\..\\media\\kewell1.jpg";
 
