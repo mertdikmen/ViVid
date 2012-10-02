@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vivid_for_win", "vivid_for_win.vcxproj", "{D32A9731-3352-4B4C-A572-C32892EF1A23}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vivid_dll", "..\vivid_dll\vivid_dll.vcxproj", "{F561D0C8-67A3-4237-9967-D283B8FF1E9B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D32A9731-3352-4B4C-A572-C32892EF1A23} = {D32A9731-3352-4B4C-A572-C32892EF1A23}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Code Examples", "Code Examples", "{D8CB17F3-B512-4DB3-BF5F-576C4FB7AC9F}"
 EndProject
