@@ -82,8 +82,10 @@ boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(size_t height, size_t width
 
     //You then allocate pitch times number of rows bytes, and pass the pitch information to kernels.
 
-    const int mem_size = mat->height * mat->pitch;
+	//std::cout << height << "\t" << devicepitch << std::endl;
 
+    const int mem_size = mat->height * mat->pitch;
+	
     //std::cout << "Mem size: " << mem_size << std::endl;
 
     int err;

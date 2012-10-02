@@ -27,7 +27,7 @@ TheContext::TheContext()
 		// the_Contexts[0]=The_Context_Singleton;
 		 The_Context_CPU= new myContexOpenCl( CL_DEVICE_TYPE_CPU );
 		 printf("\nCPU context done\n\n");
-	//	 type_gpu = 0;
+		 type_gpu = 0;
 	}
 
 	

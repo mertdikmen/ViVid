@@ -1,14 +1,11 @@
 #include "vivid.hpp"
 #include <opencv2\opencv.hpp>
 
-const char* exampleImagePath = "..\..\..\media\kewell1.jpg";
+const char* exampleImagePath = "..\\..\\..\\media\\kewell1.jpg";
 
 int main(int argc, char* argv[])
 {
-	cv::Mat exampleImage = cv::imread(exampleImagePath);
-	
-	//convert to gray
-	cv::cvtColor(exampleImage, exampleImage, CV_BGR2GRAY);
+	cv::Mat exampleImage = cv::imread(exampleImagePath, 0);
 	
 	//convert to float
 	exampleImage.convertTo(exampleImage, CV_32FC1);

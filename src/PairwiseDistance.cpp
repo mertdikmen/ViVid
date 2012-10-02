@@ -7,7 +7,7 @@
 #include "omp_unix.h"
 #endif
 
-
+/*
 DeviceMatrix::Ptr pwdist_cuda( const DeviceMatrix::Ptr& features_train,
         const DeviceMatrix::Ptr& features_test){
 
@@ -85,6 +85,8 @@ DeviceMatrix::Ptr max_cuda(const DeviceMatrix::Ptr& matrix)
     max_cuda_local(matrix.get(), out.get());
     return out;
 }
+*/
+
 /**
   OpenCL function
 **/
@@ -92,14 +94,15 @@ DeviceMatrix::Ptr max_cuda(const DeviceMatrix::Ptr& matrix)
 DeviceMatrixCL::Ptr pwdist_cl( const DeviceMatrixCL::Ptr& features_train,
         const DeviceMatrixCL::Ptr& features_test){
 
+	double tic = omp_get_wtime();
     DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(features_train->height,
             features_test->height);
 
-    double tic = omp_get_wtime();
+    // double tic = omp_get_wtime();
     pwdist_genericCL(features_train.get(), features_test.get(), out.get(), EUCLIDEAN);
     double toc = omp_get_wtime();
 
-    //std::cout << "OpenCL time: " << toc - tic << std::endl;
+    std::cout << "OpenCL time: " << toc - tic << std::endl;
     return out;
 }
 

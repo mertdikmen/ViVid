@@ -47,6 +47,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
+    <Import Project="..\..\..\..\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.2\extras\visual_studio_integration\MSBuildExtensions\CUDA 4.2.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -106,6 +107,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\Intel\OpenCL SDK\2.0\include\;$(BOOST_PATH)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -131,15 +133,19 @@
     <ClCompile Include="..\src\DeviceMatrix.cpp" />
     <ClCompile Include="..\src\exceptions.cpp" />
     <ClCompile Include="..\src\OpenCLKernels.cpp" />
+    <ClCompile Include="..\src\PairwiseDistance.cpp" />
     <ClCompile Include="vivid.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ContextOpenCL.h" />
     <ClInclude Include="..\src\DeviceMatrix.hpp" />
     <ClInclude Include="..\src\OpenCLKernels.hpp" />
+    <ClInclude Include="..\src\PairwiseDistance.hpp" />
+    <ClInclude Include="..\src\PairwiseDistanceLocal.hpp" />
     <ClInclude Include="vivid.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\..\..\..\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.2\extras\visual_studio_integration\MSBuildExtensions\CUDA 4.2.targets" />
   </ImportGroup>
 </Project>

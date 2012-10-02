@@ -46,7 +46,8 @@ struct theKernels {
 	theKernels(cl_context GPUContext,cl_device_id cdDevice){
 		GPUContext_K = GPUContext;
 		cdDevice_K   = cdDevice;
-		createKernel("pairwiseDistanceKernelGeneric","../src/PairwiseDistance.cl",0);
+		createKernel("pairwiseDistanceKernelGeneric","../../../src/PairwiseDistance.cl",0);
+		/*
 		createKernel("argminKernel","../src/argminKernel.cl",1);
 		createKernel("argmaxKernel","../src/argmaxKernel.cl",2);
 		createKernel("minKernel","../src/minKernel.cl",3);
@@ -81,6 +82,7 @@ struct theKernels {
 		createKernel("do_convolution_complex_t1_7","../src/do_convolution_complex_t1_7.cl",32);
 		createKernel("do_convolution_complex_t1_9","../src/do_convolution_complex_t1_9.cl",33);
 		createKernel("do_convolution_complex_t1_11","../src/do_convolution_complex_t1_11.cl",34);
+		*/
 	}
 
 	void createKernel(const char * kernel,const char * ruta,int indice){
