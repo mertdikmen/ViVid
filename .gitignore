@@ -23,3 +23,9 @@ src/release
 *.idb
 *.ipch
 *.suo
+*.exe
+*.ilk
+*.unsuccessfulbuild
+*.sdf
+*.opensdf
+*.cpp3.o
