@@ -1,11 +1,5 @@
-/*
-*  ContextOpenCL.h
-*  
-*
-*  Created by Antonio García Martín on 28/06/12.
-*  Copyright 2012 __MyCompanyName__. All rights reserved.
-*
-*/
+#pragma once
+
 #include <stdio.h>
 #include <iostream>
 #include <fcntl.h>
@@ -41,7 +35,7 @@ struct myContexOpenCl
 			printf("clGetPlatformIDs error\n");
 		}
 
-		char platform_vendors[10][256];
+		char platform_vendors[NUM_ENTRIES][256];
 		size_t param_value_size_ret;
 		printf("OpenCL Platforms: %d\n", n_platforms);
 		for (int i = 0; i < n_platforms; i++)
@@ -54,12 +48,6 @@ struct myContexOpenCl
 				&param_value_size_ret);
 			std::cout << "Platform " << i + 1 << ": " << platform_vendors[i] << std::endl;
 		}
-
-		size_t returned_size = 0;
-
-		cl_char vendor_name[NUM_ENTRIES][1024];
-		cl_char device_name[NUM_ENTRIES][1024];
-
 
 		if(type==CL_DEVICE_TYPE_GPU)
 		{
@@ -163,7 +151,7 @@ struct myContexOpenCl
 class TheContext
 {
 public:
-	static myContexOpenCl *  The_Context_GPU;
+	static myContexOpenCl* The_Context_GPU;
 	static myContexOpenCl* The_Context_CPU;
 	static int type_gpu;
 	TheContext();

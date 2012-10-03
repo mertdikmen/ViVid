@@ -32,5 +32,7 @@ int main(int argc, char* argv[])
 		assert(copiedBack[i] == f_imData[i]);
 	}
 	
+	delete[] copiedBack;
+
 	return 0;
 }

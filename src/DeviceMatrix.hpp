@@ -24,8 +24,7 @@ struct DeviceMatrix {
   void zero();
 };
 
-DeviceMatrix::Ptr makeDeviceMatrix(size_t height,
-                                   size_t width);
+DeviceMatrix::Ptr makeDeviceMatrix(size_t height, size_t width);
 
 void DeviceMatrix_copyToDevice(DeviceMatrix& self, const float* data);
 
@@ -142,6 +141,9 @@ struct DeviceMatrixCL3D {
 
 DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(size_t dim_t, size_t dim_y, 
                                        size_t dim_x);
+
+void DeviceMatrixCL3D_copyToDevice(DeviceMatrixCL3D& self, const float* data);
+void DeviceMatrixCL3D_copyFromDevice(const DeviceMatrixCL3D& self, float* dst);
 
 //! Create a DeviceMatrix3D that has no padding
 DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3DPacked(size_t dim_t, size_t dim_y, 

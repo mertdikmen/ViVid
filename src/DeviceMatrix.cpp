@@ -123,6 +123,67 @@ void DeviceMatrixCL_copyToDevice(DeviceMatrixCL& self, const float* data)
 		}
 }
 
+void DeviceMatrixCL3D_copyToDevice(DeviceMatrixCL3D& self, const float* data)
+{
+    if ((self.dim_x > 0) && (self.dim_y > 0) && (self.dim_t > 0)) {
+		const int mem_size = self.dim_y *self.dim_t * self.pitch_y;
+		TheContext * tc = new TheContext();
+		
+		size_t buffer_origin[3] = {0,0,0};
+		size_t host_origin[3] = {0,0,0};	
+		size_t region[3] = {self.dim_x * sizeof(float),
+			self.dim_y,
+			self.dim_t};	
+		int err = clEnqueueWriteBufferRect(
+										   tc->getMyContext()->cqCommandQueue,
+										   self.dataMatrix, CL_TRUE,
+										   buffer_origin, host_origin, region,
+										   self.pitch_y, 0,
+										   sizeof(float) * self.dim_x, 0,
+										   data, 0, NULL, NULL);
+		
+		if (err != 0){
+			std::cout << "Error in copyToDevice (CODE: " << err << ")" << std::endl;
+		}
+    }
+}
+
+void DeviceMatrixCL3D_copyFromDevice(const DeviceMatrixCL3D& self, float* dst)
+{
+    if ((self.dim_x > 0) && (self.dim_y > 0) && (self.dim_t > 0)) {
+	
+		const int mem_size = self.dim_y *self.dim_t * self.pitch_y;
+	    	
+        TheContext * tc = new TheContext();
+
+	 //   printf("%d x %d\n",self.pitch_y,self.pitch_t);
+
+		//printf("--->%d  x %d  x  %d\n",self.dim_x,self.dim_y,self.dim_t);
+		
+		size_t buffer_origin[3] = {0,0,0};
+		size_t host_origin[3] = {0,0,0};	
+        size_t region[3] = {self.dim_x * sizeof(float),
+            self.dim_y,
+            self.dim_t};	
+		float prueba[5][2][3];
+		//PyArray_DATA(retval.ptr());
+        cl_int err =
+		clEnqueueReadBufferRect(
+								tc->getMyContext()->cqCommandQueue,
+								self.dataMatrix, CL_TRUE,
+								buffer_origin, host_origin, region,
+								self.pitch_y, 0,
+								self.dim_x * sizeof(float), 0,
+								dst,
+								0, NULL, NULL);
+			//std::cout<<prueba[2][2][2]<<" "<<prueba[0][0][2]<<endl;
+		
+        if (err != 0){
+            std::cout << "Error in copyFromDevice (CODE: " << err << ")" << std::endl;		
+		}
+	}
+}
+
 void DeviceMatrixCL_copyFromDevice(const DeviceMatrixCL& self, float* dst)
 {
 	if ((self.width > 0) && (self.height > 0)) {
@@ -151,6 +212,7 @@ void DeviceMatrixCL_copyFromDevice(const DeviceMatrixCL& self, float* dst)
 		}
 	}
 }
+
 
 static void deleteDeviceMatrix3D(DeviceMatrix3D* mat)
 {

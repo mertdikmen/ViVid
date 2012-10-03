@@ -258,7 +258,7 @@ DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(const boost::python::object& array)
 }
 
 
-boost::python::object DeviceMatrixCL3D_copyFromDevice(const DeviceMatrixCL3D& self)
+boost::python::object DeviceMatrixCL3D_copyFromDevicePy(const DeviceMatrixCL3D& self)
 {
     npy_intp dims[3] = {self.dim_t, self.dim_y, self.dim_x};
 	
@@ -267,39 +267,7 @@ boost::python::object DeviceMatrixCL3D_copyFromDevice(const DeviceMatrixCL3D& se
     handle<> temp(arr);
     object retval(temp);
 	
-    if ((self.dim_x > 0) && (self.dim_y > 0) && (self.dim_t > 0)) {
-	
-		const int mem_size = self.dim_y *self.dim_t * self.pitch_y;
-	    	
-        TheContext * tc = new TheContext();
-
-	 //   printf("%d x %d\n",self.pitch_y,self.pitch_t);
-
-		//printf("--->%d  x %d  x  %d\n",self.dim_x,self.dim_y,self.dim_t);
-		
-		size_t buffer_origin[3] = {0,0,0};
-		size_t host_origin[3] = {0,0,0};	
-        size_t region[3] = {self.dim_x * sizeof(float),
-            self.dim_y,
-            self.dim_t};	
-		float prueba[5][2][3];
-		//PyArray_DATA(retval.ptr());
-        cl_int err =
-		clEnqueueReadBufferRect(
-								tc->getMyContext()->cqCommandQueue,
-								self.dataMatrix, CL_TRUE,
-								buffer_origin, host_origin, region,
-								self.pitch_y, 0,
-								self.dim_x * sizeof(float), 0,
-								PyArray_DATA(retval.ptr()),
-								0, NULL, NULL);
-			//std::cout<<prueba[2][2][2]<<" "<<prueba[0][0][2]<<endl;
-		
-        if (err != 0){
-            std::cout << "Error in copyFromDevice (CODE: " << err << ")" << std::endl;		
-		}
-	}
-	
+	DeviceMatrixCL3D_copyFromDevice(self, (float*)PyArray_DATA(retval.ptr()));
 	return retval;
 }
 
@@ -315,31 +283,8 @@ void DeviceMatrixCL3D_copyToDevice(DeviceMatrixCL3D& self,
 	
     // Make sure that we are packed in the t direction
     assert(self.pitch_t == self.dim_y * self.pitch_y);
-	
-    if ((self.dim_x > 0) && (self.dim_y > 0) && (self.dim_t > 0)) {
-		const int mem_size = self.dim_y *self.dim_t * self.pitch_y;
-		TheContext * tc = new TheContext();
-		
-//		printf("%d x %d\n",self.pitch_y,self.pitch_t);
-		size_t buffer_origin[3] = {0,0,0};
-		size_t host_origin[3] = {0,0,0};	
-		size_t region[3] = {self.dim_x * sizeof(float),
-			self.dim_y,
-			self.dim_t};	
-		int err = clEnqueueWriteBufferRect(
-										   tc->getMyContext()->cqCommandQueue,
-										   self.dataMatrix, CL_TRUE,
-										   buffer_origin, host_origin, region,
-										   self.pitch_y, 0,
-										   sizeof(float) * self.dim_x, 0,
-										   PyArray_DATA(arr.ptr()), 0, NULL, NULL);
-		
-		if (err != 0){
-			std::cout << "Error in copyToDevice (CODE: " << err << ")" << std::endl;
-		}
-		
-    }
-	
+
+	DeviceMatrixCL3D_copyToDevice(self, (float*) PyArray_DATA(arr.ptr()));
 }
 /**
  
@@ -459,8 +404,8 @@ void export_DeviceMatrix()
 	.def("__init__",
 		 make_constructor<DeviceMatrixCL3D::Ptr (const object&)>
 		 (makeDeviceMatrixCL3D))
-	.def("mat", DeviceMatrixCL3D_copyFromDevice)
-	.def("set", DeviceMatrixCL3D_copyToDevice)
+	.def("mat", DeviceMatrixCL3D_copyFromDevicePy)
+	//.def("set", DeviceMatrixCL3D_copyToDevice)
 	.def("crop", cropDeviceMatrixCL3D)
 	;
 

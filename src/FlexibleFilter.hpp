@@ -10,6 +10,7 @@
 #define FF_OPTYPE_COSINE 1
 
 
+/*size parameter is in terms of floats*/
 int set_filter_bank_cuda(float* filter_bank, int size);
 int set_filter_bank_cl(float* filter_bank, int size);
 
