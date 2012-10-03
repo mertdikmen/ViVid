@@ -1,6 +1,5 @@
 #include "FlexibleFilter.hpp"
 #include "FlexibleFilterLocal.hpp"
-#include "DeviceMatrixWrapper.hpp"
 
 #ifdef _WIN32
 #include "omp.h"

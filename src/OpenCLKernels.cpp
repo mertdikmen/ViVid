@@ -38,9 +38,6 @@ MyKernels::MyKernels(cl_context Context1,
 	}
 }
 
-
-
-
 theKernels *  MyKernels_CPU::My_Kernels=NULL;
 
 MyKernels_CPU::MyKernels_CPU(cl_context GPUContext1,

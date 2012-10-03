@@ -1,3 +1,4 @@
+#pragma once
 /*
 *  OpenCLKernels.hpp
 *  
@@ -18,7 +19,7 @@
 #include <sys/stat.h>
 #include <error.h>
 
-static char * load_program_source(const char *filename) {
+static char* load_program_source(const char *filename) {
 
 	struct stat statbuf;
 	FILE *fh;
@@ -47,42 +48,40 @@ struct theKernels {
 		GPUContext_K = GPUContext;
 		cdDevice_K   = cdDevice;
 		createKernel("pairwiseDistanceKernelGeneric","../../../src/PairwiseDistance.cl",0);
-		/*
-		createKernel("argminKernel","../src/argminKernel.cl",1);
-		createKernel("argmaxKernel","../src/argmaxKernel.cl",2);
-		createKernel("minKernel","../src/minKernel.cl",3);
-		createKernel("maxKernel","../src/maxKernel.cl",4);
-		createKernel("blockwise_distance_kernel","../src/blockwise_distance_kernel.cl",5);
-		createKernel("blockwise_filter_kernel","../src/blockwise_filter_kernel.cl",6);
-		createKernel("cell_histogram_kernel","../src/cell_histogram_kernel.cl",7);
-		createKernel("cellHistogramKernel1","../src/cellHistogramKernel1.cl",8);
-		createKernel("cellHistogramKernel2","../src/cellHistogramKernel2.cl",9);
-		createKernel("do_convolution0","../src/do_convolution0.cl",10);
-		createKernel("do_convolution1","../src/do_convolution1.cl",11);
-		createKernel("do_convolution2_8","../src/do_convolution2.cl",12);
-		createKernel("do_convolution2_10","../src/do_convolution2_10.cl",13);
-		createKernel("do_convolution2_12","../src/do_convolution2_12.cl",14);
-		createKernel("do_convolution2_14","../src/do_convolution2_14.cl",15);
-		createKernel("do_convolution3","../src/do_convolution3.cl",16);
-		createKernel("do_convolution3_7","../src/do_convolution3_7.cl",17);
-		createKernel("do_convolution3_9","../src/do_convolution3_9.cl",18);
-		createKernel("do_convolution3_11","../src/do_convolution3_11.cl",19);
-		createKernel("do_convolution4","../src/do_convolution4.cl",20);
-		createKernel("do_convolution4_7","../src/do_convolution4_7.cl",21);
-		createKernel("do_convolution4_9","../src/do_convolution4_9.cl",22);
-		createKernel("do_convolution4_11","../src/do_convolution4_11.cl",23);
-		createKernel("do_convolution4_13","../src/do_convolution4_13.cl",24);
-		createKernel("do_convolution4_15","../src/do_convolution4_15.cl",25);
-		createKernel("do_convolution5","../src/do_convolution5.cl",26);
-		createKernel("do_convolution5_7","../src/do_convolution5_7.cl",27);
-		createKernel("do_convolution5_9","../src/do_convolution5_9.cl",28);
-		createKernel("do_convolution5_11","../src/do_convolution5_11.cl",29);
-		createKernel("do_convolution_complex_t0","../src/do_convolution_complex_t0.cl",30);
-		createKernel("do_convolution_complex_t1_5","../src/do_convolution_complex_t1.cl",31);
-		createKernel("do_convolution_complex_t1_7","../src/do_convolution_complex_t1_7.cl",32);
-		createKernel("do_convolution_complex_t1_9","../src/do_convolution_complex_t1_9.cl",33);
-		createKernel("do_convolution_complex_t1_11","../src/do_convolution_complex_t1_11.cl",34);
-		*/
+		createKernel("argminKernel","../../../src/argminKernel.cl",1);
+		createKernel("argmaxKernel","../../../src/argmaxKernel.cl",2);
+		createKernel("minKernel","../../../src/minKernel.cl",3);
+		createKernel("maxKernel","../../../src/maxKernel.cl",4);
+		createKernel("blockwise_distance_kernel","../../../src/blockwise_distance_kernel.cl",5);
+		createKernel("blockwise_filter_kernel","../../../src/blockwise_filter_kernel.cl",6);
+		createKernel("cell_histogram_kernel","../../../src/cell_histogram_kernel.cl",7);
+		createKernel("cellHistogramKernel1","../../../src/cellHistogramKernel1.cl",8);
+		createKernel("cellHistogramKernel2","../../../src/cellHistogramKernel2.cl",9);
+		createKernel("do_convolution0","../../../src/do_convolution0.cl",10);
+		createKernel("do_convolution1","../../../src/do_convolution1.cl",11);
+		createKernel("do_convolution2_8","../../../src/do_convolution2.cl",12);
+		createKernel("do_convolution2_10","../../../src/do_convolution2_10.cl",13);
+		createKernel("do_convolution2_12","../../../src/do_convolution2_12.cl",14);
+		createKernel("do_convolution2_14","../../../src/do_convolution2_14.cl",15);
+		createKernel("do_convolution3","../../../src/do_convolution3.cl",16);
+		createKernel("do_convolution3_7","../../../src/do_convolution3_7.cl",17);
+		createKernel("do_convolution3_9","../../../src/do_convolution3_9.cl",18);
+		createKernel("do_convolution3_11","../../../src/do_convolution3_11.cl",19);
+		createKernel("do_convolution4","../../../src/do_convolution4.cl",20);
+		createKernel("do_convolution4_7","../../../src/do_convolution4_7.cl",21);
+		createKernel("do_convolution4_9","../../../src/do_convolution4_9.cl",22);
+		createKernel("do_convolution4_11","../../../src/do_convolution4_11.cl",23);
+		createKernel("do_convolution4_13","../../../src/do_convolution4_13.cl",24);
+		createKernel("do_convolution4_15","../../../src/do_convolution4_15.cl",25);
+		createKernel("do_convolution5","../../../src/do_convolution5.cl",26);
+		createKernel("do_convolution5_7","../../../src/do_convolution5_7.cl",27);
+		createKernel("do_convolution5_9","../../../src/do_convolution5_9.cl",28);
+		createKernel("do_convolution5_11","../../../src/do_convolution5_11.cl",29);
+		createKernel("do_convolution_complex_t0","../../../src/do_convolution_complex_t0.cl",30);
+		createKernel("do_convolution_complex_t1_5","../../../src/do_convolution_complex_t1.cl",31);
+		createKernel("do_convolution_complex_t1_7","../../../src/do_convolution_complex_t1_7.cl",32);
+		createKernel("do_convolution_complex_t1_9","../../../src/do_convolution_complex_t1_9.cl",33);
+		createKernel("do_convolution_complex_t1_11","../../../src/do_convolution_complex_t1_11.cl",34);
 	}
 
 	void createKernel(const char * kernel,const char * ruta,int indice){

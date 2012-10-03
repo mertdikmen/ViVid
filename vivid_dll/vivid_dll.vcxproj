@@ -69,6 +69,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetExt>.lib</TargetExt>
     <TargetName>vivid_d</TargetName>
+    <OutDir>$(SolutionDir)..\lib\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetName>vivid</TargetName>
@@ -95,7 +96,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\src;$(BOOST_PATH);$(CUDA_INC_PATH);C:\Python27\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\src;$(BOOST_PATH);$(CUDA_INC_PATH)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -138,6 +139,7 @@
     <ClCompile Include="..\src\ContextOpenCL.cpp" />
     <ClCompile Include="..\src\DeviceMatrix.cpp" />
     <ClCompile Include="..\src\exceptions.cpp" />
+    <ClCompile Include="..\src\FlexibleFilter.cpp" />
     <ClCompile Include="..\src\OpenCLKernels.cpp" />
     <ClCompile Include="..\src\PairwiseDistance.cpp" />
     <ClCompile Include="vivid.cpp" />
@@ -145,12 +147,16 @@
   <ItemGroup>
     <ClInclude Include="..\src\ContextOpenCL.h" />
     <ClInclude Include="..\src\DeviceMatrix.hpp" />
+    <ClInclude Include="..\src\exceptions.hpp" />
+    <ClInclude Include="..\src\FlexibleFilter.hpp" />
+    <ClInclude Include="..\src\FlexibleFilterLocal.hpp" />
     <ClInclude Include="..\src\OpenCLKernels.hpp" />
     <ClInclude Include="..\src\PairwiseDistance.hpp" />
     <ClInclude Include="..\src\PairwiseDistanceLocal.hpp" />
     <ClInclude Include="vivid.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <CudaCompile Include="..\src\FlexibleFilter.cu" />
     <CudaCompile Include="..\src\PairwiseDistance.cu" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
