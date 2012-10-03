@@ -19,7 +19,8 @@ int update_filter_bank_internal_cl(float* new_filter, int filter_size){
         printf("ERROR: Filterbank too large\n");
         return 1;
     }
-    else {
+    else 
+	{
         //std::cout << "Loading the filterbank" << std::endl;
         //printf("Value in:%05f\n",new_filter[0]);
 		
