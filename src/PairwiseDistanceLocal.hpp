@@ -14,6 +14,11 @@ void pwdist_genericCL( const DeviceMatrixCL* features_train,
 					const DeviceMatrixCL* features_test,
 					DeviceMatrixCL* output,
 					int type);
+
+void pwdist_eucCL( const DeviceMatrixCL* features_train,
+					const DeviceMatrixCL* features_test,
+					DeviceMatrixCL* output
+					);
 /*
 void argmin_cuda_local(const DeviceMatrix* matrix, DeviceMatrix* output);
 void argmax_cuda_local(const DeviceMatrix* matrix, DeviceMatrix* output);

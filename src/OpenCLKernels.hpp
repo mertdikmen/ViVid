@@ -47,6 +47,7 @@ struct theKernels {
 		GPUContext_K = GPUContext;
 		cdDevice_K   = cdDevice;
 		createKernel("pairwiseDistanceKernelGeneric","../../../src/PairwiseDistance.cl",0);
+		createKernel("E_pairwiseDistanceKernel","../../../src/E_PairwiseDistance.cl",1);
 		/*
 		createKernel("argminKernel","../src/argminKernel.cl",1);
 		createKernel("argmaxKernel","../src/argmaxKernel.cl",2);
@@ -110,7 +111,7 @@ struct theKernels {
 		}
 
 		// Build the program executable
-		const char * options = "";
+		const char * options = "-cl-fast-relaxed-math -O3";
 		err = clBuildProgram(program_list[indice], 0, NULL, options, NULL, NULL);
 		if (err != CL_SUCCESS) {
 			size_t len;
@@ -150,6 +151,10 @@ public:
 
 	cl_kernel getPairwiseDistanceKernel(){
 		return My_Kernels->kernel_list[0];
+	}
+
+	cl_kernel getEPairwiseDistanceKernel(){
+		return My_Kernels->kernel_list[1];
 	}
 
 	cl_kernel getArgminKernel(){
