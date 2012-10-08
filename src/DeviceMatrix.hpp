@@ -44,7 +44,7 @@ struct DeviceMatrixCL {
     void zero();
 };
 
-DeviceMatrixCL::Ptr makeDeviceMatrixCL(size_t height, size_t width);
+DeviceMatrixCL::Ptr makeDeviceMatrixCL(size_t height, size_t width, cl_mem_flags FLAG);
 
 void DeviceMatrixCL_copyToDevice(DeviceMatrixCL& self, const float* data);
 void DeviceMatrixCL_copyFromDevice(const DeviceMatrixCL& self, float* dst);

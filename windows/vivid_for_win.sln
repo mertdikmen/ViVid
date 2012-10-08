@@ -13,6 +13,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_basic", "test_basic\te
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_pwdist", "..\test_pwdist\test_pwdist.vcxproj", "{B4389E7A-C365-42F5-BBBB-F8236D3B5293}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F561D0C8-67A3-4237-9967-D283B8FF1E9B} = {F561D0C8-67A3-4237-9967-D283B8FF1E9B}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

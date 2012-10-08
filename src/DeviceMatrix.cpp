@@ -48,7 +48,7 @@ static void deleteDeviceMatrixCL(DeviceMatrixCL* mat)
     delete mat;
 }
 
-boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(size_t height, size_t width)
+boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(size_t height, size_t width, cl_mem_flags FLAG)
 {
     DeviceMatrixCL* mat = new DeviceMatrixCL();
     mat->width = width;
@@ -64,10 +64,15 @@ boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(size_t height, size_t width
     clGetDeviceInfo: note that the returned value is in bits, so you have
     to divide by 8 to get it in bytes);*/
 
-    int buffer;
+    
+	//unsigned long long int loc_size;
+	//clGetDeviceInfo(cdDevice, CL_DEVICE_LOCAL_MEM_SIZE, sizeof(loc_size), &loc_size, NULL);
+	//printf("device local memory size: %lldd bytes\n", loc_size);
+	int buffer;
     cl_int prueba = clGetDeviceInfo(cdDevice, CL_DEVICE_MEM_BASE_ADDR_ALIGN , sizeof(buffer), &buffer, NULL);
     buffer /= 8;
-
+	
+	
     int naturalPitch = sizeof(float) * mat->width;
 
     /*let's call this base (2) find the largest multiple of base
@@ -76,7 +81,7 @@ boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(size_t height, size_t width
 
     int devicepitch = ceil(float(naturalPitch)/buffer) * buffer;
 
-    //printf("Pitch: %d, DevicePitch: %d, Buffer: %d\n", naturalPitch, devicepitch, buffer);
+    printf("Pitch: %d, DevicePitch: %d, Buffer: %d\n", naturalPitch, devicepitch, buffer);
 
     mat->pitch = devicepitch;
 
@@ -84,13 +89,14 @@ boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(size_t height, size_t width
 
 	//std::cout << height << "\t" << devicepitch << std::endl;
 
-    const int mem_size = mat->height * mat->pitch;
+    const int mem_size = (mat->height+16) * mat->pitch;
 	
     //std::cout << "Mem size: " << mem_size << std::endl;
 
     int err;
 
-    mat->dataMatrix = clCreateBuffer(GPUContext, CL_MEM_READ_WRITE, mem_size, NULL, &err);
+    // mat->dataMatrix = clCreateBuffer(GPUContext, CL_MEM_READ_WRITE, mem_size, NULL, &err);
+	mat->dataMatrix = clCreateBuffer(GPUContext, FLAG, mem_size, NULL, &err);
     if(err!=0)
     {
         printf("Error Code create buffer: %d\n",err);

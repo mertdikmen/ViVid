@@ -23,10 +23,20 @@ __kernel void E_pairwiseDistanceKernel(
     const int b_pitch_f = b_pitch / sizeof(float);
     const int o_pitch_f = o_pitch / sizeof(float);
 
-    const int out_ry = get_group_id(0) * BLOCK_SIZE + get_local_id(0);
-    const int out_cx = get_group_id(1) * BLOCK_SIZE + get_local_id(1);
+    const int out_ry = get_group_id(1) * BLOCK_SIZE + get_local_id(1);
+    const int out_cx = get_group_id(0) * BLOCK_SIZE + get_local_id(0);
 
-    const int b_ry = get_group_id(1) * BLOCK_SIZE + get_local_id(0);
+	const int out_ry_mul = out_ry * a_pitch_f;
+	
+
+    const int b_ry = get_group_id(0) * BLOCK_SIZE + get_local_id(1);
+
+	const int b_ry_mul = b_ry * b_pitch_f;
+
+	const int myInd = get_local_id(1) * BLOCK_SIZE + get_local_id(0);
+
+	const int myCoef1 = get_local_id(1) * BLOCK_SIZE;
+	const int myCoef0 = get_local_id(1) * BLOCK_SIZE;
 
     __local float a_cache[16 * 16];
     __local float b_cache[16 * 16];
@@ -35,40 +45,45 @@ __kernel void E_pairwiseDistanceKernel(
 
     int end = 0;
 
+	
+
     for (unsigned int i=0; i < a_width; i+=BLOCK_SIZE)
     {
-        int read_cx = i + get_local_id(1);
-        if (read_cx < a_width) {
-            if (out_ry < a_height) {
-                a_cache[get_local_id(0) * BLOCK_SIZE + get_local_id(1)] = 
-                    a[out_ry * a_pitch_f + read_cx];
-            }
-            if (b_ry < b_height)
+        int read_cx = i + get_local_id(0);
+        // if (read_cx < a_width) {
+        //    if (out_ry < a_height) {
+                a_cache[myInd] = 
+                    a[out_ry_mul + read_cx];
+       //     }
+        //    if (b_ry < b_height)
             {
-                b_cache[get_local_id(0) * BLOCK_SIZE + get_local_id(1)] =
-                    b[b_ry * b_pitch_f + read_cx];
+                b_cache[myInd] =
+                    b[b_ry_mul + read_cx];
             }
-        }
-        barrier(CLK_GLOBAL_MEM_FENCE | CLK_LOCAL_MEM_FENCE);
-        
-        if (BLOCK_SIZE < (a_width - i))
-        {
-            end = BLOCK_SIZE;
-        }
-        else 
-        {
-            end = a_width - i;
-        }
+     //   }
+        barrier(CLK_LOCAL_MEM_FENCE);
+       
+	    end = BLOCK_SIZE;
+	//	end =  a_width - i;
+   //     if (BLOCK_SIZE < (a_width - i))
+ //       {
+  //          end = BLOCK_SIZE;
+  //      }
+//        else 
+  //      {
+    //        end = a_width - i;
+    //    }
     
         for (unsigned int k=0; k < end; k++)
         {
-                float diff = a_cache[get_local_id(0) * BLOCK_SIZE + k]  - b_cache[get_local_id(1) * BLOCK_SIZE + k];
+                float diff = a_cache[myCoef1 + k]  - b_cache[myCoef0 + k];
                 dst += diff * diff;
+				// dst = mad(diff, diff, dst);
         }
-        barrier(CLK_GLOBAL_MEM_FENCE | CLK_LOCAL_MEM_FENCE);
+        //barrier( CLK_LOCAL_MEM_FENCE);
     }
 
-    if ((out_cx < o_width) && (out_ry < o_height))
+    //if ((out_cx < o_width) && (out_ry < o_height))
     {
         out[out_ry * o_pitch_f + out_cx] = dst;
     }

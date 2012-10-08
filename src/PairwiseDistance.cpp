@@ -96,7 +96,7 @@ DeviceMatrixCL::Ptr pwdist_cl( const DeviceMatrixCL::Ptr& features_train,
 
 	//double tic = omp_get_wtime();
     DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(features_train->height,
-            features_test->height);
+            features_test->height, CL_MEM_WRITE_ONLY);
 
     // double tic = omp_get_wtime();
     pwdist_genericCL(features_train.get(), features_test.get(), out.get(), EUCLIDEAN);
@@ -112,7 +112,7 @@ DeviceMatrixCL::Ptr pwdot_cl( const DeviceMatrixCL::Ptr& features_train,
         const DeviceMatrixCL::Ptr& features_test){
 
     DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(features_train->height,
-            features_test->height);
+            features_test->height, CL_MEM_READ_WRITE);
     pwdist_genericCL(features_train.get(), features_test.get(), out.get(), DOTPRODUCT);
     return out;
 }
@@ -121,7 +121,7 @@ DeviceMatrixCL::Ptr pwabsdot_cl( const DeviceMatrixCL::Ptr& features_train,
         const DeviceMatrixCL::Ptr& features_test){
 
     DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(features_train->height,
-            features_test->height);
+            features_test->height, CL_MEM_READ_WRITE);
     pwdist_genericCL(features_train.get(), features_test.get(), out.get(), ABSDOTPRODUCT);
     return out;
 }
@@ -130,7 +130,7 @@ DeviceMatrixCL::Ptr pwchisq_cl( const DeviceMatrixCL::Ptr& features_train,
         const DeviceMatrixCL::Ptr& features_test){
 
     DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(features_train->height,
-            features_test->height);
+            features_test->height, CL_MEM_READ_WRITE);
     pwdist_genericCL(features_train.get(), features_test.get(), out.get(), CHISQUARED);
     return out;
 }
@@ -139,35 +139,35 @@ DeviceMatrixCL::Ptr pwcityblock_cl( const DeviceMatrixCL::Ptr& features_train,
         const DeviceMatrixCL::Ptr& features_test){
 
     DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(features_train->height,
-            features_test->height);
+            features_test->height, CL_MEM_READ_WRITE);
     pwdist_genericCL(features_train.get(), features_test.get(), out.get(), CITYBLOCK);
     return out;
 }
 
 DeviceMatrixCL::Ptr argmin_cl(const DeviceMatrixCL::Ptr& matrix)
 {
-    DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(matrix->height, 1);
+    DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(matrix->height, 1, CL_MEM_READ_WRITE);
     argmin_cl_local(matrix.get(), out.get());
     return out;
 }
 
 DeviceMatrixCL::Ptr argmax_cl(const DeviceMatrixCL::Ptr& matrix)
 {
-    DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(matrix->height, 1);
+    DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(matrix->height, 1, CL_MEM_READ_WRITE);
     argmax_cl_local(matrix.get(), out.get());
     return out;
 }
 
 DeviceMatrixCL::Ptr min_cl(const DeviceMatrixCL::Ptr& matrix)
 {
-    DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(matrix->height, 1);
+    DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(matrix->height, 1, CL_MEM_READ_WRITE);
     min_cl_local(matrix.get(), out.get());
     return out;
 }
 
 DeviceMatrixCL::Ptr max_cl(const DeviceMatrixCL::Ptr& matrix)
 {
-    DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(matrix->height, 1);
+    DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(matrix->height, 1, CL_MEM_READ_WRITE);
     max_cl_local(matrix.get(), out.get());
     return out;
 }
@@ -289,7 +289,9 @@ void pwdist_eucCL(const DeviceMatrixCL* features_train,
 	
    // err |= clSetKernelArg(theKernel, 12, sizeof (int), &type);
     err |= clSetKernelArg(theKernel, 12, sizeof (int), &BLOCK_SIZE);
-	
+	printf("params: %d %d %d,  %d %d %d, %d %d %d-- %d\n",features_train->width,
+		features_train->height,features_train->pitch, features_test->width, features_test->height,
+		features_test->pitch, output->width, output->height, output->pitch, BLOCK_SIZE);
     if (err != CL_SUCCESS) {
         printf("Error: Failed to set kernel arguments 3! %d\n", err);
         exit(1);
@@ -300,15 +302,16 @@ void pwdist_eucCL(const DeviceMatrixCL* features_train,
     const int n_blocks_y = ((features_test->height - 1) / BLOCK_SIZE + 1) * BLOCK_SIZE;
 
     const size_t local_work_size[2] = {BLOCK_SIZE, BLOCK_SIZE}; 
-    const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
+    const size_t global_work_size[2] = {n_blocks_y, n_blocks_x};
 
-    //std::cout << "Threads: " << local_work_size[0] << ", " << local_work_size[1] << std::endl;
-    //std::cout << "Blocks: " << global_work_size[0] << ", " << global_work_size[1] << std::endl;
+    std::cout << "Threads: " << local_work_size[0] << ", " << local_work_size[1] << std::endl;
+    std::cout << "Blocks: " << global_work_size[0] << ", " << global_work_size[1] << std::endl;
 
 	double tic = omp_get_wtime();
     err = clEnqueueNDRangeKernel(tc->getMyContext()->cqCommandQueue, 
             theKernel, 2, NULL, 
             global_work_size, local_work_size, 0, NULL, NULL);
+	 //       global_work_size, NULL, 0, NULL, NULL);
 	clFinish(tc->getMyContext()->cqCommandQueue);// to make sure the kernel completed
 	double toc = omp_get_wtime();
 	std::cout << "OpenCL generic cl first time: " << toc - tic << std::endl;
@@ -320,6 +323,8 @@ void pwdist_eucCL(const DeviceMatrixCL* features_train,
 	clFinish(tc->getMyContext()->cqCommandQueue);// to make sure the kernel completed
 	toc = omp_get_wtime();
 	std::cout << "OpenCL generic cl time: " << toc - tic << std::endl;
+
+
     if (err) {
         printf("Error: Failed to execute kernel! %d\n", err);
         exit(1);

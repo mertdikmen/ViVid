@@ -111,7 +111,7 @@ struct theKernels {
 		}
 
 		// Build the program executable
-		const char * options = "-cl-fast-relaxed-math -O3";
+		const char * options = "-cl-fast-relaxed-math";
 		err = clBuildProgram(program_list[indice], 0, NULL, options, NULL, NULL);
 		if (err != CL_SUCCESS) {
 			size_t len;

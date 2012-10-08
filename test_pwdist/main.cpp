@@ -11,10 +11,12 @@ int main(int argc, char* argv[])
 
 	float* random1 = new float[1000 * 500];
 	float* random2 = new float[1000 * 300];
+	
+	
 
 	//create a device matrix
-	DeviceMatrixCL::Ptr dmpCL1 = makeDeviceMatrixCL(500, 1000);
-	DeviceMatrixCL::Ptr dmpCL2 = makeDeviceMatrixCL(300, 1000);
+	DeviceMatrixCL::Ptr dmpCL1 = makeDeviceMatrixCL(500, 1000, CL_MEM_READ_ONLY);
+	DeviceMatrixCL::Ptr dmpCL2 = makeDeviceMatrixCL(300, 1000, CL_MEM_READ_ONLY);
 
 	//copy to the DeviceMatrix
 	DeviceMatrixCL_copyToDevice(*dmpCL1, random1);
