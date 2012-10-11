@@ -1,90 +1,100 @@
 /*static const unsigned int BLOCK_SIZE = 16;*/
 
-__constant int EUCLIDEAN = 0;
- __constant int DOTPRODUCT = 1;
- __constant int CHISQUARED =  2;
- __constant int CITYBLOCK = 3;
-  __constant int ABSDOTPRODUCT=  4;
-  
-
+#define BLOCK_SIZE 16
 /*
  * @note This kernel is based on the blocked matrix multiply.  We
  * expect to be caleld with blockDim(BLOCK_SIZE, BLOCK_SIZE) and a
  * sufficiently large grid to cover all othe output values.
  */
 __kernel void E_pairwiseDistanceKernel(
-        __global float* a, const int a_width, const int a_height, const int a_pitch,
-        __global float* b, const int b_width, const int b_height, const int b_pitch,
-        __global float* out, const int o_width, const int o_height, const int o_pitch,
-        const int BLOCK_SIZE)
+        __global float* a, const int a_width, const int a_pitch_f,
+        __global float* b, const int b_pitch_f,
+        __global float* out, const int o_pitch_f)
 {
 
-    const int a_pitch_f = a_pitch / sizeof(float);
-    const int b_pitch_f = b_pitch / sizeof(float);
-    const int o_pitch_f = o_pitch / sizeof(float);
+    const int out_ry = get_group_id(0) * BLOCK_SIZE + get_local_id(0);
+    const int out_cx = get_group_id(1) * BLOCK_SIZE + get_local_id(1);
 
-    const int out_ry = get_group_id(1) * BLOCK_SIZE + get_local_id(1);
-    const int out_cx = get_group_id(0) * BLOCK_SIZE + get_local_id(0);
+    const int b_ry = get_group_id(1) * BLOCK_SIZE + get_local_id(0);
 
-	const int out_ry_mul = out_ry * a_pitch_f;
-	
+	const int a_mul = out_ry * a_pitch_f;
 
-    const int b_ry = get_group_id(0) * BLOCK_SIZE + get_local_id(1);
-
-	const int b_ry_mul = b_ry * b_pitch_f;
-
-	const int myInd = get_local_id(1) * BLOCK_SIZE + get_local_id(0);
-
-	const int myCoef1 = get_local_id(1) * BLOCK_SIZE;
-	const int myCoef0 = get_local_id(1) * BLOCK_SIZE;
+	const int b_mul = b_ry * b_pitch_f;
 
     __local float a_cache[16 * 16];
     __local float b_cache[16 * 16];
 
     float dst = 0;
 
-    int end = 0;
-
+	const int myCoef1 = get_local_id(1) * BLOCK_SIZE;
+	const int myCoef0 = get_local_id(0) * BLOCK_SIZE;
 	
+	const int myInd = get_local_id(0) * BLOCK_SIZE + get_local_id(1);
 
     for (unsigned int i=0; i < a_width; i+=BLOCK_SIZE)
     {
-        int read_cx = i + get_local_id(0);
-        // if (read_cx < a_width) {
-        //    if (out_ry < a_height) {
-                a_cache[myInd] = 
-                    a[out_ry_mul + read_cx];
-       //     }
-        //    if (b_ry < b_height)
-            {
+        int read_cx = i + get_local_id(1);
+
+                a_cache[myInd] =
+                    a[a_mul + read_cx];
+
                 b_cache[myInd] =
-                    b[b_ry_mul + read_cx];
-            }
-     //   }
+                    b[b_mul + read_cx];
+
         barrier(CLK_LOCAL_MEM_FENCE);
-       
-	    end = BLOCK_SIZE;
-	//	end =  a_width - i;
-   //     if (BLOCK_SIZE < (a_width - i))
- //       {
-  //          end = BLOCK_SIZE;
-  //      }
-//        else 
-  //      {
-    //        end = a_width - i;
-    //    }
-    
-        for (unsigned int k=0; k < end; k++)
-        {
-                float diff = a_cache[myCoef1 + k]  - b_cache[myCoef0 + k];
-                dst += diff * diff;
-				// dst = mad(diff, diff, dst);
-        }
-        //barrier( CLK_LOCAL_MEM_FENCE);
+        
+           
+		float diff0 = a_cache[myCoef0 + 0]  - b_cache[myCoef1 + 0];
+        dst += diff0 * diff0;
+
+		float diff1 = a_cache[myCoef0 + 1]  - b_cache[myCoef1 + 1];
+        dst += diff1 * diff1;
+
+		float diff2 = a_cache[myCoef0 + 2]  - b_cache[myCoef1 + 2];
+        dst += diff2 * diff2;
+
+		float diff3 = a_cache[myCoef0 + 3]  - b_cache[myCoef1 + 3];
+        dst += diff3 * diff3;
+
+		float diff4 = a_cache[myCoef0 + 4]  - b_cache[myCoef1 + 4];
+        dst += diff4 * diff4;
+
+		float diff5 = a_cache[myCoef0 + 5]  - b_cache[myCoef1 + 5];
+        dst += diff5 * diff5;
+
+		float diff6 = a_cache[myCoef0 + 6]  - b_cache[myCoef1 + 6];
+        dst += diff6 * diff6;
+
+		float diff7 = a_cache[myCoef0 + 7]  - b_cache[myCoef1 + 7];
+        dst += diff7 * diff7;
+
+		float diff8 = a_cache[myCoef0 + 8]  - b_cache[myCoef1 + 8];
+        dst += diff8 * diff8;
+
+		float diff9 = a_cache[myCoef0 + 9]  - b_cache[myCoef1 + 9];
+        dst += diff9 * diff9;
+
+		float diff10 = a_cache[myCoef0 + 10]  - b_cache[myCoef1 + 10];
+        dst += diff10 * diff10;
+
+		float diff11 = a_cache[myCoef0 + 11]  - b_cache[myCoef1 + 11];
+        dst += diff11 * diff11;
+
+		float diff12 = a_cache[myCoef0 + 12]  - b_cache[myCoef1 + 12];
+        dst += diff12 * diff12;
+
+		float diff13 = a_cache[myCoef0 + 13]  - b_cache[myCoef1 + 13];
+        dst += diff13 * diff13;
+
+		float diff14 = a_cache[myCoef0 + 14]  - b_cache[myCoef1 + 14];
+        dst += diff14 * diff14;
+		
+		float diff15 = a_cache[myCoef0 + 15]  - b_cache[myCoef1 + 15];
+        dst += diff15 * diff15;
+
+        
+       barrier(CLK_LOCAL_MEM_FENCE);
     }
 
-    //if ((out_cx < o_width) && (out_ry < o_height))
-    {
-        out[out_ry * o_pitch_f + out_cx] = dst;
-    }
+    out[out_ry * o_pitch_f + out_cx] = dst;
 }

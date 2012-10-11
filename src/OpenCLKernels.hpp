@@ -111,7 +111,7 @@ struct theKernels {
 		}
 
 		// Build the program executable
-		const char * options = "-cl-fast-relaxed-math";
+		const char * options = "";//-cl-fast-relaxed-math";
 		err = clBuildProgram(program_list[indice], 0, NULL, options, NULL, NULL);
 		if (err != CL_SUCCESS) {
 			size_t len;
@@ -125,7 +125,7 @@ struct theKernels {
 
 		kernel_list[indice] = clCreateKernel(program_list[indice], kernel, &err);
 		if (!kernel_list[indice] || err != CL_SUCCESS) {
-			printf("Error: Failed to create compute kernel for device %d Kernel: (%s)!\n", indice,kernel);
+			printf("Error: Failed to create compute kernel for device %d Kernel: (%s) error: %d!\n", indice,kernel,err);
 			exit(1);
 		}
 	}

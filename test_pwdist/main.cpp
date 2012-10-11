@@ -11,8 +11,12 @@ int main(int argc, char* argv[])
 
 	float* random1 = new float[1000 * 500];
 	float* random2 = new float[1000 * 300];
-	
-	
+	for(int i=0; i<aheight*awidth; i++) {
+		random1[i] = (rand() % 100) / (float)(100);
+	}
+	for(int i=0; i<bheight*bwidth; i++) {
+		random2[i] = (rand() % 100) / (float)(100);
+	}
 
 	//create a device matrix
 	DeviceMatrixCL::Ptr dmpCL1 = makeDeviceMatrixCL(500, 1000, CL_MEM_READ_ONLY);
@@ -25,6 +29,7 @@ int main(int argc, char* argv[])
 	DeviceMatrixCL::Ptr dmpCLpwdist = pwdist_cl(dmpCL1, dmpCL2);
 
 	float* retval = new float[500*300];
+	float* retval2 = new float[500*300];
 
 	//copy to the DeviceMatrix
 	DeviceMatrixCL_copyFromDevice(*dmpCLpwdist, retval);
@@ -40,12 +45,21 @@ int main(int argc, char* argv[])
                 float dif = (random1[i*awidth+k] - random2[j*awidth+k]);
                 sum+=dif*dif;
             }
-            retval[i*owidth+j]=sum;
+            retval2[i*owidth+j]=sum;
         }
     }
     double toc = omp_get_wtime();
 
     printf("CPU time: %.6f ms\n", (toc - tic) * 1e3 );
+	bool error = false;
+	for(int i=0; i<aheight*bheight; i++)
+		if(abs(retval[i]-retval2[i])>1e-4) 
+		{
+			error = true;
+			printf("%f %f\n",retval[i], retval2[i]);
+		}
+	if(error)
+		printf("output error!\n");
 
 	return 0;
 }
