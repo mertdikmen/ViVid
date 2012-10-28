@@ -39,7 +39,7 @@ DeviceMatrix::Ptr makeDeviceMatrix(boost::python::object& array)
   return retval;
 }
 
-boost::python::object DeviceMatrix_copyFromDevice(const DeviceMatrix& self)
+boost::python::object DeviceMatrix_copyFromDevicePy(const DeviceMatrix& self)
 {
   NumPyMatrix retval(self.height, self.width);
   //printf("reading %p (%i x %i)\n", self.data, self.width, self.height);
@@ -114,14 +114,14 @@ DeviceMatrix3D::Ptr makeDeviceMatrix3D(const boost::python::object& array)
 {
   PyObject* contig
     = PyArray_FromAny(array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
-                      3, 3, NPY_CARRAY, NULL);
+                      3, 3, NPY_ARRAY_CARRAY, NULL);
   handle<> temp(contig);
   object arr(temp);
 
   DeviceMatrix3D::Ptr retval = makeDeviceMatrix3D(PyArray_DIM(arr.ptr(), 0),
                                                   PyArray_DIM(arr.ptr(), 1),
                                                   PyArray_DIM(arr.ptr(), 2));
-  DeviceMatrix3D_copyToDevice(*retval, arr);
+  DeviceMatrix3D_copyToDevicePy(*retval, arr);
   return retval;
 }
 
@@ -133,7 +133,7 @@ boost::python::object DeviceMatrix3D_copyFromDevice(const DeviceMatrix3D& self)
     npy_intp dims[3] = {self.dim_t, self.dim_y, self.dim_x};
 
     PyObject* arr = PyArray_New(&PyArray_Type, 3, dims, PyArray_FLOAT,
-                                NULL, NULL, 0, NPY_C_CONTIGUOUS, NULL);
+                                NULL, NULL, 0, NPY_ARRAY_C_CONTIGUOUS, NULL);
     handle<> temp(arr);
     object retval(temp);
 
@@ -170,7 +170,7 @@ boost::python::object DeviceMatrix3D_copyFromDevice(const DeviceMatrix3D& self)
 }
 #else
 // Hack around problem with cudaMemcpy3D by using cudaMemcpy2D
-boost::python::object DeviceMatrix3D_copyFromDevice(const DeviceMatrix3D& self)
+boost::python::object DeviceMatrix3D_copyFromDevicePy(const DeviceMatrix3D& self)
 {
     npy_intp dims[3] = {self.dim_t, self.dim_y, self.dim_x};
 
@@ -211,12 +211,12 @@ boost::python::object DeviceMatrix3D_copyFromDevice(const DeviceMatrix3D& self)
     return retval;
 }
 #endif
-void DeviceMatrix3D_copyToDevice(DeviceMatrix3D& self,
+void DeviceMatrix3D_copyToDevicePy(DeviceMatrix3D& self,
                                  const object& array)
 {
     PyObject* contig
         = PyArray_FromAny(array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
-                          3, 3, NPY_CARRAY, NULL);
+                          3, 3, NPY_ARRAY_CARRAY, NULL);
     handle<> temp(contig);
     object arr(temp);
 
@@ -246,7 +246,7 @@ DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(const boost::python::object& array)
 {
 	PyObject* contig
     = PyArray_FromAny(array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
-                      3, 3, NPY_CARRAY, NULL);
+                      3, 3, NPY_ARRAY_CARRAY, NULL);
 	handle<> temp(contig);
 	object arr(temp);
 	
@@ -277,7 +277,7 @@ void DeviceMatrixCL3D_copyToDevice(DeviceMatrixCL3D& self,
 {
     PyObject* contig
 	= PyArray_FromAny(array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
-					  3, 3, NPY_CARRAY, NULL);
+					  3, 3, NPY_ARRAY_CARRAY, NULL);
     handle<> temp(contig);
     object arr(temp);
 	
@@ -297,7 +297,7 @@ MCudaMatrix3D::Ptr makeMCudaMatrix3D(const object& array)
 {
   PyObject* contig
     = PyArray_FromAny(array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
-                      3, 3, NPY_CARRAY, NULL);
+                      3, 3, NPY_ARRAY_CARRAY, NULL);
   handle<> temp(contig);
   object arr(temp);
 
@@ -341,7 +341,7 @@ MCLMatrix3D::Ptr makeMCLMatrix3D(const object& array)
 {
   PyObject* contig
     = PyArray_FromAny(array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
-                      3, 3, NPY_CARRAY, NULL);
+                      3, 3, NPY_ARRAY_CARRAY, NULL);
   handle<> temp(contig);
   object arr(temp);
 
@@ -379,7 +379,7 @@ void export_DeviceMatrix()
         .def("__init__",
              make_constructor<DeviceMatrix::Ptr (object&)>
              (makeDeviceMatrix))
-        .def("mat", DeviceMatrix_copyFromDevice);
+        .def("mat", DeviceMatrix_copyFromDevicePy);
 
     class_<DeviceMatrixCL, DeviceMatrixCL::Ptr >
         ("DeviceMatrixCL", no_init)
@@ -393,8 +393,8 @@ void export_DeviceMatrix()
         .def("__init__",
              make_constructor<DeviceMatrix3D::Ptr (const object&)>
              (makeDeviceMatrix3D))
-        .def("mat", DeviceMatrix3D_copyFromDevice)
-        .def("set", DeviceMatrix3D_copyToDevice)
+        .def("mat", DeviceMatrix3D_copyFromDevicePy)
+        .def("set", DeviceMatrix3D_copyToDevicePy)
         .def("crop", cropDeviceMatrix3D)
       ;
     def("_makeDeviceMatrix3DPacked", makeDeviceMatrix3DPacked);

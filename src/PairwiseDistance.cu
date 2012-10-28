@@ -65,25 +65,33 @@ __global__ void pairwiseDistanceKernelGeneric(DeviceMatrix a, DeviceMatrix b,
         __syncthreads();
         int end = min(BLOCK_SIZE, (unsigned int)(a.width - i));
         for (int k=0; k < end; k++) {
-            if (type == EUCLIDEAN){
-                float diff = a_cache[threadIdx.y][k] - b_cache[threadIdx.x][k];
-                dst += diff * diff;
-            }
-            else if (type == DOTPRODUCT){
-                dst += a_cache[threadIdx.y][k] * b_cache[threadIdx.x][k];
-            }
-            else if (type == ABSDOTPRODUCT){
-                dst += a_cache[threadIdx.y][k] * b_cache[threadIdx.x][k];
-            }
-            else if (type == CHISQUARED){
-                float diff, sum;
-                diff = a_cache[threadIdx.y][k] - b_cache[threadIdx.x][k];
-                sum  = a_cache[threadIdx.y][k] + b_cache[threadIdx.x][k];
-                dst += diff * diff / sum;
-            }
-            else if (type == CITYBLOCK){
-                dst += fabs(a_cache[threadIdx.y][k] - b_cache[threadIdx.x][k]);
-            }
+//            if (type == EUCLIDEAN){
+//                float diff = a_cache[threadIdx.y][k] - b_cache[threadIdx.x][k];
+//                dst += diff * diff;
+//            }
+//            else if (type == DOTPRODUCT){
+                dst += a_cache[threadIdx.y][0] * b_cache[threadIdx.x][0];
+                dst += a_cache[threadIdx.y][1] * b_cache[threadIdx.x][1];
+                dst += a_cache[threadIdx.y][2] * b_cache[threadIdx.x][2];
+                dst += a_cache[threadIdx.y][3] * b_cache[threadIdx.x][3];
+                dst += a_cache[threadIdx.y][4] * b_cache[threadIdx.x][4];
+                dst += a_cache[threadIdx.y][5] * b_cache[threadIdx.x][5];
+                dst += a_cache[threadIdx.y][6] * b_cache[threadIdx.x][6];
+                dst += a_cache[threadIdx.y][7] * b_cache[threadIdx.x][7];
+                dst += a_cache[threadIdx.y][8] * b_cache[threadIdx.x][8];
+//            }
+//            else if (type == ABSDOTPRODUCT){
+//                dst += a_cache[threadIdx.y][k] * b_cache[threadIdx.x][k];
+//            }
+//            else if (type == CHISQUARED){
+//                float diff, sum;
+//                diff = a_cache[threadIdx.y][k] - b_cache[threadIdx.x][k];
+//                sum  = a_cache[threadIdx.y][k] + b_cache[threadIdx.x][k];
+//                dst += diff * diff / sum;
+//            }
+//            else if (type == CITYBLOCK){
+//                dst += fabs(a_cache[threadIdx.y][k] - b_cache[threadIdx.x][k]);
+//            }
         }
         __syncthreads();
     }

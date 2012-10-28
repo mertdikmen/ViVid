@@ -37,6 +37,7 @@ static char* load_program_source(const char *filename) {
 	return source;
 }
 
+
 struct theKernels {
 	cl_kernel kernel_list[50];
 	cl_program program_list[50]; 
@@ -47,19 +48,19 @@ struct theKernels {
 	theKernels(cl_context GPUContext,cl_device_id cdDevice){
 		GPUContext_K = GPUContext;
 		cdDevice_K   = cdDevice;
-		createKernel("pairwiseDistanceKernelGeneric","../../../src/PairwiseDistance.cl",0);
-		createKernel("argminKernel","../../../src/argminKernel.cl",1);
-		createKernel("argmaxKernel","../../../src/argmaxKernel.cl",2);
-		createKernel("minKernel","../../../src/minKernel.cl",3);
-		createKernel("maxKernel","../../../src/maxKernel.cl",4);
-		createKernel("blockwise_distance_kernel","../../../src/blockwise_distance_kernel.cl",5);
-		createKernel("blockwise_filter_kernel","../../../src/blockwise_filter_kernel.cl",6);
-		createKernel("cell_histogram_kernel","../../../src/cell_histogram_kernel.cl",7);
-		createKernel("cellHistogramKernel1","../../../src/cellHistogramKernel1.cl",8);
-		createKernel("cellHistogramKernel2","../../../src/cellHistogramKernel2.cl",9);
+		createKernel("pairwiseDistanceKernelGeneric","../src/PairwiseDistance.cl",0);
+		createKernel("argminKernel","../src/argminKernel.cl",1);
+		createKernel("argmaxKernel","../src/argmaxKernel.cl",2);
+		createKernel("minKernel","../src/minKernel.cl",3);
+		createKernel("maxKernel","../src/maxKernel.cl",4);
+		createKernel("blockwise_distance_kernel","../src/blockwise_distance_kernel.cl",5);
+		createKernel("blockwise_filter_kernel","../src/blockwise_filter_kernel.cl",6);
+		createKernel("cell_histogram_kernel","../src/cell_histogram_kernel.cl",7);
+		createKernel("cellHistogramKernel1","../src/cellHistogramKernel1.cl",8);
+		createKernel("cellHistogramKernel2","../src/cellHistogramKernel2.cl",9);
 	}
 
-	void createKernel(const char * kernel,const char * ruta,int indice){
+	void createKernel(const char* kernel, const char* path, int indice){
 
 		//	TheContext* tc = new TheContext();
 
@@ -70,9 +71,17 @@ struct theKernels {
 		// Uses NVIDIA helper functions to get the code string and it's size (in bytes)
 		//size_t src_size = 0;
 
-		char *program_source = load_program_source(ruta);
+        char full_path[256];
+
+#ifdef STATIC_LIB
+        sprintf(full_path, "../../%s", path);
+#else
+        sprintf(full_path, "%s", path);
+#endif
+
+		char *program_source = load_program_source(path);
 		if (program_source == NULL) {
-			printf("Error: Failed to read the OpenCL kernel $s: kernel.cl\n",kernel);
+			printf("Error: Failed to read the OpenCL kernel: %s\n",kernel);
 			exit(-1);
 		}
 		cl_int err;

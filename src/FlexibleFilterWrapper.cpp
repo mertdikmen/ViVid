@@ -46,7 +46,7 @@ object cosine_filter_c(object& frame, object& filter_bank)
     PyObject* filter_bank_parr = PyArray_FromAny(
         filter_bank.ptr(), 
         PyArray_DescrFromType(PyArray_FLOAT),
-        1, 4, NPY_CARRAY, NULL);
+        1, 4, NPY_ARRAY_CARRAY, NULL);
 
     expect_non_null(filter_bank_parr);
 
@@ -158,7 +158,7 @@ DeviceMatrixCL3D::Ptr filter_frame_cl_3_batch(const boost::python::object& npy_a
     PyObject* contig
         = PyArray_FromAny(
                 npy_array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
-                3, 3, NPY_CARRAY, NULL);
+                3, 3, NPY_ARRAY_CARRAY, NULL);
     handle<> temp(contig);
     object arr(temp);
 
