@@ -27,6 +27,7 @@ struct DeviceMatrix {
 DeviceMatrix::Ptr makeDeviceMatrix(size_t height, size_t width);
 
 void DeviceMatrix_copyToDevice(DeviceMatrix& self, const float* data);
+void DeviceMatrix_copyFromDevice(const DeviceMatrix& self, float* dst);
 
 struct DeviceMatrixCL {
     typedef boost::shared_ptr<DeviceMatrixCL> Ptr;
@@ -73,6 +74,9 @@ struct DeviceMatrix3D {
 
 DeviceMatrix3D::Ptr makeDeviceMatrix3D(size_t dim_t, size_t dim_y, 
                                        size_t dim_x);
+
+void DeviceMatrix3D_copyToDevice(DeviceMatrix3D& self, const float* data);
+void DeviceMatrix3D_copyFromDevice(const DeviceMatrix3D& self, float* dst);
 
 //! Create a DeviceMatrix3D that has no padding
 DeviceMatrix3D::Ptr makeDeviceMatrix3DPacked(size_t dim_t, size_t dim_y, 

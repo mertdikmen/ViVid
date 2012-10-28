@@ -6,7 +6,18 @@
 #include <CL/cl.h>
 
 #include "DeviceMatrix.hpp"
+
 #include "exceptions.hpp"
+
+// Cribbed (and modified) from cutil.h (can't seem to include the
+// whole thing)
+#  define CUDA_SAFE_CALL_NO_SYNC( call) do {                                 \
+    cudaError_t err = call;                                                  \
+    if( cudaSuccess != err) {                                                \
+        fprintf(stderr, "Cuda error in file '%s' in line %i : %s.\n",        \
+                __FILE__, __LINE__, cudaGetErrorString( err) );              \
+        exit(EXIT_FAILURE);                                                  \
+    } } while (0)
 
 static void deleteDeviceMatrix(DeviceMatrix* mat)
 {
@@ -34,6 +45,30 @@ boost::shared_ptr<DeviceMatrix> makeDeviceMatrix(size_t height,	size_t width)
 		//printf("cudaMalloc: %p\n", mat->data);
 
 		return boost::shared_ptr<DeviceMatrix>(mat, deleteDeviceMatrix);
+}
+
+void DeviceMatrix_copyToDevice(DeviceMatrix& self, const float* data)
+{
+	if ((self.width > 0) && (self.height > 0)) {
+		const size_t widthInBytes = self.width * sizeof(float);
+		CUDA_SAFE_CALL_NO_SYNC
+			(cudaMemcpy2D(self.data, self.pitch * sizeof(float),
+			data, widthInBytes,
+			widthInBytes, self.height,
+			cudaMemcpyHostToDevice));
+	}
+}
+
+void DeviceMatrix_copyFromDevice(const DeviceMatrix& self, float* dst)
+{
+	if ((self.width > 0) && (self.height > 0)) {
+		const size_t widthInBytes = self.width * sizeof(float);
+		CUDA_SAFE_CALL_NO_SYNC
+			(cudaMemcpy2D(dst, widthInBytes,
+			self.data, self.pitch * sizeof(float),
+			widthInBytes, self.height,
+			cudaMemcpyDeviceToHost));
+	}
 }
 
 static void deleteDeviceMatrixCL(DeviceMatrixCL* mat)
@@ -243,6 +278,50 @@ DeviceMatrix3D::Ptr makeDeviceMatrix3D(size_t dim_t, size_t dim_y,
 		return DeviceMatrix3D::Ptr(mat, deleteDeviceMatrix3D);
 }
 
+void DeviceMatrix3D_copyToDevice(DeviceMatrix3D& self, const float* data)
+{
+    if ((self.dim_x > 0) && (self.dim_y > 0) && (self.dim_t > 0)) {
+        const size_t widthInBytes = self.dim_x * sizeof(float);
+        CUDA_SAFE_CALL_NO_SYNC
+        (cudaMemcpy2D(self.data, self.pitch_y * sizeof(float),
+                      data, widthInBytes,
+                      widthInBytes, self.dim_y * self.dim_t,
+                      cudaMemcpyHostToDevice));
+    }
+}
+
+void DeviceMatrix3D_copyFromDevice(const DeviceMatrix3D& self, float* dst)
+{
+    if ((self.dim_x == 0) || (self.dim_y == 0) || (self.dim_t == 0)) {
+        // Bail early if there is nothing to copy
+        return;
+    }
+
+    if (self.pitch_t == self.dim_y * self.pitch_y) {
+        // Shortcut if we're packed in the t direction
+        const size_t widthInBytes = self.dim_x * sizeof(float);
+        CUDA_SAFE_CALL_NO_SYNC
+            (cudaMemcpy2D(dst, widthInBytes,
+                          self.data, self.pitch_y * sizeof(float),
+                          widthInBytes, self.dim_y * self.dim_t,
+                          cudaMemcpyDeviceToHost));
+
+        return;
+    }
+
+    // Do a series of copies to fill in the 3D array
+    for (size_t t=0; t < self.dim_t; t++) {
+        const size_t widthInBytes = self.dim_x * sizeof(float);
+        float* host_start = dst + t * self.dim_y * self.dim_x;
+        float* device_start = self.data + t * self.pitch_t;
+        CUDA_SAFE_CALL_NO_SYNC
+            (cudaMemcpy2D(host_start, widthInBytes,
+                          device_start, self.pitch_y * sizeof(float),
+                          widthInBytes, self.dim_y,
+                          cudaMemcpyDeviceToHost));
+    }
+}
+
 /**
 * This function is useful for generating matrices for use with CUFFT.
 */
@@ -329,7 +408,7 @@ DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(size_t dim_t, size_t dim_y,
 		mat->dim_x = dim_x;
 		mat->dim_y = dim_y;
 		mat->dim_t = dim_t;
-		printf("%d  x %d  x  %d\n",dim_x,dim_y,dim_t);
+		//printf("%d  x %d  x  %d\n",dim_x,dim_y,dim_t);
 		size_t pitch;
 
 		TheContext * tc = new TheContext();
@@ -354,7 +433,7 @@ DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(size_t dim_t, size_t dim_y,
 
 		int devicepitch = ceil(float(naturalPitch)/buffer) * buffer;
 
-		printf("Pitch: %d, DevicePitch: %d, Buffer: %d\n", naturalPitch, devicepitch, buffer);
+		//printf("Pitch: %d, DevicePitch: %d, Buffer: %d\n", naturalPitch, devicepitch, buffer);
 
 		mat->pitch_y = devicepitch;
 		mat->pitch_t = dim_y*mat->pitch_y;
@@ -363,7 +442,7 @@ DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(size_t dim_t, size_t dim_y,
 
 		const int mem_size =  mat->dim_t*mat->pitch_t;
 
-		std::cout << "Mem size: " << mem_size << std::endl;
+		//std::cout << "Mem size: " << mem_size << std::endl;
 
 		int err;
 
