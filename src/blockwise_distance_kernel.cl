@@ -7,7 +7,7 @@ __kernel void blockwise_distance_kernel(
     const int output_t, const int o_pitch_y,const int o_pitch_t,
     const int frame_width, const int frame_height,
     const int FILTER_DIM, const int  BLOCK_MULT,const int BLOCK_SIZE,const int optype,
-    __constant float * c_FilterBank,
+    __global float * c_FilterBank,
     const int n_filters)
 {
 	const int f_pitch_f = f_pitch / sizeof(float);
@@ -27,35 +27,32 @@ __kernel void blockwise_distance_kernel(
 	const int out_pix_x1 = min(out_pix_x0 + (BLOCK_SIZE * BLOCK_MULT),
                                frame_width - FILTER_DIM / 2);
 							   
-	const int cache_size = BLOCK_SIZE * BLOCK_MULT + FILTER_DIM - 1;
+	const int cache_size = 38;
 
-    __local float* image_cache;
+    __local float image_cache[38*38];
 
-	if(cache_size == 34){
-        __local float temp[34 * 34];
-		image_cache = temp;
-	}
-    else if(cache_size == 36){
-        __local float temp[36 * 36];
-		image_cache = temp;
-		
-	}
-    else if(cache_size == 38){
-        __local float temp[38 * 38];
-		image_cache = temp;
-	}
-	
     int read_pix_x, read_pix_y;
     int cache_ind_x, cache_ind_y;
 
+	const int max_im_ind = f_height * f_pitch_f;
+
     read_pix_y = out_pix_y0 - FILTER_DIM / 2 + get_local_id(0);
     cache_ind_y = get_local_id(0);
-    for (int ii=0; ii<BLOCK_MULT+1; ii++){
+    for (int ii = 0;  ii < BLOCK_MULT + 1; ii++){
         read_pix_x = out_pix_x0 - FILTER_DIM / 2 + get_local_id(1);
         cache_ind_x = get_local_id(1);
-        for (int jj=0; jj<BLOCK_MULT+1; jj++){
+        for (int jj = 0; jj < BLOCK_MULT + 1; jj++){
             if ((cache_ind_x < cache_size) && (cache_ind_y < cache_size)){
-                image_cache[cache_ind_y*cache_size+cache_ind_x] = frame[read_pix_y * f_pitch_f + read_pix_x];
+				const int read_ind = read_pix_y * f_pitch_f + read_pix_x;
+
+				if ((read_ind > 0) && (read_ind < max_im_ind))
+				{
+					image_cache[cache_ind_y*cache_size+cache_ind_x] = frame[read_ind];
+				}
+				else 
+				{
+					image_cache[cache_ind_y*cache_size+cache_ind_x] = 0;
+				}
             }
             read_pix_x += BLOCK_SIZE;
             cache_ind_x += BLOCK_SIZE;
@@ -73,7 +70,7 @@ __kernel void blockwise_distance_kernel(
             float curval = -1e6;
             float curid = -1;
             int fi = 0;
-            if ((out_y < out_pix_y1) && (out_x < out_pix_x1)){           
+            if ((out_y < out_pix_y1) && (out_x < out_pix_x1)){ 
                 for (int filter_id=0; filter_id<n_filters; filter_id++){
                     float tempval = 0.0f;
                     int cyi = get_local_id(0)+ ii * BLOCK_SIZE;
@@ -90,13 +87,12 @@ __kernel void blockwise_distance_kernel(
                         curval = fabs(tempval);
                     }
                 }
-           
                 const int out_pix_offset = out_y * o_pitch_yf + out_x;
 
                 *(output + out_pix_offset) = curid;
                 *(output + o_pitch_tf + out_pix_offset) = curval;
             }
-
+			 
             out_x += BLOCK_SIZE;
         }
         out_y += BLOCK_SIZE;
