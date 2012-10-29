@@ -1,6 +1,9 @@
 #include "opencv2\opencv.hpp"
 #include "vivid.hpp"
 
+#include <iostream>
+#include <fstream>
+
 static char* exampleImagePath = "..\\..\\..\\media\\kewell1.jpg";
 
 int main(int argc, char* argv[])
@@ -35,6 +38,29 @@ int main(int argc, char* argv[])
 	float* retvalCU = new float[height * width * 2];
 	DeviceMatrix3D_copyFromDevice(*retdmCU, retvalCU);
 
+	std::ofstream test_out("test.out", std::ios_base::out);
+	for (int j = 0; j < height; j++)
+	{
+		for (int i = 0; i < width; i++)
+		{
+			test_out << retvalCU[j * width + i] << ", ";
+		}
+
+		test_out << std::endl;
+	}
+
+	test_out << std::endl << std::endl << std::endl;
+
+	for (int j = 0; j < height; j++)
+	{
+		for (int i = 0; i < width; i++)
+		{
+			test_out << retvalCU[height * width + j * width + i] << ", ";
+		}
+		test_out << std::endl;
+	}
+	test_out.close();
+
 	//OPENCL Reference
 	DeviceMatrixCL::Ptr dmpCL = makeDeviceMatrixCL(height, width);
 	DeviceMatrixCL_copyToDevice(*dmpCL, f_imData);
@@ -43,13 +69,32 @@ int main(int argc, char* argv[])
 	float* retval = new float[height * width * 2];
 	DeviceMatrixCL3D_copyFromDevice(*retdm, retval);
 
-	for (int i = 0; i < 10; i++)
+	std::ofstream test_out_cl("testcl.out", std::ios_base::out);
+	for (int j = 0; j < height; j++)
 	{
-		std::cout << retval[i] << "\t" << retvalCU[i] << std::endl;
+		for (int i = 0; i < width; i++)
+		{
+			test_out_cl << retval[j * width + i] << ", ";
+		}
+
+		test_out_cl << std::endl;
 	}
+
+	test_out_cl << std::endl << std::endl << std::endl;
+
+	for (int j = 0; j < height; j++)
+	{
+		for (int i = 0; i < width; i++)
+		{
+			test_out_cl << retval[height * width + j * width + i] << ", ";
+		}
+		test_out_cl << std::endl;
+	}
+	test_out_cl.close();
 
 	delete[] filter_bank;
 	delete[] retval;
+	delete[] retvalCU;
 
 	return 0;
 }

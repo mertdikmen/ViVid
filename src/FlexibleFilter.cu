@@ -301,7 +301,7 @@ int update_filter_bank_internal(float* new_filter, int filter_size){
         return 1;
     }
     else {
-        //printf("Value in:%05f\n",new_filter[0]);
+        //printf("Value in: %05f\n",new_filter[0]);
         cet = cudaMemcpyToSymbol(c_FilterBank, new_filter, sizeof(float) * filter_size,0, cudaMemcpyHostToDevice);
         //printf("err: %d\n", cet);
         if (cet){
@@ -314,7 +314,6 @@ int update_filter_bank_internal(float* new_filter, int filter_size){
     }
 
 }
-
 
 
 #define BLOCK_MULT 2

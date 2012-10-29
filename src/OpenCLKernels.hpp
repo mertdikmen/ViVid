@@ -73,15 +73,15 @@ struct theKernels {
 
         char full_path[256];
 
-#ifdef STATIC_LIB
+#ifdef _VIVID_STATIC_LIB
         sprintf(full_path, "../../%s", path);
 #else
         sprintf(full_path, "%s", path);
 #endif
 
-		char *program_source = load_program_source(path);
+		char *program_source = load_program_source(full_path);
 		if (program_source == NULL) {
-			printf("Error: Failed to read the OpenCL kernel: %s\n",kernel);
+			printf("Error: Failed to read the OpenCL kernel: %s\n",path);
 			exit(-1);
 		}
 		cl_int err;
