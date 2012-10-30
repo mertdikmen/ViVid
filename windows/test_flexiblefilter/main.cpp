@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
 	}
 
 	//CUDA Reference
-	DeviceMatrix::Ptr dmpCU = makeDeviceMatrix(height, width);
+/*	DeviceMatrix::Ptr dmpCU = makeDeviceMatrix(height, width);
 	DeviceMatrix_copyToDevice(*dmpCU, f_imData);
 	set_filter_bank_cuda(filter_bank, num_filters * filter_dim * filter_dim);
 	DeviceMatrix3D::Ptr retdmCU = filter_frame_cuda_3(dmpCU, num_filters, 1, FF_OPTYPE_COSINE);
@@ -60,7 +60,7 @@ int main(int argc, char* argv[])
 		test_out << std::endl;
 	}
 	test_out.close();
-
+	*/
 	//OPENCL Reference
 	DeviceMatrixCL::Ptr dmpCL = makeDeviceMatrixCL(height, width);
 	DeviceMatrixCL_copyToDevice(*dmpCL, f_imData);
@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
 
 	delete[] filter_bank;
 	delete[] retval;
-	delete[] retvalCU;
+	//delete[] retvalCU;
 
 	return 0;
 }

@@ -48,16 +48,16 @@ struct theKernels {
 	theKernels(cl_context GPUContext,cl_device_id cdDevice){
 		GPUContext_K = GPUContext;
 		cdDevice_K   = cdDevice;
-		createKernel("pairwiseDistanceKernelGeneric","../src/PairwiseDistance.cl",0);
-		createKernel("argminKernel","../src/argminKernel.cl",1);
-		createKernel("argmaxKernel","../src/argmaxKernel.cl",2);
-		createKernel("minKernel","../src/minKernel.cl",3);
-		createKernel("maxKernel","../src/maxKernel.cl",4);
-		createKernel("blockwise_distance_kernel","../src/blockwise_distance_kernel.cl",5);
-		createKernel("blockwise_filter_kernel","../src/blockwise_filter_kernel.cl",6);
-		createKernel("cell_histogram_kernel","../src/cell_histogram_kernel.cl",7);
-		createKernel("cellHistogramKernel1","../src/cellHistogramKernel1.cl",8);
-		createKernel("cellHistogramKernel2","../src/cellHistogramKernel2.cl",9);
+		createKernel("pairwiseDistanceKernelGeneric","../../../src/PairwiseDistance.cl",0);
+		createKernel("argminKernel","../../../src/argminKernel.cl",1);
+		createKernel("argmaxKernel","../../../src/argmaxKernel.cl",2);
+		createKernel("minKernel","../../../src/minKernel.cl",3);
+		createKernel("maxKernel","../../../src/maxKernel.cl",4);
+		createKernel("blockwise_distance_kernel","../../../src/E_blockwise_distance_kernel.cl",5);
+		createKernel("blockwise_filter_kernel","../../../src/blockwise_filter_kernel.cl",6);
+		createKernel("cell_histogram_kernel","../../../src/cell_histogram_kernel.cl",7);
+		createKernel("cellHistogramKernel1","../../../src/cellHistogramKernel1.cl",8);
+		createKernel("cellHistogramKernel2","../../../src/cellHistogramKernel2.cl",9);
 	}
 
 	void createKernel(const char* kernel, const char* path, int indice){

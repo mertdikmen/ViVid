@@ -27,7 +27,7 @@ __kernel void blockwise_distance_kernel(
 	const int cache_size = 38;
 
     __local float image_cache[38*38];
-
+	
     int read_pix_x, read_pix_y;
     int cache_ind_x, cache_ind_y;
 
@@ -57,7 +57,7 @@ __kernel void blockwise_distance_kernel(
         read_pix_y += BLOCK_SIZE;
         cache_ind_y += BLOCK_SIZE;
     }
-
+	
     barrier(CLK_GLOBAL_MEM_FENCE | CLK_LOCAL_MEM_FENCE);
 
   int out_y = out_pix_y0 + get_local_id(0);
@@ -73,10 +73,13 @@ __kernel void blockwise_distance_kernel(
                     int cyi = get_local_id(0)+ ii * BLOCK_SIZE;
                     for (int fyi=0; fyi<FILTER_DIM; fyi++){ 
                         int cxi = get_local_id(1) + jj * BLOCK_SIZE;
-                        for (int fxi=0; fxi<FILTER_DIM; fxi++){
+                    /*    for (int fxi=0; fxi<FILTER_DIM; fxi++){
                             tempval += c_FilterBank[fi++] * image_cache[cyi*cache_size+cxi];
                             cxi++;
-                        }
+                        }*/
+						tempval += c_FilterBank[fi++] * image_cache[cyi*cache_size+cxi++];
+						tempval += c_FilterBank[fi++] * image_cache[cyi*cache_size+cxi++];
+						tempval += c_FilterBank[fi++] * image_cache[cyi*cache_size+cxi++];
                         cyi++;
                     }
                     if (fabs(tempval) > curval){

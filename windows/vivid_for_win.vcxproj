@@ -101,6 +101,7 @@
     <None Include="..\src\do_convolution_complex_t1_11.cl" />
     <None Include="..\src\do_convolution_complex_t1_7.cl" />
     <None Include="..\src\do_convolution_complex_t1_9.cl" />
+    <None Include="..\src\E_blockwise_distance_kernel.cl" />
     <None Include="..\src\maxKernel.cl" />
     <None Include="..\src\minKernel.cl" />
     <None Include="..\src\PairwiseDistance.cl" />
