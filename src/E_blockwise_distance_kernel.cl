@@ -71,17 +71,24 @@ __kernel void blockwise_distance_kernel(
                 for (int filter_id=0; filter_id<n_filters; filter_id++){
                     float tempval = 0.0f;
                     int cyi = get_local_id(0)+ ii * BLOCK_SIZE;
-                    for (int fyi=0; fyi<FILTER_DIM; fyi++){ 
+					
                         int cxi = get_local_id(1) + jj * BLOCK_SIZE;
-                    /*    for (int fxi=0; fxi<FILTER_DIM; fxi++){
-                            tempval += c_FilterBank[fi++] * image_cache[cyi*cache_size+cxi];
-                            cxi++;
-                        }*/
-						tempval += c_FilterBank[fi++] * image_cache[cyi*cache_size+cxi++];
-						tempval += c_FilterBank[fi++] * image_cache[cyi*cache_size+cxi++];
-						tempval += c_FilterBank[fi++] * image_cache[cyi*cache_size+cxi++];
+                        
+						tempval += c_FilterBank[fi++] * image_cache[cyi*cache_size+cxi];
+						tempval += c_FilterBank[fi++] * image_cache[cyi*cache_size+cxi+1];
+						tempval += c_FilterBank[fi++] * image_cache[cyi*cache_size+cxi+2];
                         cyi++;
-                    }
+                        
+						tempval += c_FilterBank[fi++] * image_cache[cyi*cache_size+cxi];
+						tempval += c_FilterBank[fi++] * image_cache[cyi*cache_size+cxi+1];
+						tempval += c_FilterBank[fi++] * image_cache[cyi*cache_size+cxi+2];
+                        cyi++;
+                        
+						tempval += c_FilterBank[fi++] * image_cache[cyi*cache_size+cxi];
+						tempval += c_FilterBank[fi++] * image_cache[cyi*cache_size+cxi+1];
+						tempval += c_FilterBank[fi++] * image_cache[cyi*cache_size+cxi+2];
+                        
+                    
                     if (fabs(tempval) > curval){
                         curid = filter_id;
                         curval = fabs(tempval);
