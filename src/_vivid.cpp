@@ -52,6 +52,56 @@ void dim_check(boost::python::object& arr,
 //        */
 }
 
+/* Densely sum up pixels in a rectangular pixel grid */
+boost::python::object rectangle_sum(
+        boost::python::object& input_mat,
+        const int edge_length_y, const int edge_length_x)
+{
+    PyObject* input_block = PyArray_FromAny(
+            input_mat.ptr(),
+            PyArray_DescrFromType(
+                NPY_FLOAT32),
+            1, 2, NPY_ARRAY_CARRAY, NULL);
+
+    boost::python::expect_non_null(input_block);
+
+    npy_intp* n_dims_in = PyArray_DIMS(input_block);
+
+    assert(n_dims_in[0] > edge_length_y);
+    assert(n_dims_in[1] > edge_length_x);
+
+    npy_intp n_dims_out[2] = {n_dims_in[0] - edge_length_y + 1, n_dims_in[1] - edge_length_x + 1};
+
+    PyObject* output_block = PyArray_SimpleNew(2, n_dims_out, NPY_FLOAT32);
+
+    float* in_data = (float*) PyArray_DATA(input_block);
+    float* out_data = (float*) PyArray_DATA(output_block);
+
+    memset(out_data, 0, sizeof(float) * n_dims_out[0] * n_dims_out[1]);
+
+    for (int i = 0; i < n_dims_in[0] - edge_length_y + 1; i++)
+    {
+        int r_index = i * n_dims_in[1];
+        int w_index = i * n_dims_out[1];
+
+        for (int j = 0; j < n_dims_in[1] - edge_length_x + 1; j++)
+        {
+            for (int ii = 0; ii < edge_length_y; ii++)
+            {
+                for (int jj = 0; jj < edge_length_x; jj++)
+                {
+                    out_data[w_index] += in_data[r_index + ii * n_dims_in[1] + jj];
+                }
+            }
+            w_index++;r_index++;
+        }
+    }
+    boost::python::handle<> out_mat(output_block);
+    Py_DECREF(input_block);
+
+    return boost::python::object(out_mat);
+}
+
 
 boost::python::object fast_exp(boost::python::object& input_mat, 
                                const int approx_level)
@@ -415,5 +465,6 @@ BOOST_PYTHON_MODULE(_vivid)
     def("create_lbp_dictionary", create_lbp_dictionary);
     def("compute_lbp_n8_r1", compute_lbp_n8_r1); 
     def("dim_check", dim_check);
+    def("rectangle_sum", rectangle_sum);
 }
 
