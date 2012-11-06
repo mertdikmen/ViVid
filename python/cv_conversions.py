@@ -6,6 +6,7 @@ def cvmat2array(im):
     Convert a CvMat to NumPy array
     """
     depth2dtype = {
+        #32: np.float32
         cv.CV_8S: np.int8, cv.CV_8SC: np.int8, cv.CV_8SC1: np.int8,
         cv.CV_8SC2: np.int8, cv.CV_8SC3: np.int8, cv.CV_8SC4: np.int8,
         cv.CV_8U: np.uint8, cv.CV_8UC: np.uint8, cv.CV_8UC1: np.uint8,
@@ -30,6 +31,7 @@ def cvmat2array(im):
     a = np.fromstring(
             im.tostring(),
             dtype=depth2dtype[im.type],
+            #dtype=depth2dtype[im.depth],
             count=im.width*im.height*im.channels)
 
     if im.channels == 1:
@@ -59,7 +61,7 @@ def array2cv(a):
 
     cv_im = cv.CreateImageHeader((a.shape[1],a.shape[0]),
         dtype2depth[str(a.dtype)],
-        channels)
+        nChannels)
     cv.SetData(cv_im, a.tostring(),
         a.dtype.itemsize*nChannels*a.shape[1])
 
