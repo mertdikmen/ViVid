@@ -96,11 +96,40 @@ class ScaledSource:
 
     def get_frame(self, frame_num):
         src = self.origin.get_frame(frame_num)
+
+        if (self.scale == 1.0):
+            return src
+
         ret = cv.CreateMat(int(src.rows * self.scale),
                            int(src.cols * self.scale), src.type)
         cv.Resize(src, ret, self.interpolation)
 
         return ret
+
+class CroppedSource:
+    def __init__(self, origin, top_left_y, top_left_x, bottom_right_y, bottom_right_x):
+        self.ty = top_left_y
+        self.tx = top_left_x
+        self.by = bottom_right_y
+        self.bx = bottom_right_x
+
+        self.origin = origin
+
+    def set_crop_region(self, top_left_y, top_left_x, bottom_right_y, bottom_right_x):
+        self.ty = top_left_y
+        self.tx = top_left_x
+        self.by = bottom_right_y
+        self.bx = bottom_right_x
+
+    def get_frame(self, frame_num):       
+        if self.ty == 0 and self.tx == 0 and self.by == -1 and self.bx == -1:
+            return self.origin.get_frame(frame_num)
+
+        im = cvmat2array(self.origin.get_frame(frame_num))
+        
+        im = im[self.ty:self.by, self.tx:self.bx]
+
+        return array2cv(im)
 
 class SquaredSource:
     """
