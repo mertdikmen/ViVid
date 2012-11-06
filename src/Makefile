@@ -14,7 +14,7 @@ OBJS += OpenCLKernels.o
 OBJDIR := release
 OBJS := $(addprefix $(OBJDIR)/, $(OBJS))
 
-CUDA_INSTALL_PATH := /opt/cuda-toolkit
+CUDA_INSTALL_PATH := /opt/cuda
 
 SM_VERSIONS   := 10 11 12 13 20 21
 
