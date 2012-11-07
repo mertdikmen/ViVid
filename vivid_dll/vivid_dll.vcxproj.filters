@@ -39,6 +39,9 @@
     <ClCompile Include="..\src\FlexibleFilter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\BlockHistogram.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vivid.hpp">
@@ -68,12 +71,21 @@
     <ClInclude Include="..\src\exceptions.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\BlockHistogram.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\BlockHistogramLocal.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="..\src\PairwiseDistance.cu">
       <Filter>CUDA</Filter>
     </CudaCompile>
     <CudaCompile Include="..\src\FlexibleFilter.cu">
+      <Filter>CUDA</Filter>
+    </CudaCompile>
+    <CudaCompile Include="..\src\BlockHistogram.cu">
       <Filter>CUDA</Filter>
     </CudaCompile>
   </ItemGroup>

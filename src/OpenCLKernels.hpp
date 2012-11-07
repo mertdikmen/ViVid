@@ -45,7 +45,7 @@ struct theKernels {
 	cl_device_id cdDevice_K;
 	cl_mem  c_FilterBank;
 	cl_mem constant_kernel;
-	theKernels(cl_context GPUContext,cl_device_id cdDevice){
+	theKernels(cl_context GPUContext, cl_device_id cdDevice){
 		GPUContext_K = GPUContext;
 		cdDevice_K   = cdDevice;
 		createKernel("pairwiseDistanceKernelGeneric","../../../src/PairwiseDistance.cl",0);
@@ -74,7 +74,7 @@ struct theKernels {
         char full_path[256];
 
 #ifdef _VIVID_STATIC_LIB
-        sprintf(full_path, "../../%s", path);
+        sprintf(full_path, "%s", path);
 #else
         sprintf(full_path, "%s", path);
 #endif
@@ -107,7 +107,7 @@ struct theKernels {
 
 		kernel_list[indice] = clCreateKernel(program_list[indice], kernel, &err);
 		if (!kernel_list[indice] || err != CL_SUCCESS) {
-			printf("Error: Failed to create compute kernel for device %d Kernel: (%s)!\n", indice,kernel);
+			printf("Error: Failed to create compute kernel for device %d Kernel: (%s)!\n", indice, full_path);
 			exit(1);
 		}
 	}
@@ -316,6 +316,7 @@ public:
 		return My_Kernels->kernel_list[9];
 	}
 
+	/*
 	cl_kernel getDoConvolution0(){
 		return My_Kernels->kernel_list[10];
 	}
@@ -405,6 +406,6 @@ public:
 	cl_kernel getDoConvolutionComplexT1_11(){
 		return My_Kernels->kernel_list[34];
 	}
-
+	*/
 	~MyKernels_CPU(){};
 };
