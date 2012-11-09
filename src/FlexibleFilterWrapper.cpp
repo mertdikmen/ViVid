@@ -144,7 +144,7 @@ object cosine_filter_c(object& frame, object& filter_bank)
     double toc = omp_get_wtime();
 
     //std::cout << "FF C time: " << toc - tic << std::endl;
-    printf("FF C time %.8f\n", toc - tic);
+    //printf("FF C time %.8f\n", toc - tic);
 
     Py_DECREF(filter_bank_parr);
     handle<> temp_out(arr);

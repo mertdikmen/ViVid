@@ -50,7 +50,6 @@ NumPyMatrix::NumPyMatrix(const boost::python::object& source)
   // seems to be used in the numpy source code with arguments to
   // functions, which according to the python c api documentation are
   // borrowed references.
-	printf("%f\n",source.ptr()[0]);
   PyObject* contig
     = PyArray_FromAny(source.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
                       2, 2, NPY_CARRAY, NULL);
