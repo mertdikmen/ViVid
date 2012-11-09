@@ -26,7 +26,7 @@ NumPyArray::NumPyArray(const boost::python::object& source)
   // borrowed references.
   PyObject* contig
     = PyArray_FromAny(source.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
-                      1, 1, NPY_ARRAY_CARRAY, NULL);
+                      1, 1, NPY_CARRAY, NULL);
   
   boost::python::expect_non_null(contig);
   // http://mail.python.org/pipermail/cplusplus-sig/2008-October/013895.html
@@ -53,7 +53,7 @@ NumPyMatrix::NumPyMatrix(const boost::python::object& source)
 	printf("%f\n",source.ptr()[0]);
   PyObject* contig
     = PyArray_FromAny(source.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
-                      2, 2, NPY_ARRAY_CARRAY, NULL);
+                      2, 2, NPY_CARRAY, NULL);
   // http://mail.python.org/pipermail/cplusplus-sig/2008-October/013895.html
   boost::python::expect_non_null(contig);
   handle<> temp(contig);
@@ -79,7 +79,7 @@ NumPyMatrix3D::NumPyMatrix3D(const boost::python::object& source)
   // borrowed references.
   PyObject* contig
     = PyArray_FromAny(source.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
-                      3, 3, NPY_ARRAY_CARRAY, NULL);
+                      3, 3, NPY_CARRAY, NULL);
   // http://mail.python.org/pipermail/cplusplus-sig/2008-October/013895.html
   handle<> temp(contig);
   array = object(temp);
@@ -104,7 +104,7 @@ NumPyImage::NumPyImage(const boost::python::object& source)
   // borrowed references.
   PyObject* contig
     = PyArray_FromAny(source.ptr(), PyArray_DescrFromType(PyArray_UINT8),
-                      2, 3, NPY_ARRAY_CARRAY, NULL);
+                      2, 3, NPY_CARRAY, NULL);
   // http://mail.python.org/pipermail/cplusplus-sig/2008-October/013895.html
   handle<> temp(contig);
   array = object(temp);
