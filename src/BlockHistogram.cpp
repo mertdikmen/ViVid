@@ -1,3 +1,8 @@
+#ifdef _WIN32
+#include "omp.h"
+#else
+#include "omp_unix.h"
+#endif
 #include "BlockHistogram.hpp"
 #include "BlockHistogramLocal.hpp"
 
@@ -97,7 +102,11 @@ cl_int parameters_histogram_dense(cl_kernel theKernel,const DeviceMatrixCL3D* hi
 								  const int start_y,
 								  const int start_x){
 	cl_int err=0;
-	
+	printf("hist x:%d y:%d t:%d py:%d pt:%d assign width:%d height:%d pitch:%d\n", 
+		histogram->dim_x, histogram->dim_y, histogram->dim_t, histogram->pitch_y, histogram->pitch_t,
+		assignments->width, assignments->height, assignments->pitch);
+	printf("weight w:%d h:%d p:%d max_bin:%d cell_size:%d start_y:%d start_x:%d\n",
+		weights->width, weights->height, weights->pitch, max_bin, cell_size, start_y, start_x);
     err |= clSetKernelArg(theKernel, 0, sizeof (cl_mem), &histogram->dataMatrix);
 	err |= clSetKernelArg(theKernel, 1, sizeof (int), &histogram->dim_x);
     err |= clSetKernelArg(theKernel, 2, sizeof (int), &histogram->dim_y);
@@ -262,11 +271,14 @@ void cell_histogram_dense_device_cl(DeviceMatrixCL3D* histogram,
         exit(1);
     }
 	
-	
+	double tic = omp_get_wtime();
 	err = clEnqueueNDRangeKernel(tc->getMyContext()->cqCommandQueue, 
 								 theKernel, 2, NULL, 
 								 global_work_size, local_work_size, 0, NULL, NULL);
-	
+	clFinish(tc->getMyContext()->cqCommandQueue);// to make sure the kernel completed
+	double toc = omp_get_wtime();
+	std::cout << "OpenCL time: " << toc - tic << std::endl;
+
     if (err) {
         printf("Error: Failed to execute kernel! %d\n", err);
         exit(1);

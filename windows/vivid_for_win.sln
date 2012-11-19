@@ -20,6 +20,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_flexiblefilter", "test
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_blockhist", "test_blockhist\test_blockhist.vcxproj", "{39C83358-D84A-41B4-BD77-66EDB3F7F7CB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F561D0C8-67A3-4237-9967-D283B8FF1E9B} = {F561D0C8-67A3-4237-9967-D283B8FF1E9B}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
