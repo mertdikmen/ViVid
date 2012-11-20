@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
     printf("CPU time: %.6f ms\n", (toc - tic) * 1e3 );
 	bool error = false;
 	for(int i=0; i<aheight*bheight; i++)
-		if(abs(retval[i]-retval2[i])>1e-4) 
+		if(abs(retval[i]-retval2[i])>1e-2) 
 		{
 			error = true;
 			printf("%f %f\n",retval[i], retval2[i]);
