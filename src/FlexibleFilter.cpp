@@ -9,6 +9,89 @@
 
 #include <cuda_runtime.h>
 
+void cosine_filter(
+	float* fr_data, float* fb_array, 
+	const int height, const int width, 
+	const int filter_h, const int filter_w, 
+	const int n_filters, float* out_data)
+{
+    //do convolution
+    const int apron_y = filter_h / 2;
+    const int apron_x = filter_w / 2;
+
+    const int filter_size = filter_h * filter_w;
+
+    const int filter_bank_size = filter_size * n_filters;
+
+	int *pixel_offsets=(int*) malloc(sizeof(int)*filter_size);
+
+    int oi = 0;
+    for (int ii=-apron_y; ii<=apron_y; ii++){
+        for (int jj=-apron_y; jj<=apron_y; jj++){
+            pixel_offsets[oi] = ii * width + jj;
+            oi++;
+        }
+    }
+
+    double tic = omp_get_wtime();
+
+    int n_threads = omp_get_num_procs();
+    int valid_height = height - 2 * apron_y;
+    int height_step = valid_height / n_threads + 1;
+
+    #pragma omp parallel for
+    for (int tid=0; tid<n_threads; tid++){
+        int start_y = apron_y + tid * height_step;
+        int end_y = min(start_y + height_step, height - apron_y);
+    
+    for (int i=start_y; i<end_y; i++){
+        float* fr_ptr = fr_data + i * width + apron_x;
+        float* ass_out = out_data + i * width + apron_x;
+        float* wgt_out = ass_out + height * width;
+
+        float *image_cache=(float*) malloc(sizeof(float)*filter_size);
+        for (int j=apron_x; j<(width - apron_x); j++){
+
+            for (int ii=0; ii< filter_size; ii++){
+                image_cache[ii] = fr_ptr[pixel_offsets[ii]];
+            } 
+
+            float max_sim = -1e6;
+            float best_ind = -1.0f;
+
+            int fi=0;
+            int filter_ind = 0;
+            float temp_sum;
+            while (fi<filter_bank_size)
+            {
+                temp_sum = 0.0f;
+
+                for (int ii=0; ii < filter_size; ii++){
+                    temp_sum += fb_array[fi++] * image_cache[ii];
+                }
+
+                temp_sum = fabs(temp_sum);
+
+                if (temp_sum > max_sim){
+                    max_sim = temp_sum;
+                    best_ind = filter_ind;
+                }
+
+                filter_ind++;
+            }
+            *ass_out = best_ind;
+            *wgt_out = max_sim;
+
+            fr_ptr++;
+            ass_out++;
+            wgt_out++;
+        }
+    }
+    }
+
+    double toc = omp_get_wtime();
+}
+
 #define MAX_FILTERBANK_SIZE 10000
 #define N_MAX_
 #define N_MAX_CHANNELS 10

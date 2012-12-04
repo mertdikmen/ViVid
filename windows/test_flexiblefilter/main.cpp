@@ -30,6 +30,10 @@ int main(int argc, char* argv[])
 		filter_bank[i] = float( std::rand() ) / RAND_MAX;
 	}
 
+	//C Reference
+	float* retvalC = new float[2 * height * width];
+	cosine_filter(f_imData, filter_bank, height, width, filter_dim, filter_dim, num_filters, retvalC);
+
 	//CUDA Reference
 /*	DeviceMatrix::Ptr dmpCU = makeDeviceMatrix(height, width);
 	DeviceMatrix_copyToDevice(*dmpCU, f_imData);
@@ -94,6 +98,7 @@ int main(int argc, char* argv[])
 
 	delete[] filter_bank;
 	delete[] retval;
+	delete[] retvalC;
 	//delete[] retvalCU;
 
 	return 0;

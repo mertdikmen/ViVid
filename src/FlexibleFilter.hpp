@@ -9,6 +9,11 @@
 #define FF_OPTYPE_EUCLIDEAN 0
 #define FF_OPTYPE_COSINE 1
 
+void cosine_filter(
+	float* fr_data, float* fb_array, 
+	const int height, const int width, 
+	const int filter_h, const int filter_w, 
+	const int n_filters, float* out_data);
 
 /*size parameter is in terms of floats*/
 int set_filter_bank_cuda(float* filter_bank, int size);
