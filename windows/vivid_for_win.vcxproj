@@ -76,6 +76,7 @@
     <None Include="..\src\cellHistogramKernel1.cl" />
     <None Include="..\src\cellHistogramKernel2.cl" />
     <None Include="..\src\cell_histogram_kernel.cl" />
+    <None Include="..\src\CPU_blockwise_distance_kernel.cl" />
     <None Include="..\src\do_convolution0.cl" />
     <None Include="..\src\do_convolution1.cl" />
     <None Include="..\src\do_convolution2.cl" />

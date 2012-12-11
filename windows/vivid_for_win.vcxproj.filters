@@ -261,5 +261,8 @@
     <None Include="..\src\E_blockwise_distance_kernel.cl">
       <Filter>CL</Filter>
     </None>
+    <None Include="..\src\CPU_blockwise_distance_kernel.cl">
+      <Filter>CL</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -34,6 +34,29 @@ int main(int argc, char* argv[])
 	float* retvalC = new float[2 * height * width];
 	cosine_filter(f_imData, filter_bank, height, width, filter_dim, filter_dim, num_filters, retvalC);
 
+	std::ofstream test_out_c("testc.out", std::ios_base::out);
+	for (int j = 0; j < height; j++)
+	{
+		for (int i = 0; i < width; i++)
+		{
+			test_out_c << retvalC[j * width + i] << ", ";
+		}
+
+		test_out_c << std::endl;
+	}
+
+	test_out_c << std::endl << std::endl << std::endl;
+
+	for (int j = 0; j < height; j++)
+	{
+		for (int i = 0; i < width; i++)
+		{
+			test_out_c << retvalC[height * width + j * width + i] << ", ";
+		}
+		test_out_c << std::endl;
+	}
+	test_out_c.close();
+
 	//CUDA Reference
 /*	DeviceMatrix::Ptr dmpCU = makeDeviceMatrix(height, width);
 	DeviceMatrix_copyToDevice(*dmpCU, f_imData);

@@ -419,10 +419,13 @@ void dist_filter2_d3_cl(const DeviceMatrixCL* frame,
     }
 	
 	double tic = omp_get_wtime();
+	//for(int i=0; i<1000; i++)
+	{
 	err = clEnqueueNDRangeKernel(tc->getMyContext()->cqCommandQueue, 
 								 theKernel, 2, NULL, 
 								 global_work_size, local_work_size, 0, NULL, NULL);
 	err = clFinish(tc->getMyContext()->cqCommandQueue);// to make sure the kernel completed
+	}
 	double toc = omp_get_wtime();
 	std::cout << "OpenCL filter time: " << toc - tic << std::endl;
     if (err) {

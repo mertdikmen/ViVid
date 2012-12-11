@@ -170,12 +170,13 @@ void DeviceMatrixCL3D_copyToDevice(DeviceMatrixCL3D& self, const float* data)
 			self.dim_y,
 			self.dim_t};	
 		int err = clEnqueueWriteBufferRect(
-										   tc->getMyContext()->cqCommandQueue,
-										   self.dataMatrix, CL_TRUE,
-										   buffer_origin, host_origin, region,
-										   self.pitch_y, 0,
-										   sizeof(float) * self.dim_x, 0,
-										   data, 0, NULL, NULL);
+			tc->getMyContext()->cqCommandQueue,
+			self.dataMatrix, CL_TRUE,
+			buffer_origin, host_origin, region,
+			self.pitch_y, 0,
+			sizeof(float) * self.dim_x, 0,
+			data,
+			0, NULL, NULL);
 		
 		if (err != 0){
 			std::cout << "Error in copyToDevice (CODE: " << err << ")" << std::endl;
@@ -204,13 +205,15 @@ void DeviceMatrixCL3D_copyFromDevice(const DeviceMatrixCL3D& self, float* dst)
 		//PyArray_DATA(retval.ptr());
         cl_int err =
 		clEnqueueReadBufferRect(
-								tc->getMyContext()->cqCommandQueue,
-								self.dataMatrix, CL_TRUE,
-								buffer_origin, host_origin, region,
-								self.pitch_y, 0,
-								self.dim_x * sizeof(float), 0,
-								dst,
-								0, NULL, NULL);
+			tc->getMyContext()->cqCommandQueue,
+			self.dataMatrix, CL_TRUE,
+			buffer_origin, host_origin, region,
+			//self.pitch_y, self.dim_x * self.dim_y * sizeof(float),
+			//self.pitch_y, 0,
+			self.pitch_y, 0,
+			self.dim_x * sizeof(float), 0,
+			dst,
+			0, NULL, NULL);
 			//std::cout<<prueba[2][2][2]<<" "<<prueba[0][0][2]<<endl;
 		
         if (err != 0){
@@ -422,7 +425,8 @@ DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(size_t dim_t, size_t dim_y,
 		to divide by 8 to get it in bytes);*/
 
 		int buffer;
-		cl_int prueba = clGetDeviceInfo(cdDevice, CL_DEVICE_MEM_BASE_ADDR_ALIGN , sizeof(buffer), &buffer, NULL);
+		cl_int ierr = clGetDeviceInfo(cdDevice, CL_DEVICE_MEM_BASE_ADDR_ALIGN , sizeof(buffer), &buffer, NULL);
+		
 		buffer /= 8;
 
 		int naturalPitch = sizeof(float) * mat->dim_x;
@@ -435,7 +439,7 @@ DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(size_t dim_t, size_t dim_y,
 
 		//printf("Pitch: %d, DevicePitch: %d, Buffer: %d\n", naturalPitch, devicepitch, buffer);
 
-		mat->pitch_y = devicepitch;
+		mat->pitch_y = naturalPitch;//devicepitch;
 		mat->pitch_t = dim_y*mat->pitch_y;
 
 		//You then allocate pitch times number of rows bytes, and pass the pitch information to kernels.

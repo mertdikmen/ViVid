@@ -1,3 +1,4 @@
+#include <fstream>
 #include <opencv2\opencv.hpp>
 #include "vivid.hpp"
 
@@ -6,7 +7,7 @@ static char* exampleImagePath = "..\\..\\..\\media\\kewell1.jpg";
 bool verify_opencl3d(const int depth, const int width, const int height)
 {
 	std::cout << "OpenCL DeviceMatrix3D: ";
-
+	
 	const int data_size = depth * width * height;
 	float* ref_data = new float[data_size];
 
@@ -23,18 +24,31 @@ bool verify_opencl3d(const int depth, const int width, const int height)
 
 	DeviceMatrixCL3D_copyFromDevice(*dmpCL, copied_back);
 
-	for (int i = 0; i < data_size; i++)
-	{
-		if(copied_back[i] != ref_data[i])
-		{
-			std::cout << "FAIL" << std::endl;
-			std::cout << "mismatch at index " << i << ": " << copied_back[i] << ", " << "ref_data[i]" << std::endl;
+	std::fstream out_txt("basic.out", std::ios_base::out);
 
-			delete[] ref_data;
-			delete[] copied_back;
-			return false;
+	for (int t=0; t < depth; t++){
+		for (int i = 0; i < height; i++){
+			for (int j = 0; j < width; j++){
+				out_txt << copied_back[t * height * width + i * width + j] << ":" << ref_data[t * height * width + i * width + j] << "\t\t";
+			}
+			out_txt << std::endl;
 		}
+		out_txt << "--------------------------------" << std::endl ;
 	}
+	out_txt.close();
+
+	//for (int i = 0; i < data_size; i++)
+	//{
+	//	if(copied_back[i] != ref_data[i])
+	//	{
+	//		std::cout << "FAIL" << std::endl;
+	//		std::cout << "mismatch at index " << i << ": " << copied_back[i] << ", " << ref_data[i] << std::endl;
+	//
+	//		delete[] ref_data;
+	//		delete[] copied_back;
+	//		return false;
+	//	}
+	//}
 
 	std::cout << "OK" << std::endl;
 
@@ -185,7 +199,7 @@ nocl: don't run opencl tests\n"""
 	if (!nocl)
 	{
 		verify_opencl(exampleImage);
-		verify_opencl3d(100,20,30);
+		verify_opencl3d(2, 600, 416);
 	}
 
 	if (!nocuda)
