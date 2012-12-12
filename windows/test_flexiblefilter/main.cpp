@@ -29,7 +29,7 @@ void dump_output(char* file_name, float* data, const int channels, const int hei
 }
 
 #define DO_C
-#define DO_CUDA
+//#define DO_CUDA
 #define DO_OPENCL
 #define DO_OPENCV
 
@@ -127,19 +127,21 @@ int main(int argc, char* argv[])
 #ifdef DO_OPENCL
 	//OPENCL Reference
 	DeviceMatrixCL::Ptr dmpCL = makeDeviceMatrixCL(height, width);
+	float* retvalCL = new float[height * width * 2];
 
+	for (int i=0; i < 5; i++)
+	{
 	tic = omp_get_wtime();
 
 	DeviceMatrixCL_copyToDevice(*dmpCL, f_imData);
 	set_filter_bank_cl(filter_bank, num_filters * filter_dim * filter_dim);
 	DeviceMatrixCL3D::Ptr retdm = filter_frame_cl_3(dmpCL, num_filters, 1, FF_OPTYPE_COSINE);
-	float* retvalCL = new float[height * width * 2];
 	DeviceMatrixCL3D_copyFromDevice(*retdm, retvalCL);
 
 	toc = omp_get_wtime();
 
 	std::cout << "OpenCL time: " << toc - tic << std::endl;
-
+	}
 	dump_output("test_ff_opencl.out", retvalCL, 2, height, width);
 
 	delete[] retvalCL;
