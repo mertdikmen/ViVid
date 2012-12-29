@@ -114,8 +114,8 @@ int update_filter_bank_internal_cl(float* new_filter, int filter_size){
 		MyKernels *kernels = new MyKernels(GPUContext,cdDevice);
 		
 		cl_int err;
-		
-		cl_mem filter_mem =  clCreateBuffer(GPUContext, CL_MEM_READ_ONLY, sizeof(float) * filter_size,     
+		// padding for SIMD
+		cl_mem filter_mem =  clCreateBuffer(GPUContext, CL_MEM_READ_ONLY, sizeof(float) * (filter_size+8),     
 											NULL, &err);
 
 		err |= clEnqueueWriteBuffer(tc->getMyContext()->cqCommandQueue, filter_mem, CL_TRUE, 0, 
@@ -136,7 +136,27 @@ int set_filter_bank_cuda(float* filter_bank, int size){
 }
 
 int set_filter_bank_cl(float* filter_bank, int size){
-    return update_filter_bank_internal_cl(filter_bank,size); 
+	// reorganize data in SIMD8 vectors
+	// |0 1 2 .. 8| 0 1 2 .. 8 ..  =>> 0 0 0 ... 1 1 1 .. 
+	float* tmpbank = new float[size];
+	int num_filts = size/9;
+	for(int i=0; i<num_filts/8; i++)
+	{
+		for(int j=0; j<9; j++) {
+			for(int k=0; k<8; k++)
+			tmpbank[i*8*9+ j*8+ k] = filter_bank[i*8*9+ j+ k*9];
+		}
+	}
+	// leftovers in smaller vecs
+	
+	{
+		for(int j=0; j<9; j++) {
+			for(int k=0; k<4; k++)
+			tmpbank[96*9 + j*4+ k] = filter_bank[96*9 + j+ k*9];
+		}
+	}
+
+    return update_filter_bank_internal_cl(tmpbank,size); 
 }
 
 /* CUDA Functions */

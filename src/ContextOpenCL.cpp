@@ -16,13 +16,13 @@ int TheContext::type_gpu;
 TheContext::TheContext()
 {
 	if (The_Context_GPU==NULL){
-		The_Context_GPU = new myContexOpenCl( CL_DEVICE_TYPE_CPU );
+		The_Context_GPU = new myContexOpenCl( CL_DEVICE_TYPE_GPU );
 		printf("\nGPU context done\n\n");
 		type_gpu = 1;
 	}
 	
 	if (The_Context_CPU==NULL){
-		 The_Context_CPU = new myContexOpenCl( CL_DEVICE_TYPE_CPU );
+		 The_Context_CPU = new myContexOpenCl( CL_DEVICE_TYPE_GPU );
 		 printf("\nCPU context done\n\n");
 		 type_gpu = 0;
 	}

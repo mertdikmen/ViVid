@@ -53,7 +53,7 @@ struct theKernels {
 		createKernel("argmaxKernel","../../../src/argmaxKernel.cl",2);
 		createKernel("minKernel","../../../src/minKernel.cl",3);
 		createKernel("maxKernel","../../../src/maxKernel.cl",4);
-		createKernel("blockwise_distance_kernel","../../../src/CPU_blockwise_distance_kernel.cl",5);
+		createKernel("blockwise_distance_kernel","../../../src/E_blockwise_distance_kernel.cl",5);
 		createKernel("blockwise_filter_kernel","../../../src/blockwise_filter_kernel.cl",6);
 		createKernel("cell_histogram_kernel","../../../src/cell_histogram_kernel.cl",7);
 		createKernel("cellHistogramKernel1","../../../src/cellHistogramKernel1.cl",8);
@@ -97,11 +97,11 @@ struct theKernels {
 		err = clBuildProgram(program_list[indice], 0, NULL, options, NULL, NULL);
 		if (err != CL_SUCCESS) {
 			size_t len;
-			char buffer[2048];
+			char buffer[10000];
 
 			printf("Error: Failed to build program executable for device %d kernel: (%s)!\n",err,kernel);
-			clGetProgramBuildInfo(program_list[indice], cdDevice_K, CL_PROGRAM_BUILD_LOG, sizeof (buffer), buffer, &len);
-			printf("%s\n", buffer);
+			cl_int get_err=clGetProgramBuildInfo(program_list[indice], cdDevice_K, CL_PROGRAM_BUILD_LOG, sizeof (buffer), buffer, &len);
+			printf("%d %s\n", get_err, buffer);
 
 		}
 
