@@ -18,7 +18,7 @@ TheContext::TheContext()
 	//printf("sin argumentos\n");
 	if (The_Context_GPU==NULL){
 	//	printf("Is NULL");
-		The_Context_GPU = new myContexOpenCl( CL_DEVICE_TYPE_GPU );
+		The_Context_GPU = new myContexOpenCl( CL_DEVICE_TYPE_CPU );
 		printf("\nGPU context done\n\n");
 		type_gpu = 1;
 	}

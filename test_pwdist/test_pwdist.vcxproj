@@ -126,7 +126,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>opencv_imgproc242d.lib;opencv_core242d.lib;opencv_highgui242d.lib;OpenCL.lib;cudart.lib;vivid.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Program Files (x86)\Intel\OpenCL SDK\2.0\lib\x64;..\windows\$(Platform)\$(Configuration);C:\Python27\libs;$(BOOST_PATH)\stage\lib;$(CUDA_LIB_PATH);$(OPENCV_LIB_PATH);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Program Files (x86)\Intel\OpenCL SDK\3.0\lib\x64;..\windows\$(Platform)\$(Configuration);C:\Python27\libs;$(BOOST_PATH)\stage\lib;$(CUDA_LIB_PATH);$(OPENCV_LIB_PATH);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

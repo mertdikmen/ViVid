@@ -241,10 +241,12 @@ void pwdist_genericCL(const DeviceMatrixCL* features_train,
 	std::cout << "OpenCL generic cl first time: " << toc - tic << std::endl;
 
 	tic = omp_get_wtime();
+	for(int i=0; i<2000; i++) {
     err = clEnqueueNDRangeKernel(tc->getMyContext()->cqCommandQueue, 
             theKernel, 2, NULL, 
             global_work_size, local_work_size, 0, NULL, NULL);
 	clFinish(tc->getMyContext()->cqCommandQueue);// to make sure the kernel completed
+	}
 	toc = omp_get_wtime();
 	std::cout << "OpenCL generic cl time: " << toc - tic << std::endl;
     if (err) {
@@ -320,10 +322,12 @@ void pwdist_eucCL(const DeviceMatrixCL* features_train,
 	std::cout << "OpenCL first time: " << toc - tic << std::endl;
 
 	tic = omp_get_wtime();
+	for(int i=0; i<2000; i++) {
     err = clEnqueueNDRangeKernel(tc->getMyContext()->cqCommandQueue, 
             theKernel, 2, NULL, 
             global_work_size, local_work_size, 0, NULL, NULL);
 	clFinish(tc->getMyContext()->cqCommandQueue);// to make sure the kernel completed
+	}
 	toc = omp_get_wtime();
 	std::cout << "OpenCL time: " << toc - tic << std::endl;
 
