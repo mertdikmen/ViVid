@@ -74,7 +74,7 @@ public:
 
 	  DeviceMatrixCL::Ptr apply(DeviceMatrixCL::Ptr blocks)
 	  {
-		  pwdist_cl(classifierCL, blocks);
+		  return pwdist_cl(classifierCL, blocks);
 	  };
 
 	  ~Classifier()
@@ -107,34 +107,32 @@ int main(int argc, char* argv[])
 {
 	static char* exampleImagePath = "..\\..\\..\\media\\kewell1.jpg";
 
-	cv::Mat exampleImage = cv::imread(exampleImagePath, 0);
-
-	//convert to float
-	exampleImage.convertTo(exampleImage, CV_32FC1);
-
-	//pull the data
-	float* f_imData = (float*) exampleImage.data;
-
-	const int height = exampleImage.size().height;
-	const int width = exampleImage.size().width;
-
 	//create a random filterbank
 	const int num_filters = 100;
 	const int filter_dim = 3;
+	
 	FilterBank fb(filter_dim, num_filters);
 	fb.set_on_device();
 
 	Classifier clf(128, 64, 8, 2, num_filters);
 
 	//load the image on device
-	DeviceMatrixCL::Ptr dmpCL = makeDeviceMatrixCL(height, width);
+	cv::Mat exampleImage = cv::imread(exampleImagePath, 0);
+	//convert to float
+	exampleImage.convertTo(exampleImage, CV_32FC1);
+
+	//pull the data
+	float* f_imData = (float*) exampleImage.data;
+	DeviceMatrixCL::Ptr dmpCL = makeDeviceMatrixCL(exampleImage.size().height, exampleImage.size().width);
 	DeviceMatrixCL_copyToDevice(*dmpCL, f_imData);
 
 	DeviceMatrixCL3D::Ptr ff_im = fb.apply_cl(dmpCL);
 
-	//DeviceMatrixCL3D::Ptr = cell_histogram_dense_cl(asCL, wtCL, num_filters, 8, 0, 0, height, width);
+	DeviceMatrixCL::Ptr block_histogram = cell_histogram_dense_cl(
+		ff_im, num_filters, 8, 0, 0, 
+		exampleImage.size().height, exampleImage.size().width);
 
-	//DeviceMatrixCL::Ptr result = clf.apply(
+	DeviceMatrixCL::Ptr result = clf.apply(block_histogram);
 		
 	return 0;
 }

@@ -62,7 +62,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)..\bin\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -80,13 +80,13 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\vivid_dll;..\..\src;$(BOOST_PATH);$(CUDA_INC_PATH);$(OPENCV_PATH)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\vivid_dll;..\..\src;$(BOOST_PATH);$(CUDA_INC_PATH);C:\OpenCV-2-4-3\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>vivid_d.lib;opencv_core243d.lib;opencv_imgproc243d.lib;opencv_highgui243d.lib;OpenCL.lib;cudart.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\lib\$(Platform)\$(Configuration);$(BOOST_PATH)\stage\lib;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\lib\x64;$(OPENCV_PATH)\x64\vc10\lib;C:\Program Files (x86)\Intel\OpenCL SDK\3.0\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\lib\$(Platform)\$(Configuration);$(BOOST_PATH)\stage\lib;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\lib\x64;C:\Program Files (x86)\Intel\OpenCL SDK\3.0\lib\x64;C:\OpenCV-2-4-3\build\x64\vc10\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

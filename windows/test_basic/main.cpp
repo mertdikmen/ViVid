@@ -1,8 +1,47 @@
 #include <fstream>
-#include <opencv2\opencv.hpp>
+#include "opencv2\opencv.hpp"
 #include "vivid.hpp"
 
 static char* exampleImagePath = "..\\..\\..\\media\\kewell1.jpg";
+
+bool verify_opencl3d_slice(const int depth, const int width, const int height)
+{
+	std::cout << "OpenCL DeviceMatrix3D Slice: ";
+
+	const int data_size = depth * width * height;
+	float* ref_data = new float[data_size];
+
+	for (int i = 0; i < data_size; i++)
+	{
+		ref_data[i] = float(std::rand()) / RAND_MAX;
+	}
+
+	DeviceMatrixCL3D::Ptr dmpCL = makeDeviceMatrixCL3D(depth, height, width);
+	DeviceMatrixCL3D_copyToDevice(*dmpCL, ref_data);
+
+	const int sub_data_size = width * height;
+
+	float* copied_back = new float[sub_data_size];
+
+	for (int slice_ind = 0; slice_ind < depth; slice_ind++)
+	{
+		DeviceMatrixCL::Ptr slice = makeDeviceMatrixCL(*dmpCL, slice_ind);
+
+		DeviceMatrixCL_copyFromDevice(*slice, copied_back);
+
+		for (int i = 0; i < sub_data_size; i++)
+		{
+			if (copied_back[i] != ref_data[i + sub_data_size * slice_ind]){
+				std::cout << "Ref value not equal at slice: " << slice_ind << ", and index: " << i << std::endl;
+				assert(false);
+			}
+		}
+	}
+	
+	std::cout << "OK" << std::endl;
+	delete[] copied_back;
+	return true;
+}
 
 bool verify_opencl3d(const int depth, const int width, const int height)
 {
@@ -173,6 +212,8 @@ void verify_cuda(cv::Mat& exampleImage)
 	delete[] copiedBack;
 }
 
+#define NOCUDA
+//#define NOCL
 int main(int argc, char* argv[])
 {
 	std::cout << \
@@ -182,13 +223,10 @@ nocuda: don't run cuda tests\n\
 nocl: don't run opencl tests\n"""
 	<< std::endl;
 
-	bool nocuda = false;
-	bool nocl = false;
-
 	for (int i = 1; i < argc; i++)
 	{
-		if (strcmp(argv[i], "--nocuda") == 0) nocuda = true;
-		if (strcmp(argv[i], "--nocl") == 0) nocl = true;
+		//if (strcmp(argv[i], "--nocuda") == 0) nocuda = true;
+		//if (strcmp(argv[i], "--nocl") == 0) nocl = true;
 	}
 
 	cv::Mat exampleImage = cv::imread(exampleImagePath, 0);
@@ -196,17 +234,16 @@ nocl: don't run opencl tests\n"""
 	//convert to float
 	exampleImage.convertTo(exampleImage, CV_32FC1);
 
-	if (!nocl)
-	{
+#ifndef NOCL
 		verify_opencl(exampleImage);
-		verify_opencl3d(2, 600, 416);
-	}
+		//verify_opencl3d(2, 600, 416);
+		verify_opencl3d_slice(50, 500, 400);
+#endif
 
-	if (!nocuda)
-	{
+#ifndef NOCUDA
 		verify_cuda(exampleImage);	
 		verify_cuda3d(100,20,30);
-	}
+#endif
 
 	return 0;
 }

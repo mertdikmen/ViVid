@@ -71,7 +71,6 @@ struct DeviceMatrix3D {
     void zero();
 };
 
-
 DeviceMatrix3D::Ptr makeDeviceMatrix3D(size_t dim_t, size_t dim_y, 
                                        size_t dim_x);
 
@@ -143,8 +142,8 @@ struct DeviceMatrixCL3D {
     void zero();
 };
 
-DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(size_t dim_t, size_t dim_y, 
-                                       size_t dim_x);
+DeviceMatrixCL::Ptr makeDeviceMatrixCL(DeviceMatrixCL3D& src, const int slice);
+DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(size_t dim_t, size_t dim_y, size_t dim_x);
 
 void DeviceMatrixCL3D_copyToDevice(DeviceMatrixCL3D& self, const float* data);
 void DeviceMatrixCL3D_copyFromDevice(const DeviceMatrixCL3D& self, float* dst);

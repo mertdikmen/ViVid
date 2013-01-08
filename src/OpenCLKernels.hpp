@@ -58,6 +58,7 @@ struct theKernels {
 		createKernel("cell_histogram_kernel","../../../src/cell_histogram_kernel.cl",7);
 		createKernel("cellHistogramKernel1","../../../src/cellHistogramKernel1.cl",8);
 		createKernel("cellHistogramKernel2","../../../src/cellHistogramKernel2.cl",9);
+		createKernel("cellHistogramKernel3","../../../src/cellHistogramKernel3.cl",10);
 	}
 
 	void createKernel(const char* kernel, const char* path, int indice){
@@ -169,6 +170,11 @@ public:
 
 	cl_kernel getCellHistogramKernel2(){
 		return My_Kernels->kernel_list[9];
+	}
+
+	cl_kernel getCellHistogramKernel3(){
+		printf("ping\n");
+		return My_Kernels->kernel_list[10];
 	}
 	/*
 	cl_kernel getDoConvolution0(){
