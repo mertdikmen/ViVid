@@ -271,13 +271,10 @@ void cell_histogram_dense_device_cl(DeviceMatrixCL3D* histogram,
         exit(1);
     }
 	
-	double tic = omp_get_wtime();
 	err = clEnqueueNDRangeKernel(tc->getMyContext()->cqCommandQueue, 
 								 theKernel, 2, NULL, 
 								 global_work_size, local_work_size, 0, NULL, NULL);
 	clFinish(tc->getMyContext()->cqCommandQueue);// to make sure the kernel completed
-	double toc = omp_get_wtime();
-	std::cout << "OpenCL time: " << toc - tic << std::endl;
 
     if (err) {
         printf("Error: Failed to execute kernel! %d\n", err);
