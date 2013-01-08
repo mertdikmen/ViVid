@@ -85,8 +85,8 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>vivid_d.lib;opencv_core242d.lib;opencv_imgproc242d.lib;opencv_highgui242d.lib;OpenCL.lib;cudart.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\lib\$(Platform)\$(Configuration);$(BOOST_PATH)\stage\lib;$(CUDA_LIB_PATH);$(OPENCV_LIB_PATH);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>vivid_d.lib;opencv_core243d.lib;opencv_imgproc243d.lib;opencv_highgui243d.lib;OpenCL.lib;cudart.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\lib\$(Platform)\$(Configuration);$(BOOST_PATH)\stage\lib;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\lib\x64;$(OPENCV_PATH)\x64\vc10\lib;C:\Program Files (x86)\Intel\OpenCL SDK\3.0\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
