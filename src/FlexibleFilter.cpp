@@ -228,10 +228,12 @@ DeviceMatrix3D::Ptr get_cell_histograms_cuda(const DeviceMatrix3D::Ptr& inds_and
 DeviceMatrixCL3D::Ptr filter_frame_cl_3(const DeviceMatrixCL::Ptr& frame,
 										const int dim_t, const int nchannels,
 										const int optype){
-	
+//	double tic0= omp_get_wtime();
     DeviceMatrixCL3D::Ptr out = makeDeviceMatrixCL3D(2, frame->height, frame->width / nchannels);
 	
     dist_filter2_d3_cl(frame.get(), dim_t, nchannels, out.get(), optype);
+//	double tic1= omp_get_wtime();
+	//std::cout << "--full filter time: " << tic1 - tic0 << std::endl;
     return out;
 }
 
@@ -326,10 +328,10 @@ cl_int parameters_blockwise_distance_kernel(
 	err |= clSetKernelArg(theKernel, 15, sizeof (const int), &optype);
 	err |= clSetKernelArg(theKernel, 16, sizeof (cl_mem), &filter);
 	err |= clSetKernelArg(theKernel, 17, sizeof (const int), &n_filters);
-	printf("width:%d height:%d pitch:%d dim_x:%d dim_y:%d dim_t:%d pitch_y:%d pitch_t:%d\n" 
-		"frame_width:%d frame_height:%d FD:%d BM:%d BS:%d n_filters:%d\n", matrix->width, 
-		matrix->height, matrix->pitch, output->dim_x, output->dim_y, output->dim_t, output->pitch_y, output->pitch_t,
-		frame_width, frame_height, FD, BM, BS, n_filters);
+//	printf("width:%d height:%d pitch:%d dim_x:%d dim_y:%d dim_t:%d pitch_y:%d pitch_t:%d\n" 
+//		"frame_width:%d frame_height:%d FD:%d BM:%d BS:%d n_filters:%d\n", matrix->width, 
+//		matrix->height, matrix->pitch, output->dim_x, output->dim_y, output->dim_t, output->pitch_y, output->pitch_t,
+//		frame_width, frame_height, FD, BM, BS, n_filters);
 	return err;
 }
 
@@ -402,6 +404,7 @@ void dist_filter2_d3_cl(const DeviceMatrixCL* frame,
 						DeviceMatrixCL3D* output,
 						const int optype)
 {
+//	double tic0 = omp_get_wtime();
 	const int frame_width = int(frame->width);
 	const int frame_height = int(frame->height);
 	
@@ -432,13 +435,14 @@ void dist_filter2_d3_cl(const DeviceMatrixCL* frame,
 												frame_width,frame_height,3,optype,
 												kernels->getMyKernels()->c_FilterBank,
                                                 dim_t);	
-  	
+//  	double tic1 = omp_get_wtime();
+//	std::cout << "OpenCL init filter kernel time: " << tic1 - tic0 << std::endl;
     if (err != CL_SUCCESS) {
         printf("Error: Failed to set kernel arguments 3! %d\n", err);
         exit(1);
     }
 	
-	double tic = omp_get_wtime();
+//	double tic = omp_get_wtime();
 	//for(int i=0; i<1000; i++)
 	{
 	err = clEnqueueNDRangeKernel(tc->getMyContext()->cqCommandQueue, 
@@ -446,8 +450,8 @@ void dist_filter2_d3_cl(const DeviceMatrixCL* frame,
 								 global_work_size, local_work_size, 0, NULL, NULL);
 	err = clFinish(tc->getMyContext()->cqCommandQueue);// to make sure the kernel completed
 	}
-	double toc = omp_get_wtime();
-	std::cout << "OpenCL filter time: " << toc - tic << std::endl;
+//	double toc = omp_get_wtime();
+//	std::cout << "OpenCL filter kernel time: " << toc - tic << std::endl;
     if (err) {
         printf("Error: Failed to execute kernel! %d\n", err);
         exit(1);

@@ -78,6 +78,7 @@
     <None Include="..\src\cellHistogramKernel3.cl" />
     <None Include="..\src\cell_histogram_kernel.cl" />
     <None Include="..\src\CPU_blockwise_distance_kernel.cl" />
+    <None Include="..\src\CPU_PairwiseDistance.cl" />
     <None Include="..\src\do_convolution0.cl" />
     <None Include="..\src\do_convolution1.cl" />
     <None Include="..\src\do_convolution2.cl" />
@@ -104,6 +105,7 @@
     <None Include="..\src\do_convolution_complex_t1_7.cl" />
     <None Include="..\src\do_convolution_complex_t1_9.cl" />
     <None Include="..\src\E_blockwise_distance_kernel.cl" />
+    <None Include="..\src\E_PairwiseDistance.cl" />
     <None Include="..\src\maxKernel.cl" />
     <None Include="..\src\minKernel.cl" />
     <None Include="..\src\PairwiseDistance.cl" />

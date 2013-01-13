@@ -267,5 +267,11 @@
     <None Include="..\src\cellHistogramKernel3.cl">
       <Filter>CL</Filter>
     </None>
+    <None Include="..\src\CPU_PairwiseDistance.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\E_PairwiseDistance.cl">
+      <Filter>CL</Filter>
+    </None>
   </ItemGroup>
 </Project>

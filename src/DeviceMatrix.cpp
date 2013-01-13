@@ -140,7 +140,7 @@ boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(size_t height, size_t width
 
 	//std::cout << height << "\t" << devicepitch << std::endl;
 
-	const int mem_size = mat->height * mat->pitch;
+	const int mem_size = (mat->height+16) * mat->pitch;
 
 	//std::cout << "Mem size: " << mem_size << std::endl;
 

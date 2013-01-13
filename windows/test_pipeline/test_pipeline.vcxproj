@@ -92,24 +92,29 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>..\..\vivid_dll;..\..\src;$(BOOST_PATH);$(CUDA_INC_PATH);$(OPENCV_PATH)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>..\..\lib\$(Platform)\$(Configuration);$(BOOST_PATH)\stage\lib;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\lib\x64;$(OPENCV_PATH)\x64\vc10\lib;C:\Program Files (x86)\Intel\OpenCL SDK\3.0\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>..\..\vivid_dll;..\..\src;$(BOOST_PATH);$(CUDA_INC_PATH);c:\OpenCV-2-4-3\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>..\..\lib\$(Platform)\$(Configuration);$(BOOST_PATH)\stage\lib;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\lib\x64;C:\Program Files (x86)\Intel\OpenCL SDK\3.0\lib\x64;c:\OpenCV-2-4-3\build\x64\vc10\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>vivid.lib;opencv_core243.lib;opencv_imgproc243.lib;opencv_highgui243.lib;OpenCL.lib;cudart.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

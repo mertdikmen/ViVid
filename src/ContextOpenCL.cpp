@@ -22,7 +22,7 @@ TheContext::TheContext()
 	}
 	
 	if (The_Context_CPU==NULL){
-		 The_Context_CPU = new myContexOpenCl( CL_DEVICE_TYPE_GPU );
+		 The_Context_CPU = new myContexOpenCl( CL_DEVICE_TYPE_CPU );
 		 printf("\nCPU context done\n\n");
 		 type_gpu = 0;
 	}
