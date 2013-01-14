@@ -6,7 +6,7 @@
  * expect to be caleld with blockDim(BLOCK_SIZE, BLOCK_SIZE) and a
  * sufficiently large grid to cover all othe output values.
  */
-__kernel void E_pairwiseDistanceKernel(
+__kernel void pairwiseDistanceKernel(
         __global float8 * a, const int a_width, const int a_pitch_f,
         __global float8 * b, const int b_pitch_f,
         __global float* out, const int o_pitch_f)

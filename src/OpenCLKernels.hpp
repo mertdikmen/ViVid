@@ -19,6 +19,8 @@
 #include <sys/stat.h>
 #include <error.h>
 
+extern int device_use;
+
 static char* load_program_source(const char *filename) {
 
 	struct stat statbuf;
@@ -48,12 +50,18 @@ struct theKernels {
 	theKernels(cl_context GPUContext, cl_device_id cdDevice){
 		GPUContext_K = GPUContext;
 		cdDevice_K   = cdDevice;
-		createKernel("pairwiseDistanceKernel","../../../src/CPU_PairwiseDistance.cl",0);
+		if(device_use)
+			createKernel("pairwiseDistanceKernel","../../../src/E_PairwiseDistance.cl",0);
+		else
+			createKernel("pairwiseDistanceKernel","../../../src/CPU_PairwiseDistance.cl",0);
 		createKernel("argminKernel","../../../src/argminKernel.cl",1);
 		createKernel("argmaxKernel","../../../src/argmaxKernel.cl",2);
 		createKernel("minKernel","../../../src/minKernel.cl",3);
 		createKernel("maxKernel","../../../src/maxKernel.cl",4);
-		createKernel("blockwise_distance_kernel","../../../src/CPU_blockwise_distance_kernel.cl",5);
+		if(device_use)
+			createKernel("blockwise_distance_kernel","../../../src/E_blockwise_distance_kernel.cl",5);
+		else
+			createKernel("blockwise_distance_kernel","../../../src/CPU_blockwise_distance_kernel.cl",5);
 		createKernel("blockwise_filter_kernel","../../../src/blockwise_filter_kernel.cl",6);
 		createKernel("cell_histogram_kernel","../../../src/cell_histogram_kernel.cl",7);
 		createKernel("cellHistogramKernel1","../../../src/cellHistogramKernel1.cl",8);

@@ -3,6 +3,12 @@
 #include "omp.h"
 #include <windows.h>
 
+/*	which device to use
+	CPU 0
+	GPU 1
+*/
+int device_use; 
+
 class FilterBank
 {
 public:
@@ -110,6 +116,11 @@ private:
 
 int main(int argc, char* argv[])
 {
+	device_use = 0;
+	if(argc>1)
+		device_use = atoi(argv[1]);
+	
+
 	static char* exampleImagePath = "..\\..\\..\\media\\kewell1.jpg";
 
 	//create a random filterbank
@@ -125,6 +136,12 @@ int main(int argc, char* argv[])
 	cv::Mat exampleImage = cv::imread(exampleImagePath, 0);
 	//convert to float
 	exampleImage.convertTo(exampleImage, CV_32FC1);
+
+	if(device_use==0)
+		std::cout << "running on CPU" <<std::endl;
+	else
+		std::cout << "running on GPU" <<std::endl;
+	std::cout << "Image dimensions:" << exampleImage.size().height <<" "<< exampleImage.size().width <<std::endl;
 
 	//pull the data
 	float* f_imData = (float*) exampleImage.data;
