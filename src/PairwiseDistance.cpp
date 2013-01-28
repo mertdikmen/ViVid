@@ -98,6 +98,7 @@ DeviceMatrixCL::Ptr pwdist_cl( const DeviceMatrixCL::Ptr& features_train,
 
     // double tic = omp_get_wtime();
     // pwdist_genericCL(features_train.get(), features_test.get(), out.get(), EUCLIDEAN);
+//	for(int i=0; i<10000; i++)
 	pwdist_eucCL(features_train.get(), features_test.get(), out.get());
 
  //   double toc = omp_get_wtime();
@@ -279,8 +280,8 @@ void pwdist_eucCL(const DeviceMatrixCL* features_train,
    // err |= clSetKernelArg(theKernel, 12, sizeof (int), &type);
  //   err |= clSetKernelArg(theKernel, 12, sizeof (int), &BLOCK_SIZE);
 //	printf("params: %d %d %d,  %d %d %d, %d %d %d-- %d\n",features_train->width,
-	//	features_train->height,features_train->pitch, features_test->width, features_test->height,
-	//	features_test->pitch, output->width, output->height, output->pitch, BLOCK_SIZE);
+//		features_train->height,features_train->pitch, features_test->width, features_test->height,
+//		features_test->pitch, output->width, output->height, output->pitch, BLOCK_SIZE);
     if (err != CL_SUCCESS) {
         printf("Error: Failed to set kernel arguments 3! %d\n", err);
         exit(1);

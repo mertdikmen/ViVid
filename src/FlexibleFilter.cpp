@@ -230,7 +230,7 @@ DeviceMatrixCL3D::Ptr filter_frame_cl_3(const DeviceMatrixCL::Ptr& frame,
 										const int optype){
 //	double tic0= omp_get_wtime();
     DeviceMatrixCL3D::Ptr out = makeDeviceMatrixCL3D(2, frame->height, frame->width / nchannels);
-	
+//	for(int i=0; i<1000; i++)
     dist_filter2_d3_cl(frame.get(), dim_t, nchannels, out.get(), optype);
 //	double tic1= omp_get_wtime();
 	//std::cout << "--full filter time: " << tic1 - tic0 << std::endl;

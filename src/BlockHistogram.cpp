@@ -254,7 +254,7 @@ DeviceMatrixCL::Ptr cell_histogram_dense_cl(
 #endif
 	
     DeviceMatrixCL::Ptr histogram = makeDeviceMatrixCL(n_parts_y * n_parts_x, max_bin);
-
+//		for(int i=0; i<10000; i++)
 	cell_histogram_dense_device_cl(
 		histogram.get(),
 		assignment_mat.get(),

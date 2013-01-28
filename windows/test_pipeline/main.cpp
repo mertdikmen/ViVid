@@ -149,10 +149,25 @@ int main(int argc, char* argv[])
 	DeviceMatrixCL_copyToDevice(*dmpCL, f_imData);
 
 
+/*	for(int i=0; i<20; i++)
+	{
+
+	DeviceMatrixCL3D::Ptr ff_im = fb.apply_cl(dmpCL);
+//	tic1= omp_get_wtime();
+
+	DeviceMatrixCL::Ptr block_histogram = cell_histogram_dense_cl(
+		ff_im, num_filters, 8, 0, 0, 
+		exampleImage.size().height, exampleImage.size().width);
+//	tic2= omp_get_wtime();
+
+	DeviceMatrixCL::Ptr result = clf.apply(block_histogram);
+	}
+	*/
 	double tic0, tic1, tic2, tic3;
 	tic0= omp_get_wtime();
 
-
+//	for(int i=0; i<1000; i++)
+	{
 
 	DeviceMatrixCL3D::Ptr ff_im = fb.apply_cl(dmpCL);
 	tic1= omp_get_wtime();
@@ -163,6 +178,8 @@ int main(int argc, char* argv[])
 	tic2= omp_get_wtime();
 
 	DeviceMatrixCL::Ptr result = clf.apply(block_histogram);
+	}
+
 	tic3 = omp_get_wtime();
 
 	std::cout << "full pipeline time: " << tic3 - tic0 << std::endl;
