@@ -100,6 +100,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>c:\OpenCV-2-4-3\build\include</AdditionalIncludeDirectories>
       <OpenMP>GenerateParallelCode</OpenMP>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -139,6 +140,9 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>c:\OpenCV-2-4-3\build\include</AdditionalIncludeDirectories>
       <OpenMP>GenerateParallelCode</OpenMP>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
+      <InterproceduralOptimization>NoIPO</InterproceduralOptimization>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
