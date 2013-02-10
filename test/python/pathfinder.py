@@ -7,7 +7,7 @@ import platform
 # This should be the directory we started in
 base = sys.path[0]
 def base_path(*path):
-    return os.path.normpath(os.path.join(base, "..", *path))
+    return os.path.normpath(os.path.join(base, "../..", *path))
     
 # Help us find the c++ python libraries
 if platform.system() == "Windows":
