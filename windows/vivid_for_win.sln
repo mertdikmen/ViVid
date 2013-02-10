@@ -7,26 +7,26 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vivid_dll", "..\vivid_dll\v
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Code Examples", "Code Examples", "{D8CB17F3-B512-4DB3-BF5F-576C4FB7AC9F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_basic", "test_basic\test_basic.vcxproj", "{0A270C7F-63CF-4D04-BF05-FC4BCCA9E1C7}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_basic", "..\test\cpp\test_basic\test_basic.vcxproj", "{0A270C7F-63CF-4D04-BF05-FC4BCCA9E1C7}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F561D0C8-67A3-4237-9967-D283B8FF1E9B} = {F561D0C8-67A3-4237-9967-D283B8FF1E9B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_pwdist", "test_pwdist\test_pwdist.vcxproj", "{B4389E7A-C365-42F5-BBBB-F8236D3B5293}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_pwdist", "..\test\cpp\test_pwdist\test_pwdist.vcxproj", "{B4389E7A-C365-42F5-BBBB-F8236D3B5293}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_flexiblefilter", "test_flexiblefilter\test_flexiblefilter.vcxproj", "{6A81C405-4ACB-4365-A945-62DE114755CB}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_flexiblefilter", "..\test\cpp\test_flexiblefilter\test_flexiblefilter.vcxproj", "{6A81C405-4ACB-4365-A945-62DE114755CB}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F561D0C8-67A3-4237-9967-D283B8FF1E9B} = {F561D0C8-67A3-4237-9967-D283B8FF1E9B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_blockhist", "test_blockhist\test_blockhist.vcxproj", "{39C83358-D84A-41B4-BD77-66EDB3F7F7CB}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_blockhist", "..\test\cpp\test_blockhist\test_blockhist.vcxproj", "{39C83358-D84A-41B4-BD77-66EDB3F7F7CB}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F561D0C8-67A3-4237-9967-D283B8FF1E9B} = {F561D0C8-67A3-4237-9967-D283B8FF1E9B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_pipeline", "test_pipeline\test_pipeline.vcxproj", "{8FB478E2-612D-424A-B211-BAB247EB43C2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_pipeline", "..\test\cpp\test_pipeline\test_pipeline.vcxproj", "{8FB478E2-612D-424A-B211-BAB247EB43C2}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_openmp", "..\test_openmp\test_openmp.vcxproj", "{823A8598-F71E-4922-B098-366B884AE2F8}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_openmp", "..\test\cpp\test_openmp\test_openmp.vcxproj", "{823A8598-F71E-4922-B098-366B884AE2F8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
