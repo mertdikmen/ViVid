@@ -1,6 +1,7 @@
+#include "DeviceMatrix.hpp"
 #include "BlockHistogramWrapper.hpp"
 #include "BlockHistogram.hpp"
-#include <boost/python.hpp>
+#include "boost/python.hpp"
 #include "NumPyWrapper.hpp"
 
 #ifdef _WIN32
@@ -13,9 +14,7 @@
 #define NO_IMPORT
 #include <numpy/arrayobject.h>
 
-using namespace boost::python;
-
-object cell_histogram_dense_c(object& input_mat, object& weight_mat, 
+boost::python::object cell_histogram_dense_c(boost::python::object& input_mat, boost::python::object& weight_mat, 
                              const int max_bin, const int cell_size,
                              const int margin_top, const int margin_left,
                              const int margin_bottom, const int margin_right)
@@ -67,7 +66,7 @@ object cell_histogram_dense_c(object& input_mat, object& weight_mat,
             }
         }
     }
-    handle<> temp_out(arr);
+    boost::python::handle<> temp_out(arr);
 
     double toc = omp_get_wtime();
 
@@ -76,9 +75,10 @@ object cell_histogram_dense_c(object& input_mat, object& weight_mat,
     return boost::python::object(temp_out);
 }
 
-object cell_histogram_dense(object& input_mat, object& weight_mat, 
-                             const int max_bin, const int cell_size, 
-                             object& start_inds, object& stop_inds)
+boost::python::object cell_histogram_dense(
+	boost::python::object& input_mat, boost::python::object& weight_mat, 
+	const int max_bin, const int cell_size, 
+    boost::python::object& start_inds, boost::python::object& stop_inds)
 {
     NumPyMatrix id_m(input_mat);
     NumPyMatrix wgts(weight_mat);
@@ -128,7 +128,7 @@ object cell_histogram_dense(object& input_mat, object& weight_mat,
         }
     }
     
-    handle<> temp_out(arr);
+    boost::python::handle<> temp_out(arr);
 
     double toc = omp_get_wtime();
 
@@ -141,18 +141,10 @@ object cell_histogram_dense(object& input_mat, object& weight_mat,
 
 void export_BlockHistogram()
 {
+	using namespace boost::python;
     def("cell_histogram_dense", cell_histogram_dense);
     def("cell_histogram_dense_c", cell_histogram_dense_c);
 
-    def<DeviceMatrix3D::Ptr (
-        const DeviceMatrix::Ptr&, const DeviceMatrix::Ptr&,
-        const int, const int, 
-        boost::python::object&, boost::python::object&) >
-        ("cell_histogram_dense_cuda", cell_histogram_dense_cuda);
-	
-	def<DeviceMatrixCL3D::Ptr (
-							 const DeviceMatrixCL::Ptr&, const DeviceMatrixCL::Ptr&,
-							 const int, const int, 
-							 boost::python::object&, boost::python::object&) >
-	("cell_histogram_dense_cl", cell_histogram_dense_cl);
+    /*def<DeviceMatrix3D::Ptr(const DeviceMatrix::Ptr&, const DeviceMatrix::Ptr&, const int, const int, object&, object&)>("cell_histogram_dense_cuda", cell_histogram_dense_cuda);*/
+	/*def<DeviceMatrixCL3D::Ptr(const DeviceMatrixCL::Ptr&, const DeviceMatrixCL::Ptr&, const int, const int, object&, object&>("cell_histogram_dense_cl", cell_histogram_dense_cl);*/
 }
