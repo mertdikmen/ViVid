@@ -216,33 +216,20 @@ void verify_cuda(cv::Mat& exampleImage)
 //#define NOCL
 int main(int argc, char* argv[])
 {
-	std::cout << \
-"""Basic testing for data transfer between the host <-> (opencl/cuda) devices.\n\
-Script invocation: test_basic.exe [--nocuda] [--nocl]\n\
-nocuda: don't run cuda tests\n\
-nocl: don't run opencl tests\n"""
-	<< std::endl;
-
-	for (int i = 1; i < argc; i++)
-	{
-		//if (strcmp(argv[i], "--nocuda") == 0) nocuda = true;
-		//if (strcmp(argv[i], "--nocl") == 0) nocl = true;
-	}
-
 	cv::Mat exampleImage = cv::imread(exampleImagePath, 0);
-	
+
 	//convert to float
 	exampleImage.convertTo(exampleImage, CV_32FC1);
 
 #ifndef NOCL
-		verify_opencl(exampleImage);
-		//verify_opencl3d(2, 600, 416);
-		verify_opencl3d_slice(50, 500, 400);
+	verify_opencl(exampleImage);
+	//verify_opencl3d(2, 600, 416);
+	verify_opencl3d_slice(50, 500, 400);
 #endif
 
 #ifndef NOCUDA
-		verify_cuda(exampleImage);	
-		verify_cuda3d(100,20,30);
+	verify_cuda(exampleImage);	
+	verify_cuda3d(100,20,30);
 #endif
 
 	return 0;
