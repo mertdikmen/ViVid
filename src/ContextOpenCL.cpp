@@ -8,7 +8,7 @@
  */
 
 #include "ContextOpenCL.h"
-extern int device_use;
+//extern int device_use;
 
 myContexOpenCl *  TheContext::The_Context_GPU=NULL;
 myContexOpenCl *  TheContext::The_Context_CPU=NULL;
@@ -16,7 +16,9 @@ int TheContext::type_gpu;
 
 TheContext::TheContext()
 {
-	type_gpu = device_use;
+	//type_gpu = device_use;
+	type_gpu = 1;
+
 	if (The_Context_GPU==NULL){
 		The_Context_GPU = new myContexOpenCl( CL_DEVICE_TYPE_GPU );
 		printf("\nGPU context done\n\n");
