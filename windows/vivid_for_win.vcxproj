@@ -145,7 +145,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
-    <Import Project="C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\extras\visual_studio_integration\MSBuildExtensions\CUDA 5.0.props" />
+    <Import Project="$(NVIDIA_GPU_COMPUTING_TOOLKIT_PATH)\CUDA\v5.0\extras\visual_studio_integration\MSBuildExtensions\CUDA 5.0.props" />
   </ImportGroup>
   <!--<ImportGroup Label="ExtensionSettings">
     <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 5.0.props" />
@@ -232,12 +232,12 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(BOOST_PATH);C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\include;C:\Python27\libs;C:\Python27\Lib\site-packages\numpy\core\include;C:\Python27\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(BOOST_PATH);$(NVIDIA_GPU_COMPUTING_TOOLKIT_PATH)\CUDA\v5.0\include;C:\Python27\libs;C:\Python27\Lib\site-packages\numpy\core\include;C:\Python27\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>cudart.lib;OpenCL.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(BOOST_PATH)\stage\lib;$(CUDA_LIB_PATH);C:\Program Files %28x86%29\NVIDIA GPU Computing Toolkit\CUDA\v5.0\lib\Win32;../../common/lib;C:\Python27\Lib\site-packages\numpy\core\lib;C:\Python27\libs;C:\Program Files %28x86%29\Intel\OpenCL SDK\2.0\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(BOOST_PATH)\stage\lib;$(CUDA_LIB_PATH);$(NVIDIA_GPU_COMPUTING_TOOKIT_PATH)\CUDA\v5.0\lib\Win32;../../common/lib;C:\Python27\Lib\site-packages\numpy\core\lib;C:\Python27\libs;C:\Program Files %28x86%29\Intel\OpenCL SDK\2.0\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>
       </AdditionalOptions>
       <TargetMachine>MachineX86</TargetMachine>
@@ -275,7 +275,7 @@
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\extras\visual_studio_integration\MSBuildExtensions\CUDA 5.0.targets" />
+    <Import Project="$(NVIDIA_GPU_COMPUTING_TOOLKIT_PATH)\CUDA\v5.0\extras\visual_studio_integration\MSBuildExtensions\CUDA 5.0.targets" />
   </ImportGroup>
   <!--<ImportGroup Label="ExtensionTargets">
     <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 5.0.targets" />
