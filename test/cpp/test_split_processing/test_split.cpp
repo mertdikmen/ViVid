@@ -11,11 +11,13 @@ int main(int argc, char* argv[])
 {
 	cv::Mat exampleImage = cv::imread(exampleImagePath, 0);
 
-	const int num_filters = 100;
-	const int filter_dim = 3;
+	//const int num_filters = 100;
+	//const int filter_dim = 3;
 
-	FilterBank fb(filter_dim, num_filters);
-	fb.set_on_device();
+	//FilterBank fb(filter_dim, num_filters);
+	//fb.set_on_device();
+
+	//create vivid opencl contexts
 
 
 	return 0;

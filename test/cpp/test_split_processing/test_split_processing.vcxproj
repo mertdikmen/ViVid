@@ -114,6 +114,10 @@
   <ItemGroup>
     <ClCompile Include="test_split.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\common\classifier.hpp" />
+    <ClInclude Include="..\common\filterbank.hpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -17,119 +17,79 @@ using namespace std;
 //Get an OpenCL platform
 #define NUM_ENTRIES 10
 
-struct myContexOpenCl 
+namespace vivid
 {
-	cl_platform_id cpPlatforms[NUM_ENTRIES]; 
-	cl_device_id cdDevice; 
-	cl_command_queue cqCommandQueue;
-	cl_context Context;
-	myContexOpenCl(int type)
+	class myContexOpenCl 
 	{
-		cl_uint n_devices;
-		cl_uint n_platforms;
-
-		cl_int errorcode;
-
-		if (clGetPlatformIDs(NUM_ENTRIES, cpPlatforms, &n_platforms) != CL_SUCCESS)
+	public:
+		cl_platform_id cpPlatforms[NUM_ENTRIES]; 
+		cl_device_id cdDevice; 
+		cl_command_queue cqCommandQueue;
+		cl_context Context;
+		myContexOpenCl(int type)
 		{
-			printf("clGetPlatformIDs error\n");
-		}
+			cl_uint n_devices;
+			cl_uint n_platforms;
 
-		char platform_vendors[NUM_ENTRIES][256];
-		size_t param_value_size_ret;
-		printf("OpenCL Platforms: %d\n", n_platforms);
-		for (int i = 0; i < n_platforms; i++)
-		{
-			clGetPlatformInfo(
-				cpPlatforms[i],
-				CL_PLATFORM_VENDOR,
-				256,
-				platform_vendors[i],
-				&param_value_size_ret);
-			std::cout << "Platform " << i + 1 << ": " << platform_vendors[i] << std::endl;
-		}
+			cl_int errorcode;
 
-		if(type==CL_DEVICE_TYPE_GPU)
-		{
-			printf("Getting GPU Device\n");
+			if (clGetPlatformIDs(NUM_ENTRIES, cpPlatforms, &n_platforms) != CL_SUCCESS)
+			{
+				printf("clGetPlatformIDs error\n");
+			}
+
+			char platform_vendors[NUM_ENTRIES][256];
+			size_t param_value_size_ret;
+			printf("OpenCL Platforms: %d\n", n_platforms);
 			for (int i = 0; i < n_platforms; i++)
 			{
-				if (clGetDeviceIDs(cpPlatforms[i], CL_DEVICE_TYPE_GPU, 1, &cdDevice, NULL) == CL_SUCCESS) 
-				{
-					std::cout << "Found GPU device on OpelCL platform " << i + 1 << std::endl;
-					break;
-				}
-				else if (i == n_platforms - 1)
-				{
-					std::cerr << "Cannot find GPU device" << std::endl;
-				}
+				clGetPlatformInfo(
+					cpPlatforms[i],
+					CL_PLATFORM_VENDOR,
+					256,
+					platform_vendors[i],
+					&param_value_size_ret);
+				std::cout << "Platform " << i + 1 << ": " << platform_vendors[i] << std::endl;
 			}
-		}
-		else
-		{
-			printf("Getting CPU device\n");
-			for (int i = 0; i < n_platforms; i++)
+
+			if(type==CL_DEVICE_TYPE_GPU)
 			{
-				if (clGetDeviceIDs(cpPlatforms[i], CL_DEVICE_TYPE_CPU, 1, &cdDevice, NULL) == CL_SUCCESS) 
+				printf("Getting GPU Device\n");
+				for (int i = 0; i < n_platforms; i++)
 				{
-					std::cout << "Found CPU device on OpelCL Platform " << i + 1 << std::endl;
-					break;
-				}
-				else if (i == n_platforms - 1)
-				{
-					std::cerr << "Cannot find CPU device" << std::endl;
+					if (clGetDeviceIDs(cpPlatforms[i], CL_DEVICE_TYPE_GPU, 1, &cdDevice, NULL) == CL_SUCCESS) 
+					{
+						std::cout << "Found GPU device on OpelCL platform " << i + 1 << std::endl;
+						break;
+					}
+					else if (i == n_platforms - 1)
+					{
+						std::cerr << "Cannot find GPU device" << std::endl;
+					}
 				}
 			}
-		}
-
-		printf("Making context\n");
-		Context = clCreateContext(0, 1, &cdDevice, NULL, NULL, &errorcode); 
-		if (Context == NULL) 
-		{
-			printf("clCreateContextFromType error: %d",errorcode);
-			if (errorcode == CL_INVALID_PLATFORM) 
-				printf("invalid platform\n");
-			if (errorcode == CL_INVALID_VALUE) printf("invalid value\n");
-			if (errorcode == CL_DEVICE_NOT_AVAILABLE) 
-				printf("device not available\n");
-			if (errorcode == CL_DEVICE_NOT_FOUND)
-				printf("device not found\n");
-			if (errorcode == CL_OUT_OF_HOST_MEMORY)
-				printf("out of host memory\n");
-			if (errorcode == CL_INVALID_DEVICE_TYPE) 
-				printf("invalid device type\n");
-			exit(1);
-		}
-
-		printf("Making Command Queue\n");
-		cqCommandQueue = 
-			clCreateCommandQueue(Context, cdDevice, 0, NULL);
-		if (cqCommandQueue == NULL) 
-		{
-			printf("clCreateCommandQueue error\n");
-		}
-	}
-
-	cl_device_id getDeviceCL(){
-
-		if(cdDevice==NULL){
-			if (clGetDeviceIDs(cpPlatforms[0], CL_DEVICE_TYPE_GPU, 1, 
-				&cdDevice, NULL) != CL_SUCCESS) {
-					printf("clGetDeviceIDs error\n");
+			else
+			{
+				printf("Getting CPU device\n");
+				for (int i = 0; i < n_platforms; i++)
+				{
+					if (clGetDeviceIDs(cpPlatforms[i], CL_DEVICE_TYPE_CPU, 1, &cdDevice, NULL) == CL_SUCCESS) 
+					{
+						std::cout << "Found CPU device on OpelCL Platform " << i + 1 << std::endl;
+						break;
+					}
+					else if (i == n_platforms - 1)
+					{
+						std::cerr << "Cannot find CPU device" << std::endl;
+					}
+				}
 			}
-		}
 
-		return cdDevice;
-	}
-
-	cl_context getContextCL(){
-		cl_int errorcode;
-
-		if(Context==NULL){
+			printf("Making context\n");
 			Context = clCreateContext(0, 1, &cdDevice, NULL, NULL, &errorcode); 
 			if (Context == NULL) 
 			{
-				printf("clCreateContextFromType error: ");
+				printf("clCreateContextFromType error: %d",errorcode);
 				if (errorcode == CL_INVALID_PLATFORM) 
 					printf("invalid platform\n");
 				if (errorcode == CL_INVALID_VALUE) printf("invalid value\n");
@@ -143,33 +103,69 @@ struct myContexOpenCl
 					printf("invalid device type\n");
 				exit(1);
 			}
-		}		
-		return Context;
-	}
-};
 
-class TheContext
-{
-public:
-	static myContexOpenCl* The_Context_GPU;
-	static myContexOpenCl* The_Context_CPU;
-	static int type_gpu;
-	TheContext();
-	TheContext(int cpu);
-	myContexOpenCl * getMyContext();
-	myContexOpenCl * getMyContextCPU();
-	void changeContextGPU()
+			printf("Making Command Queue\n");
+			cqCommandQueue = 
+				clCreateCommandQueue(Context, cdDevice, 0, NULL);
+			if (cqCommandQueue == NULL) 
+			{
+				printf("clCreateCommandQueue error\n");
+			}
+		}
+
+		cl_device_id getDeviceCL(){
+
+			if(cdDevice==NULL){
+				if (clGetDeviceIDs(cpPlatforms[0], CL_DEVICE_TYPE_GPU, 1, 
+					&cdDevice, NULL) != CL_SUCCESS) {
+						printf("clGetDeviceIDs error\n");
+				}
+			}
+
+			return cdDevice;
+		}
+
+		cl_context getContextCL(){
+			cl_int errorcode;
+
+			if(Context==NULL){
+				Context = clCreateContext(0, 1, &cdDevice, NULL, NULL, &errorcode); 
+				if (Context == NULL) 
+				{
+					printf("clCreateContextFromType error: ");
+					if (errorcode == CL_INVALID_PLATFORM) 
+						printf("invalid platform\n");
+					if (errorcode == CL_INVALID_VALUE) printf("invalid value\n");
+					if (errorcode == CL_DEVICE_NOT_AVAILABLE) 
+						printf("device not available\n");
+					if (errorcode == CL_DEVICE_NOT_FOUND)
+						printf("device not found\n");
+					if (errorcode == CL_OUT_OF_HOST_MEMORY)
+						printf("out of host memory\n");
+					if (errorcode == CL_INVALID_DEVICE_TYPE) 
+						printf("invalid device type\n");
+					exit(1);
+				}
+			}		
+			return Context;
+		}
+	};
+
+	class TheContext
 	{
-		type_gpu = 1;
-	}
+	public:
+		static myContexOpenCl* The_Context_GPU;
+		static myContexOpenCl* The_Context_CPU;
 
-	void changeContextCPU()
-	{
-		type_gpu = 0;
-	}
+		TheContext();
+		TheContext(int cpu);
+		myContexOpenCl * getMyContext();
+		myContexOpenCl * getMyContextCPU();
 
-	~TheContext(){};
-};
+		~TheContext(){};
+	};
+}
+
 
 //boost::shared_ptr<myContexOpenCl> myContex  (new myContexOpenCl());
 /*

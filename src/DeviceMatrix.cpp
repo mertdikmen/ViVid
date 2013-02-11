@@ -110,7 +110,7 @@ boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(size_t height, size_t width
 	mat->width = width;
 	mat->height = height;
 
-	TheContext * tc = new TheContext();
+	vivid::TheContext * tc = new vivid::TheContext();
 
 	cl_context GPUContext = tc->getMyContext()->getContextCL();
 	cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
@@ -158,7 +158,7 @@ boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(size_t height, size_t width
 void DeviceMatrixCL_copyToDevice(DeviceMatrixCL& self, const float* data)
 {
 	const int mem_size = self.height * self.pitch;
-	TheContext * tc = new TheContext();
+	vivid::TheContext * tc = new vivid::TheContext();
 
 	size_t buffer_origin[3] = {0,0,0};
 	size_t host_origin[3] = {0,0,0};	
@@ -184,7 +184,7 @@ void DeviceMatrixCL3D_copyToDevice(DeviceMatrixCL3D& self, const float* data)
 {
     if ((self.dim_x > 0) && (self.dim_y > 0) && (self.dim_t > 0)) {
 		const int mem_size = self.dim_y *self.dim_t * self.pitch_y;
-		TheContext * tc = new TheContext();
+		vivid::TheContext * tc = new vivid::TheContext();
 		
 		size_t buffer_origin[3] = {0,0,0};
 		size_t host_origin[3] = {0,0,0};	
@@ -214,7 +214,7 @@ void DeviceMatrixCL3D_copyFromDevice(const DeviceMatrixCL3D& self, float* dst)
 	
 		const int mem_size = self.dim_y *self.dim_t * self.pitch_y;
 	    	
-        TheContext * tc = new TheContext();
+        vivid::TheContext * tc = new vivid::TheContext();
 
 	 //   printf("%d x %d\n",self.pitch_y,self.pitch_t);
 
@@ -251,7 +251,7 @@ void DeviceMatrixCL_copyFromDevice(const DeviceMatrixCL& self, float* dst)
 	if ((self.width > 0) && (self.height > 0)) {
 		const int mem_size = self.height * self.pitch;
 
-		TheContext * tc = new TheContext();
+		vivid::TheContext * tc = new vivid::TheContext();
 
 		size_t buffer_origin[3] = {0,0,0};
 		size_t host_origin[3] = {0,0,0};	
@@ -438,7 +438,7 @@ DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(size_t dim_t, size_t dim_y,
 		//printf("%d  x %d  x  %d\n",dim_x,dim_y,dim_t);
 		size_t pitch;
 
-		TheContext * tc = new TheContext();
+		vivid::TheContext * tc = new vivid::TheContext();
 
 		cl_context GPUContext = tc->getMyContext()->getContextCL();
 		cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
@@ -495,7 +495,7 @@ DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3DPacked(size_t dim_t, size_t dim_y,
 	mat->dim_t = dim_t;
 	size_t pitch;
 
-	TheContext * tc = new TheContext();
+	vivid::TheContext * tc = new vivid::TheContext();
 
 	cl_context GPUContext = tc->getMyContext()->getContextCL();
 	cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();

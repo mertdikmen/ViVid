@@ -107,7 +107,7 @@ int update_filter_bank_internal_cl(float* new_filter, int filter_size){
         //std::cout << "Loading the filterbank" << std::endl;
         //printf("Value in:%05f\n",new_filter[0]);
 		
-		TheContext* tc = new TheContext();
+		vivid::TheContext* tc = new vivid::TheContext();
 		cl_context GPUContext = tc->getMyContext()->getContextCL();
 		cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
 		
@@ -416,7 +416,7 @@ void dist_filter2_d3_cl(const DeviceMatrixCL* frame,
 	const int n_blocks_y = (valid_region_w / (BLOCK_SIZE * BLOCK_MULT) + 1)* local_work_size[1];	
 	const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
 	
-	TheContext* tc = new TheContext();
+	vivid::TheContext* tc = new vivid::TheContext();
 	
     cl_context GPUContext = tc->getMyContext()->getContextCL();
     cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
@@ -496,7 +496,7 @@ void dist_filter2_d5_cl(const DeviceMatrixCL* frame,
     
     const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
 	
-	TheContext* tc = new TheContext();
+	vivid::TheContext* tc = new vivid::TheContext();
 	
     cl_context GPUContext = tc->getMyContext()->getContextCL();
     cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
@@ -554,7 +554,7 @@ void dist_filter2_d7_cl(const DeviceMatrixCL* frame,
     
     const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
 	
-	TheContext* tc = new TheContext();
+	vivid::TheContext* tc = new vivid::TheContext();
 	
     cl_context GPUContext = tc->getMyContext()->getContextCL();
     cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
@@ -617,7 +617,7 @@ void dist_filter_noargmin_cl(const DeviceMatrixCL* frame,
 	
 	
 	
-	TheContext* tc = new TheContext();
+	vivid::TheContext* tc = new vivid::TheContext();
 	
     cl_context GPUContext = tc->getMyContext()->getContextCL();
     cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
@@ -673,7 +673,7 @@ void hist_all_cells_cl(const DeviceMatrixCL3D* inds_and_weights,
     
     const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
     
-    TheContext* tc = new TheContext();
+    vivid::TheContext* tc = new vivid::TheContext();
     
     cl_context GPUContext = tc->getMyContext()->getContextCL();
     cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
