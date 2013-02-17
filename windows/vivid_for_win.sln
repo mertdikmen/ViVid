@@ -25,10 +25,16 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_blockhist", "..\test\c
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_pipeline", "..\test\cpp\test_pipeline\test_pipeline.vcxproj", "{8FB478E2-612D-424A-B211-BAB247EB43C2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F561D0C8-67A3-4237-9967-D283B8FF1E9B} = {F561D0C8-67A3-4237-9967-D283B8FF1E9B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_openmp", "..\test\cpp\test_openmp\test_openmp.vcxproj", "{823A8598-F71E-4922-B098-366B884AE2F8}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_split_processing", "..\test\cpp\test_split_processing\test_split_processing.vcxproj", "{DA938CD4-E38D-4A8D-9E1A-3FCE3FA72D10}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F561D0C8-67A3-4237-9967-D283B8FF1E9B} = {F561D0C8-67A3-4237-9967-D283B8FF1E9B}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
