@@ -10,7 +10,7 @@ using namespace cv;
 int main(int argc, char* argv[])
 {	
 	std::vector<ocl::Info> oclinfo;
-	ocl::getDevice(oclinfo, ocl::CVCL_DEVICE_TYPE_CPU);
+	ocl::getDevice(oclinfo, ocl::CVCL_DEVICE_TYPE_GPU);
 
 	std::cout << "OpenCL devices:" << std::endl;
 
@@ -28,13 +28,13 @@ int main(int argc, char* argv[])
 	ocl::setDevice(oclinfo[0], 0);
 
 	Mat image = imread(exampleImageFile);
-	cvtColor(image, image, CV_BGR2GRAY);
+	//cvtColor(image, image, CV_BGR2GRAY);
+	
 	ocl::oclMat ocl_image(image);
 	ocl::oclMat ocl_sobel_filtered;
-	
-	ocl_image.copyTo(ocl_sobel_filtered);
-	
-	//ocl::Sobel(ocl_image, ocl_sobel_filtered, 1, 1, 1, 3, 1.0, 0.0, BORDER_CONSTANT);
+
+	ocl_sobel_filtered.create(ocl_image.size(), CV_MAKETYPE(ocl_image.depth(), ocl_image.channels()));
+	ocl::Sobel(ocl_image, ocl_sobel_filtered, CV_8U, 1, 1, 3, 1.0, 0.0, BORDER_CONSTANT);
 	cv::Mat sobel_filtered(ocl_sobel_filtered);
 
 	imshow("test", sobel_filtered);
