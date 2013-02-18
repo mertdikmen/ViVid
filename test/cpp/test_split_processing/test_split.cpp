@@ -37,8 +37,6 @@ void parse_config(std::string config_filename, std::string& cpu_platform, std::s
 	
 	config_stream.close();
 	
-
-
 }
 
 int main(int argc, char* argv[])
@@ -49,11 +47,22 @@ int main(int argc, char* argv[])
 
 	parse_config(config_filename, cpu_platform, gpu_platform);
 	
-	cv::Mat exampleImage = cv::imread(exampleImagePath, 0);
-
-	std::cout << "CPU Platform: " << cpu_platform << std::endl;
-	std::cout << "GPU Platform: " << gpu_platform << std::endl;
+	std::cout << "Config: CPU Platform: " << cpu_platform << std::endl;
+	std::cout << "Config: GPU Platform: " << gpu_platform << std::endl;
 	
+	vivid::TheContext opencl_context(cpu_platform, gpu_platform);
+
+	//pull the data
+	cv::Mat exampleImage = cv::imread(exampleImagePath, 0);
+	float* f_imData = (float*) exampleImage.data;
+	DeviceMatrixCL::Ptr dmpCL_cpu = 
+		makeDeviceMatrixCL(exampleImage.size().height, exampleImage.size().width, VIVID_CL_CONTEXT_CPU);
+	DeviceMatrixCL_copyToDevice(*dmpCL_cpu, f_imData);
+
+	//DeviceMatrixCL::Ptr dmpCL_gpu = 
+	//	makeDeviceMatrixCL(exampleImage.size().height, exampleImage.size().width, VIVID_CL_CONTEXT_GPU);
+	//DeviceMatrixCL_copyToDevice(*dmpCL_gpu, f_imData);
+
 	//const int num_filters = 100;
 	//const int filter_dim = 3;
 

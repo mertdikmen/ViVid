@@ -18,7 +18,7 @@ namespace vivid
 	ContexOpenCl* TheContext::The_Context_GPU=NULL;
 	ContexOpenCl* TheContext::The_Context_CPU=NULL;
 
-	TheContext::TheContext()
+	TheContext::TheContext(std::string cpu_platform, std::string gpu_platform)
 	{
 		if ((The_Context_GPU!=NULL) && (The_Context_CPU !=NULL))
 		{ 
@@ -41,14 +41,23 @@ namespace vivid
 		}
 
 		if (The_Context_GPU==NULL){
-			printf("Getting GPU Device\n");
+			printf("\nGetting GPU Device\n");
 			for (int i = 0; i < n_platforms; i++)
 			{
 				if (clGetDeviceIDs(cpPlatforms[i], CL_DEVICE_TYPE_GPU, 1, &cdDevice, NULL) == CL_SUCCESS) 
 				{
 					std::cout << "Found GPU device on OpelCL platform " << i + 1 << std::endl;
-					The_Context_GPU = new ContexOpenCl(cdDevice);
-					break;
+					if ( (strcmp(gpu_platform.c_str(), "") == 0) ||
+						 (strcmp(gpu_platform.c_str(), platform_vendors[i]) == 0) )
+					{
+						std::cout << "Creating context." << std::endl;
+						The_Context_GPU = new ContexOpenCl(cdDevice);
+						break;
+					}
+					else 
+					{
+						std::cout << "Does not match config: " << gpu_platform.c_str() << ". Skipping." << std::endl;
+					}
 				}
 				else if (i == n_platforms - 1)
 				{
@@ -58,14 +67,23 @@ namespace vivid
 		}
 
 		if (The_Context_CPU==NULL){
-			printf("Getting CPU device\n");
+			printf("\nGetting CPU device\n");
 			for (int i = 0; i < n_platforms; i++)
 			{
 				if (clGetDeviceIDs(cpPlatforms[i], CL_DEVICE_TYPE_CPU, 1, &cdDevice, NULL) == CL_SUCCESS) 
 				{
 					std::cout << "Found CPU device on OpelCL Platform " << i + 1 << std::endl;
-					The_Context_CPU = new ContexOpenCl(cdDevice);
-					break;
+					if ( (strcmp(cpu_platform.c_str(), "") == 0) ||
+						 (strcmp(cpu_platform.c_str(), platform_vendors[i]) == 0) )
+					{
+						std::cout << "Creating context." << std::endl;
+						The_Context_CPU = new ContexOpenCl(cdDevice);
+						break;
+					}
+					else 
+					{
+						std::cout << "Does not match config: " << cpu_platform.c_str() << ". Skipping." << std::endl;
+					}
 				}
 				else if (i == n_platforms - 1)
 				{

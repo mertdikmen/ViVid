@@ -110,7 +110,6 @@ int update_filter_bank_internal_cl(float* new_filter, int filter_size){
 		vivid::TheContext* tc = new vivid::TheContext();
 		cl_context GPUContext = tc->getMyContext()->getContextCL();
 		cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
-		
 		MyKernels *kernels = new MyKernels(GPUContext,cdDevice);
 		
 		cl_int err;

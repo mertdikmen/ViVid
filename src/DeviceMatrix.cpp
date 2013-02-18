@@ -104,7 +104,7 @@ boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(DeviceMatrixCL3D& src, cons
 	return boost::shared_ptr<DeviceMatrixCL>(mat, deleteDeviceMatrixCL);
 }
 
-boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(size_t height, size_t width)
+boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(size_t height, size_t width, int target_device)
 {
 	DeviceMatrixCL* mat = new DeviceMatrixCL();
 	mat->width = width;
@@ -112,7 +112,9 @@ boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(size_t height, size_t width
 
 	vivid::TheContext * tc = new vivid::TheContext();
 
-	cl_context GPUContext = tc->getMyContext()->getContextCL();
+	mat->my_context = tc->getMyContext(target_device);
+
+	cl_context CLContext = tc->getMyContext()->getContextCL();
 	cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
 
 	/*The optimal pitch is computed by (1) getting the base address alignment
@@ -146,7 +148,7 @@ boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(size_t height, size_t width
 
 	int err;
 
-	mat->dataMatrix = clCreateBuffer(GPUContext, CL_MEM_READ_WRITE, mem_size, NULL, &err);
+	mat->dataMatrix = clCreateBuffer(CLContext, CL_MEM_READ_WRITE, mem_size, NULL, &err);
 	if(err!=0)
 	{
 		printf("Error Code create buffer: %d\n",err);

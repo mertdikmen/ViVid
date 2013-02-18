@@ -14,6 +14,9 @@
 
 using namespace std;
 
+#define VIVID_CL_CONTEXT_GPU 0
+#define VIVID_CL_CONTEXT_CPU 1
+
 #define OPENCL_CALL(call) do {\
 	cl_int err = call; \
 	if(CL_SUCCESS!= err) { \
@@ -112,9 +115,15 @@ namespace vivid
 		static ContexOpenCl* The_Context_GPU;
 		static ContexOpenCl* The_Context_CPU;
 
-		TheContext();
+		TheContext(std::string cpu_platform = "", std::string gpu_platform = "");
 		//TheContext(int cpu);
-		ContexOpenCl * getMyContext(){return The_Context_GPU;}
+		ContexOpenCl * getMyContext(int target_device = VIVID_CL_CONTEXT_GPU)
+		{
+			if (target_device == VIVID_CL_CONTEXT_GPU)
+				return The_Context_GPU;
+			else if (target_device == VIVID_CL_CONTEXT_CPU)
+				return The_Context_CPU;
+		}
 		//myContexOpenCl * getMyContextCPU();
 
 		~TheContext(){};

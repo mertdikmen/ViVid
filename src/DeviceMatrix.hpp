@@ -11,6 +11,8 @@
 #include <vector>
 #include "ContextOpenCL.h"
 
+
+
 struct DeviceMatrix {
   typedef boost::shared_ptr<DeviceMatrix> Ptr;
   typedef std::vector<Ptr> PtrList;
@@ -41,10 +43,12 @@ struct DeviceMatrixCL {
 	
     cl_mem dataMatrix;
 
+	vivid::ContexOpenCl* my_context;
+
     void zero();
 };
 
-DeviceMatrixCL::Ptr makeDeviceMatrixCL(size_t height, size_t width);
+DeviceMatrixCL::Ptr makeDeviceMatrixCL(size_t height, size_t width, int target_device = VIVID_CL_CONTEXT_CPU);
 
 void DeviceMatrixCL_copyToDevice(DeviceMatrixCL& self, const float* data);
 void DeviceMatrixCL_copyFromDevice(const DeviceMatrixCL& self, float* dst);
