@@ -14,79 +14,32 @@
 
 using namespace std;
 
-//Get an OpenCL platform
-#define NUM_ENTRIES 10
+#define OPENCL_CALL(call) do {\
+	cl_int err = call; \
+	if(CL_SUCCESS!= err) { \
+	printf("clGetPlatformIDs error\n");	\
+	} } while (0)
 
 namespace vivid
 {
-	class myContexOpenCl 
+	class ContexOpenCl 
 	{
 	public:
-		cl_platform_id cpPlatforms[NUM_ENTRIES]; 
-		cl_device_id cdDevice; 
-		cl_command_queue cqCommandQueue;
 		cl_context Context;
-		myContexOpenCl(int type)
+		cl_command_queue cqCommandQueue;
+		cl_device_id cdDevice;
+
+		ContexOpenCl(cl_device_id _cdDevice): cdDevice(_cdDevice)
 		{
-			cl_uint n_devices;
-			cl_uint n_platforms;
+			char device_name[256];
+			OPENCL_CALL(clGetDeviceInfo(cdDevice, CL_DEVICE_NAME, 256, device_name, NULL));
 
+			printf("Making the context on device %s\n", device_name);
+			
 			cl_int errorcode;
-
-			if (clGetPlatformIDs(NUM_ENTRIES, cpPlatforms, &n_platforms) != CL_SUCCESS)
-			{
-				printf("clGetPlatformIDs error\n");
-			}
-
-			char platform_vendors[NUM_ENTRIES][256];
-			size_t param_value_size_ret;
-			printf("OpenCL Platforms: %d\n", n_platforms);
-			for (int i = 0; i < n_platforms; i++)
-			{
-				clGetPlatformInfo(
-					cpPlatforms[i],
-					CL_PLATFORM_VENDOR,
-					256,
-					platform_vendors[i],
-					&param_value_size_ret);
-				std::cout << "Platform " << i + 1 << ": " << platform_vendors[i] << std::endl;
-			}
-
-			if(type==CL_DEVICE_TYPE_GPU)
-			{
-				printf("Getting GPU Device\n");
-				for (int i = 0; i < n_platforms; i++)
-				{
-					if (clGetDeviceIDs(cpPlatforms[i], CL_DEVICE_TYPE_GPU, 1, &cdDevice, NULL) == CL_SUCCESS) 
-					{
-						std::cout << "Found GPU device on OpelCL platform " << i + 1 << std::endl;
-						break;
-					}
-					else if (i == n_platforms - 1)
-					{
-						std::cerr << "Cannot find GPU device" << std::endl;
-					}
-				}
-			}
-			else
-			{
-				printf("Getting CPU device\n");
-				for (int i = 0; i < n_platforms; i++)
-				{
-					if (clGetDeviceIDs(cpPlatforms[i], CL_DEVICE_TYPE_CPU, 1, &cdDevice, NULL) == CL_SUCCESS) 
-					{
-						std::cout << "Found CPU device on OpelCL Platform " << i + 1 << std::endl;
-						break;
-					}
-					else if (i == n_platforms - 1)
-					{
-						std::cerr << "Cannot find CPU device" << std::endl;
-					}
-				}
-			}
-
-			printf("Making context\n");
+			
 			Context = clCreateContext(0, 1, &cdDevice, NULL, NULL, &errorcode); 
+			
 			if (Context == NULL) 
 			{
 				printf("clCreateContextFromType error: %d",errorcode);
@@ -114,18 +67,19 @@ namespace vivid
 		}
 
 		cl_device_id getDeviceCL(){
-
+			/*
 			if(cdDevice==NULL){
 				if (clGetDeviceIDs(cpPlatforms[0], CL_DEVICE_TYPE_GPU, 1, 
 					&cdDevice, NULL) != CL_SUCCESS) {
 						printf("clGetDeviceIDs error\n");
 				}
 			}
-
+			*/
 			return cdDevice;
 		}
 
 		cl_context getContextCL(){
+			/*
 			cl_int errorcode;
 
 			if(Context==NULL){
@@ -146,7 +100,8 @@ namespace vivid
 						printf("invalid device type\n");
 					exit(1);
 				}
-			}		
+			}
+			*/
 			return Context;
 		}
 	};
@@ -154,15 +109,19 @@ namespace vivid
 	class TheContext
 	{
 	public:
-		static myContexOpenCl* The_Context_GPU;
-		static myContexOpenCl* The_Context_CPU;
+		static ContexOpenCl* The_Context_GPU;
+		static ContexOpenCl* The_Context_CPU;
 
 		TheContext();
-		TheContext(int cpu);
-		myContexOpenCl * getMyContext();
-		myContexOpenCl * getMyContextCPU();
+		//TheContext(int cpu);
+		ContexOpenCl * getMyContext(){return The_Context_GPU;}
+		//myContexOpenCl * getMyContextCPU();
 
 		~TheContext(){};
+
+		cl_uint n_devices;
+		cl_uint n_platforms;
+
 	};
 }
 
