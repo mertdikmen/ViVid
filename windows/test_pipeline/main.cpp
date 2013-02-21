@@ -142,7 +142,7 @@ int main(int argc, char* argv[])
 	else
 		std::cout << "running on GPU" <<std::endl;
 	std::cout << "Image dimensions:" << exampleImage.size().height <<" "<< exampleImage.size().width <<std::endl;
-
+	
 	//pull the data
 	float* f_imData = (float*) exampleImage.data;
 	DeviceMatrixCL::Ptr dmpCL = makeDeviceMatrixCL(exampleImage.size().height, exampleImage.size().width);
