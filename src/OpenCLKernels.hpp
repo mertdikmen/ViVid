@@ -51,7 +51,7 @@ struct theKernels {
 		GPUContext_K = GPUContext;
 		cdDevice_K   = cdDevice;
 		if(device_use)
-			createKernel("pairwiseDistanceKernel","../../../src/E_PairwiseDistance.cl",0);
+			createKernel("pairwiseDistanceKernel","../../../src/CPU_PairwiseDistance.cl",0);
 		else
 			createKernel("pairwiseDistanceKernel","../../../src/CPU_PairwiseDistance.cl",0);
 		createKernel("argminKernel","../../../src/argminKernel.cl",1);
@@ -126,8 +126,25 @@ class MyKernels{
 public:
 	static theKernels*  My_Kernels;
 	static theKernels*  My_Kernels_TMP;
+	static theKernels*  My_Kernels_CPU;
+	static theKernels*  My_Kernels_GPU;
 	MyKernels(cl_context GPUContext_K1,
 		cl_device_id cdDevice_K1);
+	static void initKernelsCPU(cl_context GPUContext_K1,
+		cl_device_id cdDevice_K1)
+	{
+		if (My_Kernels_CPU==NULL){
+        //	printf("Is NULL");
+        My_Kernels_CPU = new theKernels(GPUContext_K1,cdDevice_K1);
+		}
+	}
+	static void initKernelsGPU(cl_context GPUContext_K1,
+		cl_device_id cdDevice_K1) {
+			if (My_Kernels_GPU==NULL){
+        //	printf("Is NULL");
+        My_Kernels_GPU = new theKernels(GPUContext_K1,cdDevice_K1);
+		}
+	}
 
 	MyKernels(cl_context GPUContext_K1,
 		cl_device_id cdDevice_K1,int cpu);

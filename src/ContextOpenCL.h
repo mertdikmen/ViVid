@@ -11,7 +11,7 @@
 #include <sys/stat.h>
 #include <error.h>
 #include <CL/cl.h>
-
+#include "OpenCLKernels.hpp"
 using namespace std;
 
 //Get an OpenCL platform
@@ -161,11 +161,13 @@ public:
 	void changeContextGPU()
 	{
 		type_gpu = 1;
+		MyKernels::My_Kernels = MyKernels::My_Kernels_GPU;
 	}
 
 	void changeContextCPU()
 	{
 		type_gpu = 0;
+		MyKernels::My_Kernels = MyKernels::My_Kernels_CPU;
 	}
 
 	~TheContext(){};

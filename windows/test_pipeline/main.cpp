@@ -116,12 +116,15 @@ private:
 
 int main(int argc, char* argv[])
 {
-	device_use = 0;
+	device_use = 1;
 	if(argc>1)
 		device_use = atoi(argv[1]);
 	
 
 	static char* exampleImagePath = "..\\..\\..\\media\\kewell1.jpg";
+
+	TheContext *t=new TheContext();
+	t->changeContextGPU();
 
 	//create a random filterbank
 	const int num_filters = 100;
@@ -148,8 +151,28 @@ int main(int argc, char* argv[])
 	DeviceMatrixCL::Ptr dmpCL = makeDeviceMatrixCL(exampleImage.size().height, exampleImage.size().width);
 	DeviceMatrixCL_copyToDevice(*dmpCL, f_imData);
 
+	// on CPU for classifier
+	// change contex
+	
+	t->changeContextCPU();
+	Classifier clf2(128, 64, 8, 2, num_filters);
+	DeviceMatrixCL::Ptr dmpCL2 = makeDeviceMatrixCL(exampleImage.size().height, exampleImage.size().width);
+	DeviceMatrixCL_copyToDevice(*dmpCL2, f_imData);
+	printf("*** before loop\n");
+	FilterBank fb2(filter_dim, num_filters);
+	fb2.set_on_device();
+	DeviceMatrixCL3D::Ptr ff_im2 = fb2.apply_cl(dmpCL2);
+	
+	DeviceMatrixCL::Ptr block_histogram2 = cell_histogram_dense_cl(
+		ff_im2, num_filters, 8, 0, 0, 
+		exampleImage.size().height, exampleImage.size().width);
+	t->changeContextGPU();
 
-/*	for(int i=0; i<20; i++)
+	
+	double tic0, tic1, tic2, tic3;
+	tic0= omp_get_wtime();
+
+	for(int i=0; i<1000; i++)
 	{
 
 	DeviceMatrixCL3D::Ptr ff_im = fb.apply_cl(dmpCL);
@@ -159,33 +182,17 @@ int main(int argc, char* argv[])
 		ff_im, num_filters, 8, 0, 0, 
 		exampleImage.size().height, exampleImage.size().width);
 //	tic2= omp_get_wtime();
-
-	DeviceMatrixCL::Ptr result = clf.apply(block_histogram);
-	}
-	*/
-	double tic0, tic1, tic2, tic3;
-	tic0= omp_get_wtime();
-
-//	for(int i=0; i<1000; i++)
-	{
-
-	DeviceMatrixCL3D::Ptr ff_im = fb.apply_cl(dmpCL);
-	tic1= omp_get_wtime();
-
-	DeviceMatrixCL::Ptr block_histogram = cell_histogram_dense_cl(
-		ff_im, num_filters, 8, 0, 0, 
-		exampleImage.size().height, exampleImage.size().width);
-	tic2= omp_get_wtime();
-
-	DeviceMatrixCL::Ptr result = clf.apply(block_histogram);
+	t->changeContextCPU();
+	DeviceMatrixCL::Ptr result = clf2.apply(block_histogram2);
+	t->changeContextGPU();
 	}
 
 	tic3 = omp_get_wtime();
 
 	std::cout << "full pipeline time: " << tic3 - tic0 << std::endl;
-	std::cout << "filter pipeline time: " << tic1 - tic0 << std::endl;
-	std::cout << "histogram pipeline time: " << tic2 - tic1 << std::endl;
-	std::cout << "classifier pipeline time: " << tic3 - tic2 << std::endl;
+//	std::cout << "filter pipeline time: " << tic1 - tic0 << std::endl;
+//	std::cout << "histogram pipeline time: " << tic2 - tic1 << std::endl;
+//	std::cout << "classifier pipeline time: " << tic3 - tic2 << std::endl;
 
 	return 0;
 }

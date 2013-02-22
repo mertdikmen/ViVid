@@ -11,6 +11,9 @@
 
 theKernels *  MyKernels::My_Kernels=NULL;
 theKernels *  MyKernels::My_Kernels_TMP=NULL;
+theKernels *  MyKernels::My_Kernels_CPU=NULL;
+theKernels *  MyKernels::My_Kernels_GPU=NULL;
+
 MyKernels::MyKernels(cl_context GPUContext1,
         cl_device_id cdDevice1){
     //	printf("Te Context()");

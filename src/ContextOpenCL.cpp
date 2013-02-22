@@ -8,6 +8,7 @@
  */
 
 #include "ContextOpenCL.h"
+
 extern int device_use;
 
 myContexOpenCl *  TheContext::The_Context_GPU=NULL;
@@ -16,16 +17,21 @@ int TheContext::type_gpu;
 
 TheContext::TheContext()
 {
-	type_gpu = device_use;
+	// type_gpu = device_use;
 	if (The_Context_GPU==NULL){
 		The_Context_GPU = new myContexOpenCl( CL_DEVICE_TYPE_GPU );
 		printf("\nGPU context done\n\n");
+		MyKernels::initKernelsGPU(The_Context_GPU->getContextCL(), The_Context_GPU->getDeviceCL() );
 	}
 	
 	if (The_Context_CPU==NULL){
 		 The_Context_CPU = new myContexOpenCl( CL_DEVICE_TYPE_CPU );
 		 printf("\nCPU context done\n\n");
+		 MyKernels::initKernelsCPU(The_Context_CPU->getContextCL(), The_Context_CPU->getDeviceCL() );
 	}
+	
+	
+	//printf("-------init done---\n");
 }
 
 TheContext::TheContext(int cpu)
