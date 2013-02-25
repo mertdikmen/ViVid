@@ -1,3 +1,6 @@
+#ifndef CONTEXTOPENCL_H
+#define CONTEXTOPENCL_H
+
 #pragma once
 
 #include <stdio.h>
@@ -25,6 +28,8 @@ using namespace std;
 
 namespace vivid
 {
+	void print_cl_error(cl_int errorcode);
+
 	class ContexOpenCl 
 	{
 	public:
@@ -61,8 +66,11 @@ namespace vivid
 			}
 
 			printf("Making Command Queue\n");
-			cqCommandQueue = 
-				clCreateCommandQueue(Context, cdDevice, 0, NULL);
+			cqCommandQueue = clCreateCommandQueue(Context, cdDevice, 0, &errorcode);
+			if (errorcode != CL_SUCCESS)
+			{
+				printf("clCreateCommandQueue error\n");
+			}
 			if (cqCommandQueue == NULL) 
 			{
 				printf("clCreateCommandQueue error\n");
@@ -70,18 +78,21 @@ namespace vivid
 		}
 
 		cl_device_id getDeviceCL(){
-			/*
 			if(cdDevice==NULL){
-				if (clGetDeviceIDs(cpPlatforms[0], CL_DEVICE_TYPE_GPU, 1, 
-					&cdDevice, NULL) != CL_SUCCESS) {
-						printf("clGetDeviceIDs error\n");
-				}
+				printf("Device == NULL\n");
+				//if (clGetDeviceIDs(cpPlatforms[0], CL_DEVICE_TYPE_GPU, 1, 
+				//	&cdDevice, NULL) != CL_SUCCESS) {
+				//		printf("clGetDeviceIDs error\n");
+				//}
 			}
-			*/
 			return cdDevice;
 		}
 
 		cl_context getContextCL(){
+			if (Context == NULL)
+			{
+				printf("Context == NULL\n");
+			}
 			/*
 			cl_int errorcode;
 
@@ -116,8 +127,9 @@ namespace vivid
 		static ContexOpenCl* The_Context_CPU;
 
 		TheContext(std::string cpu_platform = "", std::string gpu_platform = "");
+		TheContext(int target_device);
 		//TheContext(int cpu);
-		ContexOpenCl * getMyContext(int target_device = VIVID_CL_CONTEXT_GPU)
+		ContexOpenCl* getMyContext(int target_device = VIVID_CL_CONTEXT_GPU)
 		{
 			if (target_device == VIVID_CL_CONTEXT_GPU)
 				return The_Context_GPU;
@@ -134,6 +146,7 @@ namespace vivid
 	};
 }
 
+#endif
 
 //boost::shared_ptr<myContexOpenCl> myContex  (new myContexOpenCl());
 /*

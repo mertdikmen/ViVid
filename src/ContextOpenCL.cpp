@@ -15,8 +15,34 @@
 
 namespace vivid
 {
+	void print_cl_error(cl_int errorcode)
+	{
+		switch (errorcode)
+		{
+		case -34:
+			printf("OpenCL Error: Invalid Context\n");
+			break;
+		default:
+			printf("OpenCL Error: Unknown error code\n");
+			break;
+		}
+	}
+
 	ContexOpenCl* TheContext::The_Context_GPU=NULL;
 	ContexOpenCl* TheContext::The_Context_CPU=NULL;
+
+	TheContext::TheContext(int target_device)
+	{
+		if ((target_device == VIVID_CL_CONTEXT_CPU) && (The_Context_CPU == NULL))
+		{
+			printf("Requested CPU context does not exist\n");
+		}
+		if ((target_device == VIVID_CL_CONTEXT_GPU) && (The_Context_GPU == NULL))
+		{
+			printf("Requested GPU context does not exist\n");
+		}
+
+	}
 
 	TheContext::TheContext(std::string cpu_platform, std::string gpu_platform)
 	{
@@ -59,10 +85,10 @@ namespace vivid
 						std::cout << "Does not match config: " << gpu_platform.c_str() << ". Skipping." << std::endl;
 					}
 				}
-				else if (i == n_platforms - 1)
-				{
-					std::cerr << "Cannot find GPU device" << std::endl;
-				}
+			}
+			if (The_Context_GPU == NULL)
+			{
+				printf("No GPU Context created\n");
 			}
 		}
 
