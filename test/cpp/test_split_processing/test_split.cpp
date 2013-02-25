@@ -17,8 +17,7 @@ void parse_config(std::string config_filename, std::string& cpu_platform, std::s
 	std::ifstream config_stream(config_filename.c_str());
 	bpo::options_description desc("Options");
 	desc.add_options()
-		("CPUContext.platform", 
-		 bpo::value<std::string>(&cpu_platform)->default_value("Intel"), "CPU platform")
+		("CPUContext.platform", bpo::value<std::string>(&cpu_platform)->default_value("Intel(R) Corporation"), "CPU platform")
 		("GPUContext.platform", 
 		 bpo::value<std::string>(&gpu_platform)->default_value("NVIDIA"), "GPU platform");
 
@@ -54,9 +53,12 @@ int main(int argc, char* argv[])
 
 	//pull the data
 	cv::Mat exampleImage = cv::imread(exampleImagePath, 0);
-	float* f_imData = (float*) exampleImage.data;
+	cv::Mat f_exampleImage;
+	exampleImage.convertTo(f_exampleImage, CV_32FC1);
+
+	float* f_imData = (float*) f_exampleImage.data;
 	DeviceMatrixCL::Ptr dmpCL_cpu = 
-		makeDeviceMatrixCL(exampleImage.size().height, exampleImage.size().width, VIVID_CL_CONTEXT_CPU);
+		makeDeviceMatrixCL(f_exampleImage.size().height, f_exampleImage.size().width, VIVID_CL_CONTEXT_CPU);
 	DeviceMatrixCL_copyToDevice(*dmpCL_cpu, f_imData);
 
 	//DeviceMatrixCL::Ptr dmpCL_gpu = 
@@ -70,6 +72,10 @@ int main(int argc, char* argv[])
 	//fb.set_on_device();
 
 	//create vivid opencl contexts
-	
+
+	std::cout << "Press any key to end." << std::endl;
+	string test;
+	std::cin >> test;
+
 	return 0;
 }

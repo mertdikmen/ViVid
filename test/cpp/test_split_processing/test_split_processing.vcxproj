@@ -84,7 +84,8 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(BOOST_HOME)\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\dependencies;$(INTELOCLSDKROOT)\lib\x64;..\..\..\lib\$(Platform)\$(Configuration);$(NVIDIA_GPU_COMPUTING_TOOLKIT_PATH)\CUDA\v5.0\lib\x64;$(BOOST_HOME)\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opencv_imgproc243d.lib;opencv_core243d.lib;opencv_highgui243d.lib;OpenCL.lib;vivid_d.lib;cudart.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
