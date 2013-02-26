@@ -206,11 +206,11 @@ DeviceMatrix3D::Ptr get_cell_histograms_cuda(const DeviceMatrix3D::Ptr& inds_and
 //	printf("WARNING! Not using atomics!\n");
 #endif
 
-    int frame_height = inds_and_weights->dim_y;
-    int frame_width = inds_and_weights->dim_x;
+    int frame_height = (int) inds_and_weights->dim_y;
+    int frame_width = (int) inds_and_weights->dim_x;
 
-    int n_cells_y = ( frame_height - offset_y ) / cell_size;
-    int n_cells_x = ( frame_width - offset_x ) / cell_size;
+    int n_cells_y = int( frame_height - offset_y ) / cell_size;
+    int n_cells_x = int( frame_width - offset_x ) / cell_size;
 
     DeviceMatrix3D::Ptr out = makeDeviceMatrix3D(n_cells_y, n_cells_x, n_bins);
     out->zero();
@@ -428,34 +428,23 @@ void dist_filter2_d3_cl(const DeviceMatrixCL* frame,
 	
 	cl_kernel theKernel= kernels->getBlockWiseDistanceKernel();
 	
-	cl_int err;
-	err=0;
-	
-    err =  parameters_blockwise_distance_kernel(theKernel, frame, output,
+	OPENCL_CALL(parameters_blockwise_distance_kernel(theKernel, frame, output,
 												frame_width,frame_height,3,optype,
 												kernels->getMyKernels()->c_FilterBank,
-                                                dim_t);	
+                                                dim_t));
 //  	double tic1 = omp_get_wtime();
 //	std::cout << "OpenCL init filter kernel time: " << tic1 - tic0 << std::endl;
-    if (err != CL_SUCCESS) {
-		vivid::print_cl_error(err);
-        exit(1);
-    }
 	
 //	double tic = omp_get_wtime();
 	//for(int i=0; i<1000; i++)
 	{
-		err = clEnqueueNDRangeKernel(context->getCommandQueue(), 
+		OPENCL_CALL(clEnqueueNDRangeKernel(context->getCommandQueue(), 
 								 theKernel, 2, NULL, 
-								 global_work_size, local_work_size, 0, NULL, NULL);
-		err = clFinish(context->getCommandQueue()); // to make sure the kernel completed
+								 global_work_size, local_work_size, 0, NULL, NULL));
+		OPENCL_CALL(clFinish(context->getCommandQueue())); // to make sure the kernel completed
 	}
 //	double toc = omp_get_wtime();
 //	std::cout << "OpenCL filter kernel time: " << toc - tic << std::endl;
-    if (err) {
-		vivid::print_cl_error(err);
-        exit(1);
-    }
 }
 
 void dist_filter2_d5_cl(const DeviceMatrixCL* frame,
@@ -492,9 +481,9 @@ void dist_filter2_d5_cl(const DeviceMatrixCL* frame,
 	const size_t local_work_size[2] = {BLOCK_SIZE, BLOCK_SIZE}; 
 	
 	
-	const int n_blocks_x = (valid_region_h / (BLOCK_SIZE * BLOCK_MULT) + 1)* local_work_size[0];
+	const int n_blocks_x = int(valid_region_h / (BLOCK_SIZE * BLOCK_MULT) + 1)* local_work_size[0];
 	
-	const int n_blocks_y = (valid_region_w / (BLOCK_SIZE * BLOCK_MULT) + 1)* local_work_size[1];
+	const int n_blocks_y = int(valid_region_w / (BLOCK_SIZE * BLOCK_MULT) + 1)* local_work_size[1];
     
     const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
 	
