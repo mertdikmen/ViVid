@@ -185,12 +185,7 @@ void pwdist_genericCL(const DeviceMatrixCL* features_train,
 	assert(features_train->my_context == features_test->my_context);
 	vivid::ContexOpenCl* context = features_train->my_context;
 
-    // Creates the program
-    // Uses NVIDIA helper functions to get the code string and it's size (in bytes)
-  	
-	MyKernels *kernels = new MyKernels(context->getContextCL(),context->getDeviceCL());
-	
-	cl_kernel theKernel= kernels->getPairwiseDistanceKernel();
+	cl_kernel theKernel= context->getKernels()->getPairwiseDistanceKernel();
 	cl_int err;
 	err=0;
 	
@@ -245,8 +240,7 @@ void pwdist_eucCL(const DeviceMatrixCL* features_train,
 	assert(features_train->my_context == features_test->my_context);
 	vivid::ContexOpenCl* context = features_train->my_context;
 
-  	MyKernels *kernels = new MyKernels(context->getContextCL(),context->getDeviceCL());
-	cl_kernel theKernel= kernels->getPairwiseDistanceKernel();
+	cl_kernel theKernel= context->getKernels()->getPairwiseDistanceKernel();
 	cl_int err;
 	err=0;
 	int f_pitch=0;
@@ -295,7 +289,7 @@ void pwdist_eucCL(const DeviceMatrixCL* features_train,
 		err = clEnqueueNDRangeKernel(context->getCommandQueue(), 
             theKernel, 2, NULL, 
             global_work_size, local_work_size, 0, NULL, NULL);
-		clFinish(context->getCommandQueue());// to make sure the kernel completed
+		//clFinish(context->getCommandQueue());// to make sure the kernel completed
 	}
 //	double toc = omp_get_wtime();
 //	std::cout << "OpenCL time: " << toc - tic << std::endl;
@@ -376,10 +370,7 @@ void argmin_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
 	
     // Creates the program
     // Uses NVIDIA helper functions to get the code string and it's size (in bytes)
-  	
-	MyKernels *kernels = new MyKernels(context->getContextCL(),context->getDeviceCL());
-	
-	cl_kernel theKernel= kernels->getArgminKernel();
+	cl_kernel theKernel= context->getKernels()->getArgminKernel();
 	
 	
 	cl_int err;
@@ -409,12 +400,7 @@ void argmax_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
 	assert(matrix->my_context == output->my_context);   
 	vivid::ContexOpenCl* context = matrix->my_context;
 
-    // Creates the program
-    // Uses NVIDIA helper functions to get the code string and it's size (in bytes)
-  	
-	MyKernels *kernels = new MyKernels(context->getContextCL(),context->getDeviceCL());
-	
-	cl_kernel theKernel= kernels->getArgmaxKernel();
+	cl_kernel theKernel= context->getKernels()->getArgmaxKernel();
 	
 	
 	cl_int err;
@@ -453,9 +439,8 @@ void max_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
     // Creates the program
     // Uses NVIDIA helper functions to get the code string and it's size (in bytes)
   	
-	MyKernels *kernels = new MyKernels(context->getContextCL(),context->getDeviceCL());
 	
-	cl_kernel theKernel= kernels->getMaxKernel();
+	cl_kernel theKernel= context->getKernels()->getMaxKernel();
 	
 	cl_int err;
 	err=0;
@@ -494,9 +479,8 @@ void min_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
     // Creates the program
     // Uses NVIDIA helper functions to get the code string and it's size (in bytes)
   	
-	MyKernels *kernels = new MyKernels(context->getContextCL(),context->getDeviceCL());
 	
-	cl_kernel theKernel= kernels->getMinKernel();
+	cl_kernel theKernel= context->getKernels()->getMinKernel();
 	
 	
 	cl_int err;

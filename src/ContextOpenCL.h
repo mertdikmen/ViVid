@@ -1,6 +1,5 @@
 #ifndef CONTEXTOPENCL_H
 #define CONTEXTOPENCL_H
-
 #pragma once
 
 #include <stdio.h>
@@ -15,23 +14,24 @@
 #include <error.h>
 #include <CL/cl.h>
 #include "cl_exceptions.hpp"
+#include "OpenCLTypes.hpp"
+#include "OpenCLKernels.hpp"
 
 using namespace std;
 
 namespace vivid
 {
-	enum DeviceType { DEVICE_GPU = CL_DEVICE_TYPE_GPU, DEVICE_CPU = CL_DEVICE_TYPE_CPU };
-
 	class ContexOpenCl 
 	{
 	public:
-		ContexOpenCl(cl_device_id _device_id, cl_platform_id _platform_id);
+		ContexOpenCl(cl_device_id _device_id, cl_platform_id _platform_id, DeviceType _device_type);
 
 		cl_device_id getDeviceCL(){ return deviceId; }
 		cl_context getContextCL(){ return context; }
 		cl_platform_id getPlatform(){ return platformId; }
 		cl_command_queue getCommandQueue() { return commandQueue; }
 		DeviceType getDeviceType() { return device_type; }
+		ViVidCLKernels* getKernels() { return kernels; }
 	private:
 		cl_context context;
 		cl_command_queue commandQueue;
@@ -39,6 +39,8 @@ namespace vivid
 		cl_device_id deviceId;
 
 		DeviceType device_type;
+
+		ViVidCLKernels* kernels;
 	};
 
 	class CLContextSource

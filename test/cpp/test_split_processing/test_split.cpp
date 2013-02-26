@@ -7,6 +7,8 @@
 #include "classifier.hpp"
 #include "filterbank.hpp"
 
+#include "omp.h"
+
 namespace bpo = boost::program_options;
 
 static char* exampleImagePath = "..\\..\\..\\media\\kewell1.jpg";
@@ -55,39 +57,49 @@ int main(int argc, char* argv[])
 	exampleImage.convertTo(f_exampleImage, CV_32FC1);
 
 	float* f_imData = (float*) f_exampleImage.data;
-	DeviceMatrixCL::Ptr dmpCL_cpu = 
-		makeDeviceMatrixCL(f_exampleImage.size().height, f_exampleImage.size().width, vivid::DEVICE_CPU);
-	DeviceMatrixCL_copyToDevice(*dmpCL_cpu, f_imData);
-
 	DeviceMatrixCL::Ptr dmpCL_gpu = 
 		makeDeviceMatrixCL(f_exampleImage.size().height, exampleImage.size().width, vivid::DEVICE_GPU);
 	DeviceMatrixCL_copyToDevice(*dmpCL_gpu, f_imData);
 
+	cv::resize(f_exampleImage, f_exampleImage, cv::Size(f_exampleImage.cols * 2, f_exampleImage.rows * 2));
+	f_imData = (float*) f_exampleImage.data;	
+	DeviceMatrixCL::Ptr dmpCL_cpu = 
+		makeDeviceMatrixCL(f_exampleImage.size().height, f_exampleImage.size().width, vivid::DEVICE_CPU);
+	DeviceMatrixCL_copyToDevice(*dmpCL_cpu, f_imData);
+
 	const int num_filters = 100;
 	const int filter_dim = 3;
-
+	
 	FilterBank fb_cpu(filter_dim, num_filters);
 	fb_cpu.set_on_device(vivid::DEVICE_CPU);
-
-	FilterBank fb_gpu(filter_dim, num_filters);
-	fb_gpu.set_on_device(vivid::DEVICE_GPU);
-
 	Classifier clf_cpu(128, 64, 8, 2, num_filters, vivid::DEVICE_CPU);
+	
+	FilterBank fb_gpu(filter_dim, num_filters);
+	fb_gpu.set_on_device(vivid::DEVICE_GPU);	
 	Classifier clf_gpu(128, 64, 8, 2, num_filters, vivid::DEVICE_GPU);
+	
+	double tic = omp_get_wtime();
 
-	DeviceMatrixCL3D::Ptr ff_im_cpu = fb_cpu.apply_cl(dmpCL_cpu);
-	DeviceMatrixCL3D::Ptr ff_im_gpu = fb_gpu.apply_cl(dmpCL_gpu);
+	for (int i = 1000; i > 0; i--)
+	{
+		DeviceMatrixCL3D::Ptr ff_im_cpu = fb_cpu.apply_cl(dmpCL_cpu);
+		DeviceMatrixCL::Ptr block_histogram_cpu = cell_histogram_dense_cl(
+			ff_im_cpu, num_filters, 8, 0, 0, 
+			exampleImage.size().height, exampleImage.size().width);
+		DeviceMatrixCL::Ptr result_cpu = clf_cpu.apply(block_histogram_cpu);
 
-	DeviceMatrixCL::Ptr block_histogram_cpu = cell_histogram_dense_cl(
-		ff_im_cpu, num_filters, 8, 0, 0, 
-		exampleImage.size().height, exampleImage.size().width);
+		DeviceMatrixCL3D::Ptr ff_im_gpu = fb_gpu.apply_cl(dmpCL_gpu);
+		DeviceMatrixCL::Ptr block_histogram_gpu = cell_histogram_dense_cl(
+			ff_im_gpu, num_filters, 8, 0, 0, 
+			exampleImage.size().height, exampleImage.size().width);
+		DeviceMatrixCL::Ptr result_gpu = clf_gpu.apply(block_histogram_gpu);
+		
+		clFinish(cl_context_source.getContext(vivid::DEVICE_CPU)->getCommandQueue());
+		clFinish(cl_context_source.getContext(vivid::DEVICE_GPU)->getCommandQueue());
+	}
+	double toc = omp_get_wtime();
 
-	DeviceMatrixCL::Ptr block_histogram_gpu = cell_histogram_dense_cl(
-		ff_im_gpu, num_filters, 8, 0, 0, 
-		exampleImage.size().height, exampleImage.size().width);
-
-	DeviceMatrixCL::Ptr result_cpu = clf_cpu.apply(block_histogram_cpu);
-	DeviceMatrixCL::Ptr result_gpu = clf_gpu.apply(block_histogram_gpu);
+	std::cout << "Total runtime: " << toc - tic << std::endl;
 
 	std::cout << "Press ENTER to end." << std::endl;
 	std::cin.ignore( std::numeric_limits <std::streamsize> ::max(), '\n' );

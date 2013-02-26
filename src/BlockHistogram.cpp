@@ -93,7 +93,9 @@ void cell_histogram_dense_device_cl(
 	assert(histogram->my_context == assignments->my_context);
 	assert(weights->my_context == assignments->my_context);
 	vivid::ContexOpenCl* context = weights->my_context;
-	MyKernels *kernels = new MyKernels(context->getContextCL(),context->getDeviceCL());
+	cl_kernel theKernel = context->getKernels()->getCellHistogramKernel3();
+	
+	//MyKernels *kernels = new MyKernels(context->getContextCL(),context->getDeviceCL());
 
 	histogram->zero();
 	
@@ -109,32 +111,15 @@ void cell_histogram_dense_device_cl(
 	
 	assert(histogram->width == max_bin);
 		
-	
-	
-	//cl_kernel theKernel = kernels->getCellHistogramKernel2();
-	cl_kernel theKernel = kernels->getCellHistogramKernel3();
-	
-	cl_int err;
-	err=0;
-	
-    err =  parameters_histogram_dense2(
+		
+    OPENCL_CALL(parameters_histogram_dense2(
 		theKernel, histogram, assignments,
-		weights, max_bin, cell_size, n_parts_x, start_y, start_x);	
-  	
-    if (err != CL_SUCCESS) {
-		vivid::print_cl_error(err);
-        exit(1);
-    }
-	
-	err = clEnqueueNDRangeKernel(context->getCommandQueue(), theKernel, 2, NULL, 
-								 global_work_size, local_work_size, 0, NULL, NULL);
-	clFinish(context->getCommandQueue());// to make sure the kernel completed
+		weights, max_bin, cell_size, n_parts_x, start_y, start_x));
 
-    if (err) 
-	{ 
-		vivid::print_cl_error(err);
-        exit(1);
-    }
+	OPENCL_CALL(clEnqueueNDRangeKernel(context->getCommandQueue(), theKernel, 2, NULL, 
+								 global_work_size, local_work_size, 0, NULL, NULL));
+	//clFinish(context->getCommandQueue());// to make sure the kernel completed
+
 }
 
 void cell_histogram_dense_device_cl(DeviceMatrixCL3D* histogram,
@@ -148,7 +133,7 @@ void cell_histogram_dense_device_cl(DeviceMatrixCL3D* histogram,
 	assert(histogram->my_context == assignments->my_context);
 	assert(weights->my_context == assignments->my_context);
 	vivid::ContexOpenCl* context = weights->my_context;
-	MyKernels *kernels = new MyKernels(context->getContextCL(),context->getDeviceCL());
+	cl_kernel theKernel = context->getKernels()->getCellHistogramKernel2();
 
 	histogram->zero();
 	
@@ -165,29 +150,16 @@ void cell_histogram_dense_device_cl(DeviceMatrixCL3D* histogram,
 	
 	assert(histogram->dim_x == max_bin);
 	
-	cl_kernel theKernel= kernels->getCellHistogramKernel2();
-	
-	cl_int err;
-	err=0;
-	
-    err =  parameters_histogram_dense(theKernel, histogram, assignments,
+	OPENCL_CALL(parameters_histogram_dense(theKernel, histogram, assignments,
 												weights,max_bin,cell_size,start_y,
-												start_x);	
+												start_x));
   	
-    if (err != CL_SUCCESS) {
-		vivid::print_cl_error(err);
-        exit(1);
-    }
-	
-	err = clEnqueueNDRangeKernel(context->getCommandQueue(), 
-								 theKernel, 2, NULL, 
-								 global_work_size, local_work_size, 0, NULL, NULL);
-	clFinish(context->getCommandQueue());// to make sure the kernel completed
 
-    if (err) {
-		vivid::print_cl_error(err);
-        exit(1);
-    }
+	OPENCL_CALL(clEnqueueNDRangeKernel(context->getCommandQueue(), 
+								 theKernel, 2, NULL, 
+								 global_work_size, local_work_size, 0, NULL, NULL));
+
+	//clFinish(context->getCommandQueue());// to make sure the kernel completed
 }
 
 #endif

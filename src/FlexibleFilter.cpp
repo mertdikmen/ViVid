@@ -104,12 +104,9 @@ int update_filter_bank_internal_cl(float* new_filter, int filter_size, vivid::De
     }
     else 
 	{
-		
 		vivid::CLContextSource* tc = new vivid::CLContextSource();
 		vivid::ContexOpenCl* context = tc->getContext(device_type);
 
-		MyKernels *kernels = new MyKernels(context->getContextCL(),context->getDeviceCL());
-		
 		cl_int err;
 		// padding for SIMD
 		cl_mem filter_mem =  clCreateBuffer(context->getContextCL(), CL_MEM_READ_ONLY, sizeof(float) * (filter_size+8),     
@@ -121,7 +118,7 @@ int update_filter_bank_internal_cl(float* new_filter, int filter_size, vivid::De
         if (err != 0)
             std::cout << "Error loading the filterbank: CL error: " << err << std::endl;
 
-		kernels->getMyKernels()->c_FilterBank=filter_mem;
+		context->getKernels()->c_FilterBank = filter_mem;
 		
         return 0;
     }
@@ -423,14 +420,12 @@ void dist_filter2_d3_cl(const DeviceMatrixCL* frame,
 	
     // Creates the program
     // Uses NVIDIA helper functions to get the code string and it's size (in bytes)
-  	
-	MyKernels *kernels = new MyKernels(context->getContextCL(),context->getDeviceCL());
-	
-	cl_kernel theKernel= kernels->getBlockWiseDistanceKernel();
+
+	cl_kernel theKernel = context->getKernels()->getBlockWiseDistanceKernel();
 	
 	OPENCL_CALL(parameters_blockwise_distance_kernel(theKernel, frame, output,
 												frame_width,frame_height,3,optype,
-												kernels->getMyKernels()->c_FilterBank,
+												context->getKernels()->c_FilterBank,
                                                 dim_t));
 //  	double tic1 = omp_get_wtime();
 //	std::cout << "OpenCL init filter kernel time: " << tic1 - tic0 << std::endl;
@@ -441,7 +436,7 @@ void dist_filter2_d3_cl(const DeviceMatrixCL* frame,
 		OPENCL_CALL(clEnqueueNDRangeKernel(context->getCommandQueue(), 
 								 theKernel, 2, NULL, 
 								 global_work_size, local_work_size, 0, NULL, NULL));
-		OPENCL_CALL(clFinish(context->getCommandQueue())); // to make sure the kernel completed
+		//OPENCL_CALL(clFinish(context->getCommandQueue())); // to make sure the kernel completed
 	}
 //	double toc = omp_get_wtime();
 //	std::cout << "OpenCL filter kernel time: " << toc - tic << std::endl;
@@ -491,17 +486,14 @@ void dist_filter2_d5_cl(const DeviceMatrixCL* frame,
 	
     // Creates the program
     // Uses NVIDIA helper functions to get the code string and it's size (in bytes)
-  	
-	MyKernels *kernels = new MyKernels(context->getContextCL(),context->getDeviceCL());
-	
-	cl_kernel theKernel= kernels->getBlockWiseDistanceKernel();
+	cl_kernel theKernel= context->getKernels()->getBlockWiseDistanceKernel();
 	
 	cl_int err;
 	err=0;
 	
     err =  parameters_blockwise_distance_kernel(theKernel, frame, output,
 												frame_width,frame_height,5,optype,
-												kernels->getMyKernels()->c_FilterBank,
+												context->getKernels()->c_FilterBank,
                                                 dim_t);	
   	
     if (err != CL_SUCCESS) {
@@ -544,34 +536,16 @@ void dist_filter2_d7_cl(const DeviceMatrixCL* frame,
     
     const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
 	
-    // Creates the program
-    // Uses NVIDIA helper functions to get the code string and it's size (in bytes)
-	MyKernels *kernels = new MyKernels(context->getContextCL(),context->getDeviceCL());
+	cl_kernel theKernel= context->getKernels()->getBlockWiseDistanceKernel();
 	
-	cl_kernel theKernel= kernels->getBlockWiseDistanceKernel();
-	
-	cl_int err;
-	err=0;
-	
-    err =  parameters_blockwise_distance_kernel(theKernel, frame, output,
+    OPENCL_CALL(parameters_blockwise_distance_kernel(theKernel, frame, output,
 												frame_width,frame_height,7,optype,
-												kernels->getMyKernels()->c_FilterBank,
-                                                dim_t);	
+												context->getKernels()->c_FilterBank,
+                                                dim_t));
   	
-    if (err != CL_SUCCESS) {
-		vivid::print_cl_error(err);
-        exit(1);
-    }
-	
-	
-	err = clEnqueueNDRangeKernel(context->getCommandQueue(), 
+	OPENCL_CALL(clEnqueueNDRangeKernel(context->getCommandQueue(), 
 								 theKernel, 2, NULL, 
-								 global_work_size, local_work_size, 0, NULL, NULL);
-	
-    if (err) {
-        vivid::print_cl_error(err);
-        exit(1);
-    }
+								 global_work_size, local_work_size, 0, NULL, NULL));
 }
 
 //new dist filter implementation
@@ -601,37 +575,18 @@ void dist_filter_noargmin_cl(const DeviceMatrixCL* frame,
     
     const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
 	
+	cl_kernel theKernel= context->getKernels()->getBlockWiseFilterKernel();
 	
-    // Creates the program
-    // Uses NVIDIA helper functions to get the code string and it's size (in bytes)
-  	MyKernels *kernels = new MyKernels(context->getContextCL(),context->getDeviceCL());
-	
-	cl_kernel theKernel= kernels->getBlockWiseFilterKernel();
-	
-	cl_int err;
-	err=0;
-	
-    err =  parameters_blockwise_filter_kernel(theKernel, frame, output,frame_width,
+    OPENCL_CALL(parameters_blockwise_filter_kernel(theKernel, frame, output,frame_width,
 											  frame_height,apron_lo_y,apron_lo_x,
 											  apron_hi_y,apron_hi_x,nchannels,optype,
-											  kernels->getMyKernels()->c_FilterBank);
+											  context->getKernels()->c_FilterBank));
 	
-  	
-    if (err != CL_SUCCESS) {
-		vivid::print_cl_error(err);
-        exit(1);
-    }
-	
-	
-	err = clEnqueueNDRangeKernel(context->getCommandQueue(), 
+	OPENCL_CALL(clEnqueueNDRangeKernel(context->getCommandQueue(), 
 								 theKernel, 2, NULL, 
-								 global_work_size, local_work_size, 0, NULL, NULL);
+								 global_work_size, local_work_size, 0, NULL, NULL));
 	
-    if (err) {
-		vivid::print_cl_error(err);
-        exit(1);
-    }
-}
+ }
 
 void hist_all_cells_cl(const DeviceMatrixCL3D* inds_and_weights,
                     DeviceMatrixCL3D* output,
@@ -653,10 +608,7 @@ void hist_all_cells_cl(const DeviceMatrixCL3D* inds_and_weights,
     
     // Creates the program
     // Uses NVIDIA helper functions to get the code string and it's size (in bytes)
-
-	MyKernels *kernels = new MyKernels(context->getContextCL(),context->getDeviceCL());
-    
-	cl_kernel theKernel= kernels->getCellHistogramKernel();
+	cl_kernel theKernel= context->getKernels()->getCellHistogramKernel();
     
     cl_int err;
     err=0;

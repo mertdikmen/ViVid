@@ -10,10 +10,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <error.h>
-#include "ContextOpenCL.h"
+#include "OpenCLTypes.hpp"
 
-static char* load_program_source(const char *filename) {
-
+static char* load_program_source(const char *filename) 
+{
 	struct stat statbuf;
 	FILE *fh;
 	char *source;
@@ -30,6 +30,34 @@ static char* load_program_source(const char *filename) {
 	return source;
 }
 
+class ViVidCLKernels
+{
+public:
+	cl_mem  c_FilterBank;
+
+	ViVidCLKernels(cl_context context, vivid::DeviceType device_type);
+	void createKernel(cl_context, const char* kernel, const char* path, int indice);
+
+	cl_kernel getPairwiseDistanceKernel(){ return kernel_list[0];}
+	cl_kernel getArgminKernel(){ return kernel_list[1];}
+	cl_kernel getArgmaxKernel(){ return kernel_list[2];}
+	cl_kernel getMinKernel(){ return kernel_list[3];}
+	cl_kernel getMaxKernel(){ return kernel_list[4];}
+	cl_kernel getBlockWiseDistanceKernel(){ return kernel_list[5];}
+	cl_kernel getBlockWiseFilterKernel(){return kernel_list[6];}
+	cl_kernel getCellHistogramKernel(){ return kernel_list[7];}
+	cl_kernel getCellHistogramKernel1(){ return kernel_list[8];}
+	cl_kernel getCellHistogramKernel2(){ return kernel_list[9];}
+	cl_kernel getCellHistogramKernel3(){ return kernel_list[10];}
+
+private:
+	cl_kernel kernel_list[50];
+	cl_program program_list[50]; 
+	cl_device_id cdDevice_K;
+	cl_mem constant_kernel;
+};
+
+/*
 struct theKernels {
 	cl_kernel kernel_list[50];
 	cl_program program_list[50]; 
@@ -101,7 +129,11 @@ struct theKernels {
 		}
 	}
 };
+*/
 
+
+
+/*
 class MyKernels{
 public:
 	static theKernels*  My_Kernels;
@@ -148,3 +180,5 @@ public:
 
 	~MyKernels_CPU(){};
 };
+
+*/

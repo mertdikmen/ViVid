@@ -169,6 +169,7 @@
     <ClInclude Include="..\src\FlexibleFilter.hpp" />
     <ClInclude Include="..\src\FlexibleFilterLocal.hpp" />
     <ClInclude Include="..\src\OpenCLKernels.hpp" />
+    <ClInclude Include="..\src\OpenCLTypes.hpp" />
     <ClInclude Include="..\src\PairwiseDistance.hpp" />
     <ClInclude Include="..\src\PairwiseDistanceLocal.hpp" />
     <ClInclude Include="vivid.hpp" />

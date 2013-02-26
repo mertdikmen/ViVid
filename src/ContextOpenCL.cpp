@@ -29,6 +29,9 @@ namespace vivid
 			{
 				print_cl_error(errorcode);
 			}
+
+			printf("Loading the kernels\n");
+			kernels = new ViVidCLKernels(context, device_type);
 	}
 
 	ContexOpenCl* setup_cl_platform(std::string platform_vendor, DeviceType device_type)

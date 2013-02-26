@@ -73,11 +73,7 @@ void DeviceMatrix_copyFromDevice(const DeviceMatrix& self, float* dst)
 
 static void deleteDeviceMatrixCL(DeviceMatrixCL* mat)
 {
-	cl_int err = clReleaseMemObject(mat->dataMatrix);
-	if (err)
-	{
-		printf("Error releasing DeviceMatrixCL object (CL Error: %d", err);
-	}
+	OPENCL_CALL(clReleaseMemObject(mat->dataMatrix));
 
 	delete mat;
 }
@@ -90,6 +86,7 @@ boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(DeviceMatrixCL3D& src, cons
 	DeviceMatrixCL* mat = new DeviceMatrixCL();
 	mat->width = width;
 	mat->height = height;
+	mat->my_context = src.my_context;
 
 	//size_t mem_size = width * height 
 
@@ -98,10 +95,7 @@ boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(DeviceMatrixCL3D& src, cons
 	cl_int err;
 
 	mat->dataMatrix = clCreateSubBuffer(src.dataMatrix, CL_MEM_READ_WRITE, CL_BUFFER_CREATE_TYPE_REGION, buffer_region, &err);
-	if (err != CL_SUCCESS)
-	{
-		printf("Error creating buffer\n");
-	}
+	CHECK_CL_ERROR(err);
 
 	mat->pitch = src.pitch_y;
 
@@ -148,10 +142,7 @@ boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(size_t height, size_t width
 	int err;
 
 	mat->dataMatrix = clCreateBuffer(mat->my_context->getContextCL(), CL_MEM_READ_WRITE, mem_size, NULL, &err);
-	if(err!=CL_SUCCESS)
-	{
-		vivid::print_cl_error(err);
-	}
+	CHECK_CL_ERROR(err);
 
 	return boost::shared_ptr<DeviceMatrixCL>(mat, deleteDeviceMatrixCL);
 }
