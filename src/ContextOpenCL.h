@@ -31,12 +31,14 @@ namespace vivid
 		cl_context getContextCL(){ return context; }
 		cl_platform_id getPlatform(){ return platformId; }
 		cl_command_queue getCommandQueue() { return commandQueue; }
-
+		DeviceType getDeviceType() { return device_type; }
 	private:
 		cl_context context;
 		cl_command_queue commandQueue;
 		cl_platform_id platformId;
 		cl_device_id deviceId;
+
+		DeviceType device_type;
 	};
 
 	class CLContextSource

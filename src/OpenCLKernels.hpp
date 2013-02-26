@@ -1,12 +1,4 @@
 #pragma once
-/*
-*  OpenCLKernels.hpp
-*  
-*
-*  Created by Antonio García Martín on 09/07/12.
-*  Copyright 2012 __MyCompanyName__. All rights reserved.
-*
-*/
 #include "CL/cl.h"
 #include <stdio.h>
 #include <iostream>
@@ -18,6 +10,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <error.h>
+#include "ContextOpenCL.h"
 
 static char* load_program_source(const char *filename) {
 
@@ -40,28 +33,30 @@ static char* load_program_source(const char *filename) {
 struct theKernels {
 	cl_kernel kernel_list[50];
 	cl_program program_list[50]; 
-	cl_context my_context;
+	vivid::ContexOpenCl* my_context;
 	cl_device_id cdDevice_K;
 	cl_mem  c_FilterBank;
 	cl_mem constant_kernel;
-	theKernels(vivid::ContexOpenCl* context, cl_device_id cdDevice)
+
+	theKernels(vivid::ContexOpenCl* context)
 	{
-		my_context = context->getContextCL();
-		
-		
-		cdDevice_K   = cdDevice;
-		
+		my_context = context;
+	
+		if (my_context->getDeviceType() == vivid::DEVICE_GPU)
 			createKernel("pairwiseDistanceKernel","../../../src/E_PairwiseDistance.cl",0);
-		//else
+		else if (my_context->getDeviceType() == vivid::DEVICE_CPU)
 			createKernel("pairwiseDistanceKernel","../../../src/CPU_PairwiseDistance.cl",0);
+
 		createKernel("argminKernel","../../../src/argminKernel.cl",1);
 		createKernel("argmaxKernel","../../../src/argmaxKernel.cl",2);
 		createKernel("minKernel","../../../src/minKernel.cl",3);
 		createKernel("maxKernel","../../../src/maxKernel.cl",4);
-		//if(device_use)
+		
+		if (my_context->getDeviceType() == vivid::DEVICE_GPU)
 			createKernel("blockwise_distance_kernel","../../../src/E_blockwise_distance_kernel.cl",5);
-		//else
+		else if (my_context->getDeviceType() == vivid::DEVICE_CPU)
 			createKernel("blockwise_distance_kernel","../../../src/CPU_blockwise_distance_kernel.cl",5);
+		
 		createKernel("blockwise_filter_kernel","../../../src/blockwise_filter_kernel.cl",6);
 		createKernel("cell_histogram_kernel","../../../src/cell_histogram_kernel.cl",7);
 		createKernel("cellHistogramKernel1","../../../src/cellHistogramKernel1.cl",8);
@@ -70,23 +65,8 @@ struct theKernels {
 	}
 
 	void createKernel(const char* kernel, const char* path, int indice){
-
-		//	TheContext* tc = new TheContext();
-
-		//	cl_context GPUContext_K = tc->getMyContext()->getContextCL();
-		//	cl_device_id cdDevice_K = tc->getMyContext()->getDeviceCL();
-
-		// Creates the program
-		// Uses NVIDIA helper functions to get the code string and it's size (in bytes)
-		//size_t src_size = 0;
-
         char full_path[256];
-
-#ifdef _VIVID_STATIC_LIB
-        sprintf(full_path, "%s", path);
-#else
-        sprintf(full_path, "%s", path);
-#endif
+		sprintf(full_path, "%s", path);
 
 		char *program_source = load_program_source(full_path);
 		if (program_source == NULL) {
@@ -95,7 +75,7 @@ struct theKernels {
 		}
 		cl_int err;
 
-		program_list[indice] = clCreateProgramWithSource(GPUContext_K, 1, (const char **) &program_source, NULL, &err);
+		program_list[indice] = clCreateProgramWithSource(my_context->getContextCL(), 1, (const char **) &program_source, NULL, &err);
 		if (!program_list[indice]) {
 			printf("Error: Failed to create compute program for device %d Kernel: (%s)!\n", indice,kernel);
 			printf("************\n%s\n************\n", program_source);

@@ -5,8 +5,8 @@ namespace vivid
 	ContexOpenCl* CLContextSource::The_Context_GPU=NULL;
 	ContexOpenCl* CLContextSource::The_Context_CPU=NULL;
 
-	ContexOpenCl::ContexOpenCl(cl_device_id _device_id, cl_platform_id _platform_id): 
-		deviceId(_device_id), platformId(_platform_id)
+	ContexOpenCl::ContexOpenCl(cl_device_id _device_id, cl_platform_id _platform_id, DeviceType _device_type): 
+		deviceId(_device_id), platformId(_platform_id), device_type(_device_type)
 	{
 			char device_name[256];
 			OPENCL_CALL(clGetDeviceInfo(deviceId, CL_DEVICE_NAME, 256, device_name, NULL));
@@ -54,7 +54,7 @@ namespace vivid
 			if ((clGetDeviceIDs(cpPlatforms[i], device_type, 1, &cdDevice, NULL) == CL_SUCCESS) &&
 				(strcmp(platform_vendor.c_str(), platform_vendors[i]) == 0))
 			{
-				return new ContexOpenCl(cdDevice, cpPlatforms[i]);
+				return new ContexOpenCl(cdDevice, cpPlatforms[i], device_type);
 			}
 		}
 

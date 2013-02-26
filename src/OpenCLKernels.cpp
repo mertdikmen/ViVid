@@ -3,9 +3,9 @@
 theKernels *  MyKernels::My_Kernels=NULL;
 theKernels *  MyKernels::My_Kernels_TMP=NULL;
 
-MyKernels::MyKernels(cl_context GPUContext1, cl_device_id cdDevice1){
+MyKernels::MyKernels(vivid::ContexOpenCl* context){
     if (My_Kernels==NULL){
-        My_Kernels = new theKernels(GPUContext1,cdDevice1);
+        My_Kernels = new theKernels(context);
     }
 }
 
