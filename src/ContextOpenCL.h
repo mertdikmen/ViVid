@@ -14,136 +14,54 @@
 #include <sys/stat.h>
 #include <error.h>
 #include <CL/cl.h>
+#include "cl_exceptions.hpp"
 
 using namespace std;
 
-#define VIVID_CL_CONTEXT_GPU 0
-#define VIVID_CL_CONTEXT_CPU 1
-
-#define OPENCL_CALL(call) do {\
-	cl_int err = call; \
-	if(CL_SUCCESS!= err) { \
-		vivid::print_cl_error(err);	\
-	} } while (0)
-
 namespace vivid
 {
-	enum DeviceType { DEVICE_GPU = CL_DEVICE_TYPE_GPU, DEVICE_CPU = CL_DEVICE_TYPE_GPU };
-	typedef std::pair<cl_platform_id, cl_device_id> PlatformDevicePair;
-
-	void print_cl_error(cl_int errorcode);
+	enum DeviceType { DEVICE_GPU = CL_DEVICE_TYPE_GPU, DEVICE_CPU = CL_DEVICE_TYPE_CPU };
 
 	class ContexOpenCl 
 	{
 	public:
-		cl_context Context;
-		cl_command_queue cqCommandQueue;
-		cl_device_id cdDevice;
+		ContexOpenCl(cl_device_id _device_id, cl_platform_id _platform_id);
 
-		ContexOpenCl(cl_device_id _cdDevice): cdDevice(_cdDevice)
-		{
-			char device_name[256];
-			OPENCL_CALL(clGetDeviceInfo(cdDevice, CL_DEVICE_NAME, 256, device_name, NULL));
+		cl_device_id getDeviceCL(){ return deviceId; }
+		cl_context getContextCL(){ return context; }
+		cl_platform_id getPlatform(){ return platformId; }
+		cl_command_queue getCommandQueue() { return commandQueue; }
 
-			printf("Making the context on device %s\n", device_name);
-			
-			cl_int errorcode;
-			
-			Context = clCreateContext(0, 1, &cdDevice, NULL, NULL, &errorcode); 
-			
-			if (Context == NULL) 
-			{
-				printf("clCreateContextFromType error: %d",errorcode);
-				print_cl_error(errorcode);
-				exit(1);
-			}
-
-			printf("Making Command Queue\n");
-			cqCommandQueue = clCreateCommandQueue(Context, cdDevice, 0, &errorcode);
-			if (errorcode != CL_SUCCESS)
-			{
-				printf("clCreateCommandQueue error\n");
-			}
-			if (cqCommandQueue == NULL) 
-			{
-				printf("clCreateCommandQueue error\n");
-			}
-		}
-
-		cl_device_id getDeviceCL(){
-			if(cdDevice==NULL){
-				printf("Device == NULL\n");
-				//if (clGetDeviceIDs(cpPlatforms[0], CL_DEVICE_TYPE_GPU, 1, 
-				//	&cdDevice, NULL) != CL_SUCCESS) {
-				//		printf("clGetDeviceIDs error\n");
-				//}
-			}
-			return cdDevice;
-		}
-
-		cl_context getContextCL(){
-			if (Context == NULL)
-			{
-				printf("Context == NULL\n");
-			}
-			/*
-			cl_int errorcode;
-
-			if(Context==NULL){
-				Context = clCreateContext(0, 1, &cdDevice, NULL, NULL, &errorcode); 
-				if (Context == NULL) 
-				{
-					printf("clCreateContextFromType error: ");
-					if (errorcode == CL_INVALID_PLATFORM) 
-						printf("invalid platform\n");
-					if (errorcode == CL_INVALID_VALUE) printf("invalid value\n");
-					if (errorcode == CL_DEVICE_NOT_AVAILABLE) 
-						printf("device not available\n");
-					if (errorcode == CL_DEVICE_NOT_FOUND)
-						printf("device not found\n");
-					if (errorcode == CL_OUT_OF_HOST_MEMORY)
-						printf("out of host memory\n");
-					if (errorcode == CL_INVALID_DEVICE_TYPE) 
-						printf("invalid device type\n");
-					exit(1);
-				}
-			}
-			*/
-			return Context;
-		}
+	private:
+		cl_context context;
+		cl_command_queue commandQueue;
+		cl_platform_id platformId;
+		cl_device_id deviceId;
 	};
 
 	class CLContextSource
 	{
 	public:
 		CLContextSource(std::string cpu_platform = "", std::string gpu_platform = "");
-		//CLContextSource(int target_device);
-		//TheContext(int cpu);
-		ContexOpenCl* getMyContext(int target_device = VIVID_CL_CONTEXT_GPU)
+
+		~CLContextSource(){};
+
+		ContexOpenCl* getContext(DeviceType target_device)
 		{
 			switch (target_device)
 			{
-			case VIVID_CL_CONTEXT_CPU:
+			case DEVICE_CPU:
 				return The_Context_CPU;
-			case VIVID_CL_CONTEXT_GPU:
+			case DEVICE_GPU:
 				return The_Context_GPU;
 			default:
 				return NULL;
 			}
 		}
-		//myContexOpenCl * getMyContextCPU();
-
-		~CLContextSource(){};
-
-		cl_uint n_devices;
-		cl_uint n_platforms;
 
 	private:
 		static ContexOpenCl* The_Context_GPU;
 		static ContexOpenCl* The_Context_CPU;
-
-		static cl_platform_id cpu_platform;
-		static cl_platform_id gpu_platform;
 	};
 }
 

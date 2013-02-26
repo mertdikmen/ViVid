@@ -48,7 +48,8 @@ struct DeviceMatrixCL {
     void zero();
 };
 
-DeviceMatrixCL::Ptr makeDeviceMatrixCL(size_t height, size_t width, int target_device = VIVID_CL_CONTEXT_CPU);
+DeviceMatrixCL::Ptr makeDeviceMatrixCL(size_t height, size_t width, vivid::DeviceType target_device);
+DeviceMatrixCL::Ptr makeDeviceMatrixCL(size_t height, size_t width, vivid::ContexOpenCl* dst_context);
 
 void DeviceMatrixCL_copyToDevice(DeviceMatrixCL& self, const float* data);
 void DeviceMatrixCL_copyFromDevice(const DeviceMatrixCL& self, float* dst);
@@ -75,15 +76,13 @@ struct DeviceMatrix3D {
     void zero();
 };
 
-DeviceMatrix3D::Ptr makeDeviceMatrix3D(size_t dim_t, size_t dim_y, 
-                                       size_t dim_x);
+DeviceMatrix3D::Ptr makeDeviceMatrix3D(size_t dim_t, size_t dim_y, size_t dim_x);
 
 void DeviceMatrix3D_copyToDevice(DeviceMatrix3D& self, const float* data);
 void DeviceMatrix3D_copyFromDevice(const DeviceMatrix3D& self, float* dst);
 
 //! Create a DeviceMatrix3D that has no padding
-DeviceMatrix3D::Ptr makeDeviceMatrix3DPacked(size_t dim_t, size_t dim_y, 
-                                             size_t dim_x);
+DeviceMatrix3D::Ptr makeDeviceMatrix3DPacked(size_t dim_t, size_t dim_y, size_t dim_x);
 
 /**
  * By using inheritence, we're definitely heading into c++ land.
@@ -135,6 +134,8 @@ struct DeviceMatrixCL3D {
     unsigned int pitch_y; //! pitch in the y direction
     unsigned int pitch_t; //! pitch in the t direction
 	
+	vivid::ContexOpenCl* my_context;
+
 	cl_mem dataMatrix;
     /**
      * @note We structure the data as data[t][y][x] (or as
@@ -147,14 +148,14 @@ struct DeviceMatrixCL3D {
 };
 
 DeviceMatrixCL::Ptr makeDeviceMatrixCL(DeviceMatrixCL3D& src, const int slice);
-DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(size_t dim_t, size_t dim_y, size_t dim_x);
+DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(size_t dim_t, size_t dim_y, size_t dim_x, vivid::DeviceType device_type);
+DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(size_t dim_t, size_t dim_y, size_t dim_x, vivid::ContexOpenCl* dst_context);
 
 void DeviceMatrixCL3D_copyToDevice(DeviceMatrixCL3D& self, const float* data);
 void DeviceMatrixCL3D_copyFromDevice(const DeviceMatrixCL3D& self, float* dst);
 
 //! Create a DeviceMatrix3D that has no padding
-DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3DPacked(size_t dim_t, size_t dim_y, 
-                                             size_t dim_x);
+DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3DPacked(size_t dim_t, size_t dim_y, size_t dim_x, vivid::DeviceType device_type);
 
 /**
  * By using inheritence, we're definitely heading into c++ land.

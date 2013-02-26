@@ -106,16 +106,16 @@ int update_filter_bank_internal_cl(float* new_filter, int filter_size, vivid::De
 	{
 		
 		vivid::CLContextSource* tc = new vivid::CLContextSource();
-		cl_context GPUContext = tc->getMyContext()->getContextCL();
-		cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
-		MyKernels *kernels = new MyKernels(GPUContext,cdDevice);
+		vivid::ContexOpenCl* context = tc->getContext(device_type);
+
+		MyKernels *kernels = new MyKernels(context->getContextCL(),context->getDeviceCL());
 		
 		cl_int err;
 		// padding for SIMD
-		cl_mem filter_mem =  clCreateBuffer(GPUContext, CL_MEM_READ_ONLY, sizeof(float) * (filter_size+8),     
+		cl_mem filter_mem =  clCreateBuffer(context->getContextCL(), CL_MEM_READ_ONLY, sizeof(float) * (filter_size+8),     
 											NULL, &err);
 
-		err |= clEnqueueWriteBuffer(tc->getMyContext()->cqCommandQueue, filter_mem, CL_TRUE, 0, 
+		err |= clEnqueueWriteBuffer(context->getCommandQueue(), filter_mem, CL_TRUE, 0, 
 									  sizeof(float) * filter_size, new_filter, 0, NULL,  NULL);
 		
         if (err != 0)
@@ -224,9 +224,11 @@ DeviceMatrix3D::Ptr get_cell_histograms_cuda(const DeviceMatrix3D::Ptr& inds_and
 
 DeviceMatrixCL3D::Ptr filter_frame_cl_3(const DeviceMatrixCL::Ptr& frame,
 										const int dim_t, const int nchannels,
-										const int optype){
-//	double tic0= omp_get_wtime();
-    DeviceMatrixCL3D::Ptr out = makeDeviceMatrixCL3D(2, frame->height, frame->width / nchannels);
+										const int optype)
+{
+	DeviceMatrixCL3D::Ptr out = makeDeviceMatrixCL3D(2, frame->height, frame->width / nchannels, frame->my_context);
+	//	double tic0= omp_get_wtime();
+
 //	for(int i=0; i<1000; i++)
     dist_filter2_d3_cl(frame.get(), dim_t, nchannels, out.get(), optype);
 //	double tic1= omp_get_wtime();
@@ -238,9 +240,9 @@ DeviceMatrixCL3D::Ptr filter_frame_cl_3(const DeviceMatrixCL::Ptr& frame,
 
 DeviceMatrixCL3D::Ptr filter_frame_cl_5(const DeviceMatrixCL::Ptr& frame,
 										const int dim_t, const int nchannels,
-										const int optype){
-	
-    DeviceMatrixCL3D::Ptr out = makeDeviceMatrixCL3D(2, frame->height, frame->width / nchannels);
+										const int optype)
+{
+	DeviceMatrixCL3D::Ptr out = makeDeviceMatrixCL3D(2, frame->height, frame->width / nchannels, frame->my_context);
 	
     dist_filter2_d5_cl(frame.get(), dim_t, nchannels, out.get(), optype);
     return out;
@@ -248,9 +250,10 @@ DeviceMatrixCL3D::Ptr filter_frame_cl_5(const DeviceMatrixCL::Ptr& frame,
 
 DeviceMatrixCL3D::Ptr filter_frame_cl_7(const DeviceMatrixCL::Ptr& frame,
 										const int dim_t, const int nchannels,
-										const int optype){
+										const int optype)
+{
 	
-    DeviceMatrixCL3D::Ptr out = makeDeviceMatrixCL3D(2, frame->height, frame->width / nchannels);
+	DeviceMatrixCL3D::Ptr out = makeDeviceMatrixCL3D(2, frame->height, frame->width / nchannels, frame->my_context);
     dist_filter2_d7_cl(frame.get(), dim_t, nchannels, out.get(), optype);
 	
     return out;
@@ -258,9 +261,9 @@ DeviceMatrixCL3D::Ptr filter_frame_cl_7(const DeviceMatrixCL::Ptr& frame,
 
 DeviceMatrixCL3D::Ptr filter_frame_cl_noargmin(const DeviceMatrixCL::Ptr& frame,
 											   const int dim_t, const int dim_y, const int dim_x, const int nchannels,
-											   const int optype){
-	
-    DeviceMatrixCL3D::Ptr out = makeDeviceMatrixCL3D(frame->height, frame->width / nchannels, dim_t);
+											   const int optype)
+{
+	DeviceMatrixCL3D::Ptr out = makeDeviceMatrixCL3D(frame->height, frame->width / nchannels, dim_t, frame->my_context);
     
     dist_filter_noargmin_cl(frame.get(), dim_t, dim_y, dim_x, nchannels, out.get(), optype);
 	
@@ -270,7 +273,8 @@ DeviceMatrixCL3D::Ptr filter_frame_cl_noargmin(const DeviceMatrixCL::Ptr& frame,
 DeviceMatrixCL3D::Ptr get_cell_histograms_cl(const DeviceMatrixCL3D::Ptr& inds_and_weights,
                                              const int cell_size,
                                              const int offset_y, const int offset_x,
-                                             const int n_bins){
+                                             const int n_bins)
+{
 #ifndef CUDA_NO_SM_11_ATOMIC_INTRINSICS
 	//	printf("WARNING! Not using atomics!\n");
 #endif
@@ -281,7 +285,7 @@ DeviceMatrixCL3D::Ptr get_cell_histograms_cl(const DeviceMatrixCL3D::Ptr& inds_a
     int n_cells_y = ( frame_height - offset_y ) / cell_size;
     int n_cells_x = ( frame_width - offset_x ) / cell_size;
 	
-    DeviceMatrixCL3D::Ptr out = makeDeviceMatrixCL3D(n_cells_y, n_cells_x, n_bins);
+	DeviceMatrixCL3D::Ptr out = makeDeviceMatrixCL3D(n_cells_y, n_cells_x, n_bins, inds_and_weights->my_context);
     out->zero();
 	
     hist_all_cells_cl(inds_and_weights.get(), out.get(), cell_size, offset_y, offset_x, n_bins);
@@ -413,15 +417,14 @@ void dist_filter2_d3_cl(const DeviceMatrixCL* frame,
 	const int n_blocks_y = (valid_region_w / (BLOCK_SIZE * BLOCK_MULT) + 1)* local_work_size[1];	
 	const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
 	
-	vivid::CLContextSource* tc = new vivid::CLContextSource();
-	
-    cl_context GPUContext = tc->getMyContext()->getContextCL();
-    cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
+	assert(frame->my_context == output->my_context);
+
+	vivid::ContexOpenCl* context = frame->my_context;
 	
     // Creates the program
     // Uses NVIDIA helper functions to get the code string and it's size (in bytes)
   	
-	MyKernels *kernels = new MyKernels(GPUContext,cdDevice);
+	MyKernels *kernels = new MyKernels(context->getContextCL(),context->getDeviceCL());
 	
 	cl_kernel theKernel= kernels->getBlockWiseDistanceKernel();
 	
@@ -435,22 +438,22 @@ void dist_filter2_d3_cl(const DeviceMatrixCL* frame,
 //  	double tic1 = omp_get_wtime();
 //	std::cout << "OpenCL init filter kernel time: " << tic1 - tic0 << std::endl;
     if (err != CL_SUCCESS) {
-        printf("Error: Failed to set kernel arguments 3! %d\n", err);
+		vivid::print_cl_error(err);
         exit(1);
     }
 	
 //	double tic = omp_get_wtime();
 	//for(int i=0; i<1000; i++)
 	{
-	err = clEnqueueNDRangeKernel(tc->getMyContext()->cqCommandQueue, 
+		err = clEnqueueNDRangeKernel(context->getCommandQueue(), 
 								 theKernel, 2, NULL, 
 								 global_work_size, local_work_size, 0, NULL, NULL);
-	err = clFinish(tc->getMyContext()->cqCommandQueue);// to make sure the kernel completed
+		err = clFinish(context->getCommandQueue()); // to make sure the kernel completed
 	}
 //	double toc = omp_get_wtime();
 //	std::cout << "OpenCL filter kernel time: " << toc - tic << std::endl;
     if (err) {
-        printf("Error: Failed to execute kernel! %d\n", err);
+		vivid::print_cl_error(err);
         exit(1);
     }
 }
@@ -460,6 +463,8 @@ void dist_filter2_d5_cl(const DeviceMatrixCL* frame,
 					 DeviceMatrixCL3D* output,
 					 const int optype)
 {
+	assert(frame->my_context == output->my_context);
+	vivid::ContexOpenCl* context = frame->my_context;
  /*   const int frame_width = int(frame->width);
     const int frame_height = int(frame->height);
 	
@@ -493,21 +498,17 @@ void dist_filter2_d5_cl(const DeviceMatrixCL* frame,
     
     const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
 	
-	vivid::CLContextSource* tc = new vivid::CLContextSource();
 	
-    cl_context GPUContext = tc->getMyContext()->getContextCL();
-    cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
 	
     // Creates the program
     // Uses NVIDIA helper functions to get the code string and it's size (in bytes)
   	
-	MyKernels *kernels = new MyKernels(GPUContext,cdDevice);
+	MyKernels *kernels = new MyKernels(context->getContextCL(),context->getDeviceCL());
 	
 	cl_kernel theKernel= kernels->getBlockWiseDistanceKernel();
 	
 	cl_int err;
 	err=0;
-	
 	
     err =  parameters_blockwise_distance_kernel(theKernel, frame, output,
 												frame_width,frame_height,5,optype,
@@ -515,17 +516,17 @@ void dist_filter2_d5_cl(const DeviceMatrixCL* frame,
                                                 dim_t);	
   	
     if (err != CL_SUCCESS) {
-        printf("Error: Failed to set kernel arguments 3! %d\n", err);
+		vivid::print_cl_error(err);
         exit(1);
     }
 	
 	
-	err = clEnqueueNDRangeKernel(tc->getMyContext()->cqCommandQueue, 
+	err = clEnqueueNDRangeKernel(context->getCommandQueue(), 
 								 theKernel, 2, NULL, 
 								 global_work_size, local_work_size, 0, NULL, NULL);
 	
     if (err) {
-        printf("Error: Failed to execute kernel! %d\n", err);
+		vivid::print_cl_error(err);
         exit(1);
     }
 	
@@ -536,6 +537,9 @@ void dist_filter2_d7_cl(const DeviceMatrixCL* frame,
 					 DeviceMatrixCL3D* output,
 					 const int optype)
 {
+	assert(frame->my_context == output->my_context);
+	vivid::ContexOpenCl* context = frame->my_context;
+
 	const int frame_width = int(frame->width);
 	const int frame_height = int(frame->height);
 	
@@ -551,14 +555,9 @@ void dist_filter2_d7_cl(const DeviceMatrixCL* frame,
     
     const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
 	
-	vivid::CLContextSource* tc = new vivid::CLContextSource();
-	
-    cl_context GPUContext = tc->getMyContext()->getContextCL();
-    cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
-	
     // Creates the program
     // Uses NVIDIA helper functions to get the code string and it's size (in bytes)
-	MyKernels *kernels = new MyKernels(GPUContext,cdDevice);
+	MyKernels *kernels = new MyKernels(context->getContextCL(),context->getDeviceCL());
 	
 	cl_kernel theKernel= kernels->getBlockWiseDistanceKernel();
 	
@@ -571,17 +570,17 @@ void dist_filter2_d7_cl(const DeviceMatrixCL* frame,
                                                 dim_t);	
   	
     if (err != CL_SUCCESS) {
-        printf("Error: Failed to set kernel arguments 3! %d\n", err);
+		vivid::print_cl_error(err);
         exit(1);
     }
 	
 	
-	err = clEnqueueNDRangeKernel(tc->getMyContext()->cqCommandQueue, 
+	err = clEnqueueNDRangeKernel(context->getCommandQueue(), 
 								 theKernel, 2, NULL, 
 								 global_work_size, local_work_size, 0, NULL, NULL);
 	
     if (err) {
-        printf("Error: Failed to execute kernel! %d\n", err);
+        vivid::print_cl_error(err);
         exit(1);
     }
 }
@@ -592,7 +591,8 @@ void dist_filter_noargmin_cl(const DeviceMatrixCL* frame,
 						  DeviceMatrixCL3D* output,
 						  const int optype)
 {
-
+	assert(frame->my_context == output->my_context);
+	vivid::ContexOpenCl* context = frame->my_context;
 	
 	const int frame_width = float(frame->width) / (nchannels);
     const int frame_height = float(frame->height);
@@ -613,16 +613,9 @@ void dist_filter_noargmin_cl(const DeviceMatrixCL* frame,
     const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
 	
 	
-	
-	vivid::CLContextSource* tc = new vivid::CLContextSource();
-	
-    cl_context GPUContext = tc->getMyContext()->getContextCL();
-    cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
-	
     // Creates the program
     // Uses NVIDIA helper functions to get the code string and it's size (in bytes)
-  	
-	MyKernels *kernels = new MyKernels(GPUContext,cdDevice);
+  	MyKernels *kernels = new MyKernels(context->getContextCL(),context->getDeviceCL());
 	
 	cl_kernel theKernel= kernels->getBlockWiseFilterKernel();
 	
@@ -636,17 +629,17 @@ void dist_filter_noargmin_cl(const DeviceMatrixCL* frame,
 	
   	
     if (err != CL_SUCCESS) {
-        printf("Error: Failed to set kernel arguments 3! %d\n", err);
+		vivid::print_cl_error(err);
         exit(1);
     }
 	
 	
-	err = clEnqueueNDRangeKernel(tc->getMyContext()->cqCommandQueue, 
+	err = clEnqueueNDRangeKernel(context->getCommandQueue(), 
 								 theKernel, 2, NULL, 
 								 global_work_size, local_work_size, 0, NULL, NULL);
 	
     if (err) {
-        printf("Error: Failed to execute kernel! %d\n", err);
+		vivid::print_cl_error(err);
         exit(1);
     }
 }
@@ -658,29 +651,23 @@ void hist_all_cells_cl(const DeviceMatrixCL3D* inds_and_weights,
                     const int offset_x,
                     const int max_bin)
 {
-    const int frame_height = inds_and_weights->dim_y;
+	assert(inds_and_weights->my_context == output->my_context);
+	vivid::ContexOpenCl* context = output->my_context;
+
+	const int frame_height = inds_and_weights->dim_y;
     const int frame_width = inds_and_weights->dim_x;
     
     const size_t local_work_size[2] = {BLOCK_8, BLOCK_8}; 
-    
-    
     const int n_blocks_x = ((frame_height - offset_y) / cell_size + 1)* local_work_size[0];
-    
     const int n_blocks_y = ((frame_width  - offset_x) / cell_size + 1)* local_work_size[1];
-    
     const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
-    
-	vivid::CLContextSource* tc = new vivid::CLContextSource();
-    
-    cl_context GPUContext = tc->getMyContext()->getContextCL();
-    cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
     
     // Creates the program
     // Uses NVIDIA helper functions to get the code string and it's size (in bytes)
+
+	MyKernels *kernels = new MyKernels(context->getContextCL(),context->getDeviceCL());
     
-    MyKernels *kernels = new MyKernels(GPUContext,cdDevice);
-    
-    cl_kernel theKernel= kernels->getCellHistogramKernel();
+	cl_kernel theKernel= kernels->getCellHistogramKernel();
     
     cl_int err;
     err=0;
@@ -695,7 +682,7 @@ void hist_all_cells_cl(const DeviceMatrixCL3D* inds_and_weights,
     }
     
     
-    err = clEnqueueNDRangeKernel(tc->getMyContext()->cqCommandQueue, 
+	err = clEnqueueNDRangeKernel(context->getCommandQueue(), 
     							 theKernel, 2, NULL, 
     							 global_work_size, local_work_size, 0, NULL, NULL);
     

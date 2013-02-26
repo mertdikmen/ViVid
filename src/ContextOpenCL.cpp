@@ -1,67 +1,45 @@
-/*
-*  ContextOpenCl.cpp
-*  
-*
-*  Created by Antonio García Martín on 30/06/12.
-*  Copyright 2012 __MyCompanyName__. All rights reserved.
-*
-*/
-
 #include "ContextOpenCL.h"
-//extern int device_use;
-
-//Get an OpenCL platform
-#define NUM_ENTRIES 10
 
 namespace vivid
 {
-	void print_cl_error(cl_int errorcode)
-	{
-		printf("OpenCL Error: ");
-		switch (errorcode)
-		{
-		case CL_INVALID_CONTEXT:
-			printf("Invalid context\n");
-			break;
-		case CL_INVALID_PLATFORM:
-			printf("Invalid platform\n");
-			break;
-		case CL_INVALID_VALUE: 
-			printf("Invalid value\n");
-			break;
-		case CL_DEVICE_NOT_AVAILABLE:
-			printf("Device not available\n");
-			break;
-		case CL_DEVICE_NOT_FOUND:
-			printf("Device not found\n");
-			break;
-		case CL_OUT_OF_HOST_MEMORY:
-			printf("Out of host memory\n");
-			break;
-		case CL_INVALID_DEVICE_TYPE:
-			printf("Invalid device type\n");
-			break;
-		default:
-			printf("OpenCL Error: Unknown error code\n");
-			break;
-		}
-	}
-
-	PlatformDevicePair cpu_platform_device_info;
-	PlatformDevicePair gpu_platform_device_info;
-
 	ContexOpenCl* CLContextSource::The_Context_GPU=NULL;
 	ContexOpenCl* CLContextSource::The_Context_CPU=NULL;
 
-	PlatformDevicePair setup_cl_platform(std::string platform_vendor, DeviceType device_type)
+	ContexOpenCl::ContexOpenCl(cl_device_id _device_id, cl_platform_id _platform_id): 
+		deviceId(_device_id), platformId(_platform_id)
 	{
-		cl_platform_id cpPlatforms[NUM_ENTRIES]; 
+			char device_name[256];
+			OPENCL_CALL(clGetDeviceInfo(deviceId, CL_DEVICE_NAME, 256, device_name, NULL));
+
+			printf("Making the context on device %s\n", device_name);
+			
+			cl_int errorcode;
+			
+			context = clCreateContext(0, 1, &deviceId, NULL, NULL, &errorcode); 
+			
+			if (errorcode != CL_SUCCESS)
+			{
+				print_cl_error(errorcode);
+				exit(1);
+			}
+
+			printf("Making Command Queue\n");
+			commandQueue = clCreateCommandQueue(context, deviceId, 0, &errorcode);
+			if (errorcode != CL_SUCCESS)
+			{
+				print_cl_error(errorcode);
+			}
+	}
+
+	ContexOpenCl* setup_cl_platform(std::string platform_vendor, DeviceType device_type)
+	{
+		cl_platform_id cpPlatforms[10]; 
 		cl_device_id cdDevice; 
 		cl_uint n_platforms;
 
-		OPENCL_CALL(clGetPlatformIDs(NUM_ENTRIES, cpPlatforms, &n_platforms));
+		OPENCL_CALL(clGetPlatformIDs(10, cpPlatforms, &n_platforms));
 
-		char platform_vendors[NUM_ENTRIES][256];
+		char platform_vendors[10][256];
 		
 		size_t param_value_size_ret;
 		printf("OpenCL Platforms: %d\n", n_platforms);
@@ -76,24 +54,30 @@ namespace vivid
 			if ((clGetDeviceIDs(cpPlatforms[i], device_type, 1, &cdDevice, NULL) == CL_SUCCESS) &&
 				(strcmp(platform_vendor.c_str(), platform_vendors[i]) == 0))
 			{
-				return PlatformDevicePair(platform_vendors[i], cdDevice);
+				return new ContexOpenCl(cdDevice, cpPlatforms[i]);
 			}
 		}
 
-		return PlatformDevicePair(CL_INVALID_PLATFORM, CL_INVALID_DEVICE)
+		return NULL;
 	}
 
 	CLContextSource::CLContextSource(std::string cpu_platform, std::string gpu_platform)
 	{
 		if ((The_Context_GPU!=NULL) && (The_Context_CPU !=NULL))
 		{ 
-			//all contexts exist, bail.
 			return;
 		}
 
-		cpu_platform_device_info = setup_cl_platform(cpu_platform, DEVICE_CPU);
-		gpu_platform_device_info = setup_cl_platform(gpu_platform, DEVICE_GPU);
-
+		if (The_Context_GPU == NULL)
+		{
+			The_Context_GPU = setup_cl_platform(gpu_platform, DEVICE_GPU);
+		}
+		if (The_Context_CPU == NULL)
+		{
+			The_Context_CPU = setup_cl_platform(cpu_platform, DEVICE_CPU);
+		}
+	}
+}
 		//if (The_Context_GPU==NULL){
 		//	printf("\nGetting GPU Device\n");
 		//			std::cout << "Found GPU device on OpelCL platform " << i + 1 << std::endl;
@@ -141,7 +125,7 @@ namespace vivid
 		//		}
 		//	}
 		//}
-	}
+	//}
 
 	//TheContext::TheContext(int cpu)
 	//{
@@ -160,6 +144,4 @@ namespace vivid
 	//{
 	//	return  The_Context_CPU;
 	//}
-
-
-}
+//}

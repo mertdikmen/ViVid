@@ -3,7 +3,10 @@
 class Classifier
 {
 public:
-	Classifier(const int window_height, const int window_width, const int cell_size, const int block_size, const int dict_size):
+	Classifier(
+		const int window_height, const int window_width, 
+		const int cell_size, const int block_size, const int dict_size, 
+		vivid::DeviceType device_type):
 	  _window_height(window_height), _window_width(window_width), _dict_size(dict_size),
 		  _cell_size(cell_size), _block_size(block_size)
 	  {
@@ -17,7 +20,7 @@ public:
 
 		  coefficients = new float[_n_total_coeff];
 
-		  classifierCL = makeDeviceMatrixCL(_n_total_coeff / _dict_size, _dict_size);
+		  classifierCL = makeDeviceMatrixCL(_n_total_coeff / _dict_size, _dict_size, device_type);
 
 		  for (int i = 0; i < _n_total_coeff; i++)
 		  {

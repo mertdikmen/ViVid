@@ -3,6 +3,7 @@
 
 #include "DeviceMatrix.hpp"
 #include "OpenCLKernels.hpp"
+#include "ContextOpenCL.h"
 
 #include <stdio.h>
 
@@ -17,7 +18,7 @@ void cosine_filter(
 
 /*size parameter is in terms of floats*/
 int set_filter_bank_cuda(float* filter_bank, int size);
-int set_filter_bank_cl(float* filter_bank, int size);
+int set_filter_bank_cl(float* filter_bank, int size, vivid::DeviceType device_type);
 
 /*
 DeviceMatrix3D::Ptr filter_frame_cuda(const DeviceMatrix::Ptr& frame,

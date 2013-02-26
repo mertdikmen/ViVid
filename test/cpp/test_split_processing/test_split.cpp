@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
 	std::cout << "Config: CPU Platform: " << cpu_platform << std::endl;
 	std::cout << "Config: GPU Platform: " << gpu_platform << std::endl;
 	
-	vivid::TheContext opencl_context(cpu_platform, gpu_platform);
+	vivid::CLContextSource cl_context_source(cpu_platform, gpu_platform);
 
 	//pull the data
 	cv::Mat exampleImage = cv::imread(exampleImagePath, 0);
@@ -58,11 +58,11 @@ int main(int argc, char* argv[])
 
 	float* f_imData = (float*) f_exampleImage.data;
 	DeviceMatrixCL::Ptr dmpCL_cpu = 
-		makeDeviceMatrixCL(f_exampleImage.size().height, f_exampleImage.size().width, VIVID_CL_CONTEXT_CPU);
+		makeDeviceMatrixCL(f_exampleImage.size().height, f_exampleImage.size().width, vivid::DEVICE_CPU);
 	DeviceMatrixCL_copyToDevice(*dmpCL_cpu, f_imData);
 
 	DeviceMatrixCL::Ptr dmpCL_gpu = 
-		makeDeviceMatrixCL(f_exampleImage.size().height, exampleImage.size().width, VIVID_CL_CONTEXT_GPU);
+		makeDeviceMatrixCL(f_exampleImage.size().height, exampleImage.size().width, vivid::DEVICE_GPU);
 	DeviceMatrixCL_copyToDevice(*dmpCL_gpu, f_imData);
 
 	const int num_filters = 100;

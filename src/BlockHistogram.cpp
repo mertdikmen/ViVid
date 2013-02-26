@@ -90,6 +90,11 @@ void cell_histogram_dense_device_cl(
 	const int n_parts_y,
 	const int n_parts_x)
 {	
+	assert(histogram->my_context == assignments->my_context);
+	assert(weights->my_context == assignments->my_context);
+	vivid::ContexOpenCl* context = weights->my_context;
+	MyKernels *kernels = new MyKernels(context->getContextCL(),context->getDeviceCL());
+
 	histogram->zero();
 	
 	const size_t local_work_size[2] = {BLOCK_SIZE, BLOCK_SIZE}; 
@@ -104,11 +109,7 @@ void cell_histogram_dense_device_cl(
 	
 	assert(histogram->width == max_bin);
 		
-	vivid::CLContextSource* tc = new vivid::CLContextSource();
-	cl_context GPUContext = tc->getMyContext()->getContextCL();
-	cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
 	
-	MyKernels *kernels = new MyKernels(GPUContext,cdDevice);
 	
 	//cl_kernel theKernel = kernels->getCellHistogramKernel2();
 	cl_kernel theKernel = kernels->getCellHistogramKernel3();
@@ -121,16 +122,17 @@ void cell_histogram_dense_device_cl(
 		weights, max_bin, cell_size, n_parts_x, start_y, start_x);	
   	
     if (err != CL_SUCCESS) {
-        printf("Error: Failed to set kernel arguments 3! %d\n", err);
+		vivid::print_cl_error(err);
         exit(1);
     }
 	
-	err = clEnqueueNDRangeKernel(tc->getMyContext()->cqCommandQueue, theKernel, 2, NULL, 
+	err = clEnqueueNDRangeKernel(context->getCommandQueue(), theKernel, 2, NULL, 
 								 global_work_size, local_work_size, 0, NULL, NULL);
-	clFinish(tc->getMyContext()->cqCommandQueue);// to make sure the kernel completed
+	clFinish(context->getCommandQueue());// to make sure the kernel completed
 
-    if (err) {
-        printf("Error: Failed to execute kernel! %d\n", err);
+    if (err) 
+	{ 
+		vivid::print_cl_error(err);
         exit(1);
     }
 }
@@ -143,7 +145,11 @@ void cell_histogram_dense_device_cl(DeviceMatrixCL3D* histogram,
                                  const int start_y,
                                  const int start_x)
 {
-	
+	assert(histogram->my_context == assignments->my_context);
+	assert(weights->my_context == assignments->my_context);
+	vivid::ContexOpenCl* context = weights->my_context;
+	MyKernels *kernels = new MyKernels(context->getContextCL(),context->getDeviceCL());
+
 	histogram->zero();
 	
 	const size_t local_work_size[2] = {BLOCK_SIZE, BLOCK_SIZE}; 
@@ -159,15 +165,7 @@ void cell_histogram_dense_device_cl(DeviceMatrixCL3D* histogram,
 	
 	assert(histogram->dim_x == max_bin);
 	
-	
-	vivid::CLContextSource* tc = new vivid::CLContextSource();
-	cl_context GPUContext = tc->getMyContext()->getContextCL();
-	cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
-	
-	MyKernels *kernels = new MyKernels(GPUContext,cdDevice);
-	
 	cl_kernel theKernel= kernels->getCellHistogramKernel2();
-	
 	
 	cl_int err;
 	err=0;
@@ -177,17 +175,17 @@ void cell_histogram_dense_device_cl(DeviceMatrixCL3D* histogram,
 												start_x);	
   	
     if (err != CL_SUCCESS) {
-        printf("Error: Failed to set kernel arguments 3! %d\n", err);
+		vivid::print_cl_error(err);
         exit(1);
     }
 	
-	err = clEnqueueNDRangeKernel(tc->getMyContext()->cqCommandQueue, 
+	err = clEnqueueNDRangeKernel(context->getCommandQueue(), 
 								 theKernel, 2, NULL, 
 								 global_work_size, local_work_size, 0, NULL, NULL);
-	clFinish(tc->getMyContext()->cqCommandQueue);// to make sure the kernel completed
+	clFinish(context->getCommandQueue());// to make sure the kernel completed
 
     if (err) {
-        printf("Error: Failed to execute kernel! %d\n", err);
+		vivid::print_cl_error(err);
         exit(1);
     }
 }
@@ -223,8 +221,7 @@ DeviceMatrix3D::Ptr cell_histogram_dense_cuda(
     n_parts_x += (n_parts_x % 2);
     #endif
 
-    DeviceMatrix3D::Ptr histogram = makeDeviceMatrix3D(
-        n_parts_y, n_parts_x, max_bin);
+    DeviceMatrix3D::Ptr histogram = makeDeviceMatrix3D(n_parts_y, n_parts_x, max_bin);
 
     cell_histogram_dense_device(histogram.get(),
                                 assignment_mat.get(),
@@ -253,7 +250,7 @@ DeviceMatrixCL::Ptr cell_histogram_dense_cl(
     n_parts_x += (n_parts_x % 2);
 #endif
 	
-    DeviceMatrixCL::Ptr histogram = makeDeviceMatrixCL(n_parts_y * n_parts_x, max_bin);
+	DeviceMatrixCL::Ptr histogram = makeDeviceMatrixCL(n_parts_y * n_parts_x, max_bin, ff_out->my_context);
 //		for(int i=0; i<10000; i++)
 	cell_histogram_dense_device_cl(
 		histogram.get(),
@@ -274,6 +271,7 @@ DeviceMatrixCL3D::Ptr cell_histogram_dense_cl(
 											const int stop_y, const int stop_x)
 											  //object& start_inds, object& stop_inds)
 {
+	assert(assignment_mat->my_context == weight_mat->my_context);
     
     //NumPyArray start_arr(start_inds);
     //NumPyArray stop_arr(stop_inds);
@@ -294,7 +292,7 @@ DeviceMatrixCL3D::Ptr cell_histogram_dense_cl(
     n_parts_x += (n_parts_x % 2);
 #endif
 	
-    DeviceMatrixCL3D::Ptr histogram = makeDeviceMatrixCL3D(n_parts_y, n_parts_x, max_bin);
+	DeviceMatrixCL3D::Ptr histogram = makeDeviceMatrixCL3D(n_parts_y, n_parts_x, max_bin, assignment_mat->my_context);
 
     cell_histogram_dense_device_cl(histogram.get(),
                                 assignment_mat.get(),

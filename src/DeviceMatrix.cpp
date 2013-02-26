@@ -108,18 +108,13 @@ boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(DeviceMatrixCL3D& src, cons
 	return boost::shared_ptr<DeviceMatrixCL>(mat, deleteDeviceMatrixCL);
 }
 
-boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(size_t height, size_t width, int target_device)
+boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(size_t height, size_t width, vivid::ContexOpenCl* dst_context)
 {
 	DeviceMatrixCL* mat = new DeviceMatrixCL();
 	mat->width = width;
 	mat->height = height;
 
-	vivid::CLContextSource* tc = new vivid::CLContextSource();
-
-	mat->my_context = tc->getMyContext(target_device);
-
-	cl_context CLContext = tc->getMyContext(target_device)->getContextCL();
-	cl_device_id cdDevice = tc->getMyContext(target_device)->getDeviceCL();
+	mat->my_context = dst_context;
 
 	/*The optimal pitch is computed by (1) getting the base address alignment
 	preference for your card (CL_DEVICE_MEM_BASE_ADDR_ALIGN property with
@@ -127,7 +122,7 @@ boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(size_t height, size_t width
 	to divide by 8 to get it in bytes);*/
 
 	int buffer;
-	cl_int prueba = clGetDeviceInfo(cdDevice, CL_DEVICE_MEM_BASE_ADDR_ALIGN , sizeof(buffer), &buffer, NULL);
+	cl_int prueba = clGetDeviceInfo(mat->my_context->getDeviceCL(), CL_DEVICE_MEM_BASE_ADDR_ALIGN , sizeof(buffer), &buffer, NULL);
 	buffer /= 8;
 
 	int naturalPitch = sizeof(float) * mat->width;
@@ -152,13 +147,21 @@ boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(size_t height, size_t width
 
 	int err;
 
-	mat->dataMatrix = clCreateBuffer(CLContext, CL_MEM_READ_WRITE, mem_size, NULL, &err);
+	mat->dataMatrix = clCreateBuffer(mat->my_context->getContextCL(), CL_MEM_READ_WRITE, mem_size, NULL, &err);
 	if(err!=CL_SUCCESS)
 	{
 		vivid::print_cl_error(err);
 	}
 
 	return boost::shared_ptr<DeviceMatrixCL>(mat, deleteDeviceMatrixCL);
+}
+
+boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(size_t height, size_t width, vivid::DeviceType target_device)
+{
+	vivid::CLContextSource* tc = new vivid::CLContextSource();
+
+	return makeDeviceMatrixCL(height, width, tc->getContext(target_device));
+	
 }
 
 void DeviceMatrixCL_copyToDevice(DeviceMatrixCL& self, const float* data)
@@ -173,7 +176,7 @@ void DeviceMatrixCL_copyToDevice(DeviceMatrixCL& self, const float* data)
 		1};	
 
 	int err = clEnqueueWriteBufferRect(
-		self.my_context->cqCommandQueue,
+		self.my_context->getCommandQueue(),
 		self.dataMatrix, CL_TRUE,
 		buffer_origin, host_origin, region,
 		self.pitch, 0,
@@ -200,7 +203,7 @@ void DeviceMatrixCL3D_copyToDevice(DeviceMatrixCL3D& self, const float* data)
 			self.dim_t};
 
 		int err = clEnqueueWriteBufferRect(
-			tc->getMyContext()->cqCommandQueue,
+			self.my_context->getCommandQueue(),
 			self.dataMatrix, CL_TRUE,
 			buffer_origin, host_origin, region,
 			self.pitch_y, 0,
@@ -208,8 +211,8 @@ void DeviceMatrixCL3D_copyToDevice(DeviceMatrixCL3D& self, const float* data)
 			data,
 			0, NULL, NULL);
 
-		if (err != 0){
-			std::cout << "Error in copyToDevice (CODE: " << err << ")" << std::endl;
+		if (err != CL_SUCCESS){
+			vivid::print_cl_error(err);
 		}
 	}
 }
@@ -235,7 +238,7 @@ void DeviceMatrixCL3D_copyFromDevice(const DeviceMatrixCL3D& self, float* dst)
 		//PyArray_DATA(retval.ptr());
 		cl_int err =
 			clEnqueueReadBufferRect(
-			tc->getMyContext()->cqCommandQueue,
+			self.my_context->getCommandQueue(),
 			self.dataMatrix, CL_TRUE,
 			buffer_origin, host_origin, region,
 			//self.pitch_y, self.dim_x * self.dim_y * sizeof(float),
@@ -246,8 +249,8 @@ void DeviceMatrixCL3D_copyFromDevice(const DeviceMatrixCL3D& self, float* dst)
 			0, NULL, NULL);
 		//std::cout<<prueba[2][2][2]<<" "<<prueba[0][0][2]<<endl;
 
-		if (err != 0){
-			std::cout << "Error in copyFromDevice (CODE: " << err << ")" << std::endl;		
+		if (err != CL_SUCCESS){
+			vivid::print_cl_error(err);
 		}
 	}
 }
@@ -257,8 +260,6 @@ void DeviceMatrixCL_copyFromDevice(const DeviceMatrixCL& self, float* dst)
 	if ((self.width > 0) && (self.height > 0)) {
 		const int mem_size = self.height * self.pitch;
 
-		vivid::CLContextSource * tc = new vivid::CLContextSource();
-
 		size_t buffer_origin[3] = {0,0,0};
 		size_t host_origin[3] = {0,0,0};	
 		size_t region[3] = {self.width * sizeof(float),
@@ -267,7 +268,7 @@ void DeviceMatrixCL_copyFromDevice(const DeviceMatrixCL& self, float* dst)
 
 		cl_int err =
 			clEnqueueReadBufferRect(
-			tc->getMyContext()->cqCommandQueue,
+			self.my_context->getCommandQueue(),
 			self.dataMatrix, CL_TRUE,
 			buffer_origin, host_origin, region,
 			self.pitch, 0,
@@ -275,8 +276,8 @@ void DeviceMatrixCL_copyFromDevice(const DeviceMatrixCL& self, float* dst)
 			dst,
 			0, NULL, NULL);
 
-		if (err != 0){
-			std::cout << "Error in copyFromDevice (CODE: " << err << ")" << std::endl;
+		if (err != CL_SUCCESS){
+			vivid::print_cl_error(err);
 		}
 	}
 }
@@ -434,20 +435,15 @@ OpenCL 3d MATRIX
 
 static void deleteDeviceMatrixCL3D(DeviceMatrixCL3D* mat){}
 
-
-DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(size_t dim_t, size_t dim_y, size_t dim_x)
+DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(size_t dim_t, size_t dim_y, size_t dim_x, vivid::ContexOpenCl* dst_context)
 {
 	DeviceMatrixCL3D* mat = new DeviceMatrixCL3D();
+	mat->my_context = dst_context;
 	mat->dim_x = dim_x;
 	mat->dim_y = dim_y;
 	mat->dim_t = dim_t;
 	//printf("%d  x %d  x  %d\n",dim_x,dim_y,dim_t);
 	size_t pitch;
-
-	vivid::CLContextSource* tc = new vivid::CLContextSource();
-
-	cl_context GPUContext = tc->getMyContext()->getContextCL();
-	cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
 
 	/*The optimal pitch is computed by (1) getting the base address alignment
 	preference for your card (CL_DEVICE_MEM_BASE_ADDR_ALIGN property with
@@ -455,7 +451,7 @@ DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(size_t dim_t, size_t dim_y, size_t di
 	to divide by 8 to get it in bytes);*/
 
 	int buffer;
-	cl_int ierr = clGetDeviceInfo(cdDevice, CL_DEVICE_MEM_BASE_ADDR_ALIGN , sizeof(buffer), &buffer, NULL);
+	cl_int ierr = clGetDeviceInfo(mat->my_context->getDeviceCL(), CL_DEVICE_MEM_BASE_ADDR_ALIGN , sizeof(buffer), &buffer, NULL);
 
 	buffer /= 8;
 
@@ -480,20 +476,24 @@ DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(size_t dim_t, size_t dim_y, size_t di
 
 	int err;
 
-	mat->dataMatrix = clCreateBuffer(GPUContext, CL_MEM_READ_WRITE, mem_size, NULL, &err);
-	if(err!=0)
-	{
-		printf("Error Code create buffer: %d\n",err);
-	}
+	mat->dataMatrix = clCreateBuffer(mat->my_context->getContextCL(), CL_MEM_READ_WRITE, mem_size, NULL, &err);
+	if(err!=CL_SUCCESS)	{ vivid::print_cl_error(err); }
 
 	return DeviceMatrixCL3D::Ptr(mat, deleteDeviceMatrixCL3D);
+}
+
+DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(size_t dim_t, size_t dim_y, size_t dim_x, vivid::DeviceType device_type)
+{
+	vivid::CLContextSource* tc = new vivid::CLContextSource();
+	vivid::ContexOpenCl* my_context = tc->getContext(device_type);
+
+	return makeDeviceMatrixCL3D(dim_t, dim_y, dim_x, my_context);
 }
 
 /**
 * This function is useful for generating matrices for use with CUFFT.
 */
-DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3DPacked(size_t dim_t, size_t dim_y,
-												 size_t dim_x)
+DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3DPacked(size_t dim_t, size_t dim_y, size_t dim_x, vivid::DeviceType device_type)
 {
 	DeviceMatrixCL3D* mat = new DeviceMatrixCL3D();
 	mat->dim_x = dim_x;
@@ -502,10 +502,8 @@ DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3DPacked(size_t dim_t, size_t dim_y,
 	size_t pitch;
 
 	vivid::CLContextSource* tc = new vivid::CLContextSource();
-
-	cl_context GPUContext = tc->getMyContext()->getContextCL();
-	cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
-
+	mat->my_context = tc->getContext(device_type);
+	
 	mat->pitch_y = dim_x;
 	mat->pitch_t = dim_y*mat->pitch_y;
 
@@ -513,11 +511,8 @@ DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3DPacked(size_t dim_t, size_t dim_y,
 
 	int err;
 
-	mat->dataMatrix = clCreateBuffer(GPUContext, CL_MEM_READ_WRITE, mem_size, NULL, &err);
-	if(err!=0)
-	{
-		printf("Error Code create buffer: %d\n",err);
-	}
+	mat->dataMatrix = clCreateBuffer(mat->my_context->getContextCL(), CL_MEM_READ_WRITE, mem_size, NULL, &err);
+	if(err!=CL_SUCCESS)	{ vivid::print_cl_error(err); }
 
 	return DeviceMatrixCL3D::Ptr(mat, deleteDeviceMatrixCL3D);	
 }

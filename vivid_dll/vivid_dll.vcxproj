@@ -150,6 +150,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\BlockHistogram.cpp" />
+    <ClCompile Include="..\src\cl_exceptions.cpp" />
     <ClCompile Include="..\src\ContextOpenCL.cpp" />
     <ClCompile Include="..\src\DeviceMatrix.cpp" />
     <ClCompile Include="..\src\exceptions.cpp" />
@@ -161,6 +162,7 @@
   <ItemGroup>
     <ClInclude Include="..\src\BlockHistogram.hpp" />
     <ClInclude Include="..\src\BlockHistogramLocal.hpp" />
+    <ClInclude Include="..\src\cl_exceptions.hpp" />
     <ClInclude Include="..\src\ContextOpenCL.h" />
     <ClInclude Include="..\src\DeviceMatrix.hpp" />
     <ClInclude Include="..\src\exceptions.hpp" />

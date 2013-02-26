@@ -89,12 +89,12 @@ DeviceMatrix::Ptr max_cuda(const DeviceMatrix::Ptr& matrix)
   OpenCL function
 **/
 
-DeviceMatrixCL::Ptr pwdist_cl( const DeviceMatrixCL::Ptr& features_train,
-        const DeviceMatrixCL::Ptr& features_test){
+DeviceMatrixCL::Ptr pwdist_cl(const DeviceMatrixCL::Ptr& features_train, const DeviceMatrixCL::Ptr& features_test)
+{
+	assert(features_train->my_context == features_test->my_context);
 
 //	double tic = omp_get_wtime();
-    DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(features_train->height,
-            features_test->height);
+	DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(features_train->height, features_test->height, features_train->my_context);
 
     // double tic = omp_get_wtime();
     // pwdist_genericCL(features_train.get(), features_test.get(), out.get(), EUCLIDEAN);
@@ -106,66 +106,66 @@ DeviceMatrixCL::Ptr pwdist_cl( const DeviceMatrixCL::Ptr& features_train,
     return out;
 }
 
-DeviceMatrixCL::Ptr pwdot_cl( const DeviceMatrixCL::Ptr& features_train,
-        const DeviceMatrixCL::Ptr& features_test){
+DeviceMatrixCL::Ptr pwdot_cl( const DeviceMatrixCL::Ptr& features_train, const DeviceMatrixCL::Ptr& features_test)
+{
+	assert(features_train->my_context == features_test->my_context);
 
-    DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(features_train->height,
-            features_test->height);
+	DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(features_train->height, features_test->height, features_train->my_context);
     pwdist_genericCL(features_train.get(), features_test.get(), out.get(), DOTPRODUCT);
     return out;
 }
 
 DeviceMatrixCL::Ptr pwabsdot_cl( const DeviceMatrixCL::Ptr& features_train,
-        const DeviceMatrixCL::Ptr& features_test){
-
-    DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(features_train->height,
-            features_test->height);
+        const DeviceMatrixCL::Ptr& features_test)
+{
+	assert(features_train->my_context == features_test->my_context);
+	DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(features_train->height, features_test->height, features_train->my_context);
     pwdist_genericCL(features_train.get(), features_test.get(), out.get(), ABSDOTPRODUCT);
     return out;
 }
 
 DeviceMatrixCL::Ptr pwchisq_cl( const DeviceMatrixCL::Ptr& features_train,
-        const DeviceMatrixCL::Ptr& features_test){
-
-    DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(features_train->height,
-            features_test->height);
+        const DeviceMatrixCL::Ptr& features_test)
+{
+	assert(features_train->my_context == features_test->my_context);
+	DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(features_train->height, features_test->height, features_train->my_context);
     pwdist_genericCL(features_train.get(), features_test.get(), out.get(), CHISQUARED);
     return out;
 }
 
 DeviceMatrixCL::Ptr pwcityblock_cl( const DeviceMatrixCL::Ptr& features_train,
-        const DeviceMatrixCL::Ptr& features_test){
-
-    DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(features_train->height,
-            features_test->height);
+        const DeviceMatrixCL::Ptr& features_test)
+{
+	assert(features_train->my_context == features_test->my_context);
+	DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(features_train->height, features_test->height, features_train->my_context);
     pwdist_genericCL(features_train.get(), features_test.get(), out.get(), CITYBLOCK);
     return out;
 }
 
 DeviceMatrixCL::Ptr argmin_cl(const DeviceMatrixCL::Ptr& matrix)
 {
-    DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(matrix->height, 1);
+	DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(matrix->height, 1, matrix->my_context);
     argmin_cl_local(matrix.get(), out.get());
     return out;
 }
 
 DeviceMatrixCL::Ptr argmax_cl(const DeviceMatrixCL::Ptr& matrix)
 {
-    DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(matrix->height, 1);
+	DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(matrix->height, 1, matrix->my_context);
     argmax_cl_local(matrix.get(), out.get());
     return out;
 }
 
 DeviceMatrixCL::Ptr min_cl(const DeviceMatrixCL::Ptr& matrix)
 {
-    DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(matrix->height, 1);
+	DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(matrix->height, 1, matrix->my_context);
     min_cl_local(matrix.get(), out.get());
     return out;
 }
 
 DeviceMatrixCL::Ptr max_cl(const DeviceMatrixCL::Ptr& matrix)
 {
-    DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(matrix->height, 1);
+    DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(matrix->height, 1, matrix->my_context);
     max_cl_local(matrix.get(), out.get());
     return out;
 }
@@ -180,17 +180,15 @@ static const unsigned int BLOCK_SIZE = 16;
 void pwdist_genericCL(const DeviceMatrixCL* features_train,
         const DeviceMatrixCL* features_test,
         DeviceMatrixCL* output,
-        int type) {
-
-			vivid::CLContextSource* tc = new vivid::CLContextSource();
-
-    cl_context GPUContext = tc->getMyContext()->getContextCL();
-    cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
+        int type) 
+{
+	assert(features_train->my_context == features_test->my_context);
+	vivid::ContexOpenCl* context = features_train->my_context;
 
     // Creates the program
     // Uses NVIDIA helper functions to get the code string and it's size (in bytes)
   	
-	MyKernels *kernels = new MyKernels(GPUContext,cdDevice);
+	MyKernels *kernels = new MyKernels(context->getContextCL(),context->getDeviceCL());
 	
 	cl_kernel theKernel= kernels->getPairwiseDistanceKernel();
 	cl_int err;
@@ -230,30 +228,24 @@ void pwdist_genericCL(const DeviceMatrixCL* features_train,
     //std::cout << "Threads: " << local_work_size[0] << ", " << local_work_size[1] << std::endl;
     //std::cout << "Blocks: " << global_work_size[0] << ", " << global_work_size[1] << std::endl;
 
-    err = clEnqueueNDRangeKernel(tc->getMyContext()->cqCommandQueue, 
+	err = clEnqueueNDRangeKernel(context->getCommandQueue(), 
             theKernel, 2, NULL, 
             global_work_size, local_work_size, 0, NULL, NULL);
 
     if (err) {
-        printf("Error: Failed to execute kernel! %d\n", err);
+		vivid::print_cl_error(err);
         exit(1);
     }
 }
 
 void pwdist_eucCL(const DeviceMatrixCL* features_train,
         const DeviceMatrixCL* features_test,
-        DeviceMatrixCL* output) {
+        DeviceMatrixCL* output) 
+{
+	assert(features_train->my_context == features_test->my_context);
+	vivid::ContexOpenCl* context = features_train->my_context;
 
-			vivid::CLContextSource* tc = new vivid::CLContextSource();
-
-    cl_context GPUContext = tc->getMyContext()->getContextCL();
-    cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
-
-    // Creates the program
-    // Uses NVIDIA helper functions to get the code string and it's size (in bytes)
-  	
-	MyKernels *kernels = new MyKernels(GPUContext,cdDevice);
-	
+  	MyKernels *kernels = new MyKernels(context->getContextCL(),context->getDeviceCL());
 	cl_kernel theKernel= kernels->getPairwiseDistanceKernel();
 	cl_int err;
 	err=0;
@@ -300,17 +292,17 @@ void pwdist_eucCL(const DeviceMatrixCL* features_train,
 //	double tic = omp_get_wtime();
 //	for(int i=0; i<2000; i++) 
 	{
-    err = clEnqueueNDRangeKernel(tc->getMyContext()->cqCommandQueue, 
+		err = clEnqueueNDRangeKernel(context->getCommandQueue(), 
             theKernel, 2, NULL, 
             global_work_size, local_work_size, 0, NULL, NULL);
-	clFinish(tc->getMyContext()->cqCommandQueue);// to make sure the kernel completed
+		clFinish(context->getCommandQueue());// to make sure the kernel completed
 	}
 //	double toc = omp_get_wtime();
 //	std::cout << "OpenCL time: " << toc - tic << std::endl;
 
 
     if (err) {
-        printf("Error: Failed to execute kernel! %d\n", err);
+		vivid::print_cl_error(err);
         exit(1);
     }
 }
@@ -379,16 +371,13 @@ cl_int parameters_minmax_local(cl_kernel theKernel,const DeviceMatrixCL* matrix,
 
 void argmin_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
 {
-   
-	vivid::CLContextSource* tc = new vivid::CLContextSource();
-	
-    cl_context GPUContext = tc->getMyContext()->getContextCL();
-    cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
+	assert(matrix->my_context == output->my_context);   
+	vivid::ContexOpenCl* context = matrix->my_context;
 	
     // Creates the program
     // Uses NVIDIA helper functions to get the code string and it's size (in bytes)
   	
-	MyKernels *kernels = new MyKernels(GPUContext,cdDevice);
+	MyKernels *kernels = new MyKernels(context->getContextCL(),context->getDeviceCL());
 	
 	cl_kernel theKernel= kernels->getArgminKernel();
 	
@@ -405,7 +394,7 @@ void argmin_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
     
     const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
 	
-	err = clEnqueueNDRangeKernel(tc->getMyContext()->cqCommandQueue, 
+	err = clEnqueueNDRangeKernel(context->getCommandQueue(), 
 								 theKernel, 2, NULL, 
 								 global_work_size, local_work_size, 0, NULL, NULL);
 	
@@ -417,16 +406,13 @@ void argmin_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
 
 void argmax_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
 {
-	
-	vivid::CLContextSource* tc = new vivid::CLContextSource();
-	
-    cl_context GPUContext = tc->getMyContext()->getContextCL();
-    cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
-	
+	assert(matrix->my_context == output->my_context);   
+	vivid::ContexOpenCl* context = matrix->my_context;
+
     // Creates the program
     // Uses NVIDIA helper functions to get the code string and it's size (in bytes)
   	
-	MyKernels *kernels = new MyKernels(GPUContext,cdDevice);
+	MyKernels *kernels = new MyKernels(context->getContextCL(),context->getDeviceCL());
 	
 	cl_kernel theKernel= kernels->getArgmaxKernel();
 	
@@ -437,10 +423,9 @@ void argmax_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
    err =  parameters_minmax_local(theKernel, matrix, output);	
   	
     if (err != CL_SUCCESS) {
-        printf("Error: Failed to set kernel arguments 3! %d\n", err);
+		vivid::print_cl_error(err);
         exit(1);
     }
-	
 	
 	const size_t local_work_size[2] = {256, 1}; 
 	
@@ -450,28 +435,25 @@ void argmax_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
     
     const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
 	
-	err = clEnqueueNDRangeKernel(tc->getMyContext()->cqCommandQueue, 
+	err = clEnqueueNDRangeKernel(context->getCommandQueue(), 
 								 theKernel, 2, NULL, 
 								 global_work_size, local_work_size, 0, NULL, NULL);
 	
     if (err) {
-        printf("Error: Failed to execute kernel! %d\n", err);
+        vivid::print_cl_error(err);
         exit(1);
     }
 }
 
 void max_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
 {
-	
-	vivid::CLContextSource* tc = new vivid::CLContextSource();
-	
-    cl_context GPUContext = tc->getMyContext()->getContextCL();
-    cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
+	assert(matrix->my_context == output->my_context);   
+	vivid::ContexOpenCl* context = matrix->my_context;	
 	
     // Creates the program
     // Uses NVIDIA helper functions to get the code string and it's size (in bytes)
   	
-	MyKernels *kernels = new MyKernels(GPUContext,cdDevice);
+	MyKernels *kernels = new MyKernels(context->getContextCL(),context->getDeviceCL());
 	
 	cl_kernel theKernel= kernels->getMaxKernel();
 	
@@ -481,7 +463,7 @@ void max_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
     err =  parameters_minmax_local(theKernel, matrix, output);	
   	
     if (err != CL_SUCCESS) {
-        printf("Error: Failed to set kernel arguments 3! %d\n", err);
+		vivid::print_cl_error(err);
         exit(1);
     }
 	
@@ -494,28 +476,25 @@ void max_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
     
     const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
 	
-	err = clEnqueueNDRangeKernel(tc->getMyContext()->cqCommandQueue, 
+	err = clEnqueueNDRangeKernel(context->getCommandQueue(), 
 								 theKernel, 2, NULL, 
 								 global_work_size, local_work_size, 0, NULL, NULL);
 	
     if (err) {
-        printf("Error: Failed to execute kernel! %d\n", err);
+		vivid::print_cl_error(err);
         exit(1);
     }
 }
 
 void min_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
 {
-	
-	vivid::CLContextSource* tc = new vivid::CLContextSource();
-	
-    cl_context GPUContext = tc->getMyContext()->getContextCL();
-    cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
+	assert(matrix->my_context == output->my_context);   
+	vivid::ContexOpenCl* context = matrix->my_context;		
 	
     // Creates the program
     // Uses NVIDIA helper functions to get the code string and it's size (in bytes)
   	
-	MyKernels *kernels = new MyKernels(GPUContext,cdDevice);
+	MyKernels *kernels = new MyKernels(context->getContextCL(),context->getDeviceCL());
 	
 	cl_kernel theKernel= kernels->getMinKernel();
 	
@@ -526,7 +505,7 @@ void min_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
     err =  parameters_minmax_local(theKernel, matrix, output);	
   	
     if (err != CL_SUCCESS) {
-        printf("Error: Failed to set kernel arguments 3! %d\n", err);
+		vivid::print_cl_error(err);
         exit(1);
     }
 	
@@ -539,12 +518,12 @@ void min_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
     
     const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
 	
-	err = clEnqueueNDRangeKernel(tc->getMyContext()->cqCommandQueue, 
+	err = clEnqueueNDRangeKernel(context->getCommandQueue(), 
 								 theKernel, 2, NULL, 
 								 global_work_size, local_work_size, 0, NULL, NULL);
 	
     if (err) {
-        printf("Error: Failed to execute kernel! %d\n", err);
+		vivid::print_cl_error(err);
         exit(1);
     }
 }
