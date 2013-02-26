@@ -5,11 +5,13 @@
 #include <fstream>
 
 static char* exampleImagePath = "..\\..\\..\\media\\kewell1.jpg";
-
+int device_use; 
 int main(int argc, char* argv[])
 {
 	cv::Mat exampleImage = cv::imread(exampleImagePath, 0);
-
+	device_use = 0;
+	if(argc>1)
+		device_use = atoi(argv[1]);
 	//convert to float
 	exampleImage.convertTo(exampleImage, CV_32FC1);
 

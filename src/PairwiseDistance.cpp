@@ -257,6 +257,17 @@ void pwdist_eucCL(const DeviceMatrixCL* features_train,
 	cl_kernel theKernel= kernels->getPairwiseDistanceKernel();
 	cl_int err;
 	err=0;
+	/*
+	size_t local;
+	err = clGetKernelWorkGroupInfo(theKernel, cdDevice, CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE, sizeof(local), &local, NULL);
+    if (err != CL_SUCCESS)
+    {
+        printf("Error: Failed to retrieve kernel work group info! %d\n", err);
+        exit(1);
+    }
+	printf("simultaneous threads num:%d\n", local);
+	*/
+
 	int f_pitch=0;
     err |= clSetKernelArg(theKernel, 0, sizeof (cl_mem), &features_train->dataMatrix);
     err |= clSetKernelArg(theKernel, 1, sizeof (int), &features_train->width);
@@ -298,7 +309,7 @@ void pwdist_eucCL(const DeviceMatrixCL* features_train,
   //  std::cout << "Blocks: " << global_work_size[0] << ", " << global_work_size[1] << std::endl;
 
 //	double tic = omp_get_wtime();
-//	for(int i=0; i<2000; i++) 
+//	for(int i=0; i<6000; i++) 
 	{
     err = clEnqueueNDRangeKernel(tc->getMyContext()->cqCommandQueue, 
             theKernel, 2, NULL, 
