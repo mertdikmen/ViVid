@@ -43,13 +43,13 @@ namespace vivid
 		
 		size_t param_value_size_ret;
 		printf("OpenCL Platforms: %d\n", n_platforms);
-		for (int i = 0; i < n_platforms; i++)
+		for (unsigned char i = 0; i < n_platforms; i++)
 		{
 			OPENCL_CALL(clGetPlatformInfo(cpPlatforms[i],CL_PLATFORM_VENDOR,256,platform_vendors[i],&param_value_size_ret));
 			std::cout << "Platform " << i + 1 << ": " << platform_vendors[i] << std::endl;
 		}
 
-		for (int i = 0; i < n_platforms; i++)
+		for (unsigned char i = 0; i < n_platforms; i++)
 		{
 			if ((clGetDeviceIDs(cpPlatforms[i], device_type, 1, &cdDevice, NULL) == CL_SUCCESS) &&
 				(strcmp(platform_vendor.c_str(), platform_vendors[i]) == 0))
@@ -58,6 +58,7 @@ namespace vivid
 			}
 		}
 
+		printf("No matching OpenCL Platform found for specified device\n");
 		return NULL;
 	}
 
