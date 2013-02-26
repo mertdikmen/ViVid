@@ -17,22 +17,22 @@ public:
 
 	  DeviceMatrixCL3D::Ptr apply_cl(DeviceMatrixCL::Ptr dmpCL)
 	  {
-		//  double tic0= omp_get_wtime();
+		// double tic0= omp_get_wtime();
 		  DeviceMatrixCL3D::Ptr retdm = filter_frame_cl_3(dmpCL, n_filters, 1, FF_OPTYPE_COSINE);
-	//	  double tic1= omp_get_wtime();
-		//  std::cout << "---filter outside time: " << tic1 - tic0 << std::endl;
+		// double tic1= omp_get_wtime();
+		// std::cout << "---filter outside time: " << tic1 - tic0 << std::endl;
 		  return retdm;
 	  };
 
-	  void set_on_device()
+	  void set_on_device(vivid::DeviceType device_type = vivid::DEVICE_CPU)
 	  {
-		  set_filter_bank_cl(data, n_filters * n_dim * n_dim);
+		  set_filter_bank_cl(data, n_filters * n_dim * n_dim, device_type);
 	  };
 
 	  ~FilterBank()
 	  {
 		  if (data!=NULL)
-		  {
+		  { 
 			  delete[] data;
 			  data = NULL;
 		  }

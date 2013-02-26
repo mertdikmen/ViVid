@@ -61,17 +61,15 @@ int main(int argc, char* argv[])
 		makeDeviceMatrixCL(f_exampleImage.size().height, f_exampleImage.size().width, VIVID_CL_CONTEXT_CPU);
 	DeviceMatrixCL_copyToDevice(*dmpCL_cpu, f_imData);
 
-	//DeviceMatrixCL::Ptr dmpCL_gpu = 
-	//	makeDeviceMatrixCL(exampleImage.size().height, exampleImage.size().width, VIVID_CL_CONTEXT_GPU);
-	//DeviceMatrixCL_copyToDevice(*dmpCL_gpu, f_imData);
+	DeviceMatrixCL::Ptr dmpCL_gpu = 
+		makeDeviceMatrixCL(f_exampleImage.size().height, exampleImage.size().width, VIVID_CL_CONTEXT_GPU);
+	DeviceMatrixCL_copyToDevice(*dmpCL_gpu, f_imData);
 
-	//const int num_filters = 100;
-	//const int filter_dim = 3;
+	const int num_filters = 100;
+	const int filter_dim = 3;
 
-	//FilterBank fb(filter_dim, num_filters);
-	//fb.set_on_device();
-
-	//create vivid opencl contexts
+	FilterBank fb(filter_dim, num_filters);
+	fb.set_on_device();
 
 	std::cout << "Press any key to end." << std::endl;
 	string test;

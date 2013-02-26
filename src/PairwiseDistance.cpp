@@ -182,7 +182,7 @@ void pwdist_genericCL(const DeviceMatrixCL* features_train,
         DeviceMatrixCL* output,
         int type) {
 
-    vivid::TheContext* tc = new vivid::TheContext();
+			vivid::CLContextSource* tc = new vivid::CLContextSource();
 
     cl_context GPUContext = tc->getMyContext()->getContextCL();
     cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
@@ -244,7 +244,7 @@ void pwdist_eucCL(const DeviceMatrixCL* features_train,
         const DeviceMatrixCL* features_test,
         DeviceMatrixCL* output) {
 
-    vivid::TheContext* tc = new vivid::TheContext();
+			vivid::CLContextSource* tc = new vivid::CLContextSource();
 
     cl_context GPUContext = tc->getMyContext()->getContextCL();
     cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
@@ -380,7 +380,7 @@ cl_int parameters_minmax_local(cl_kernel theKernel,const DeviceMatrixCL* matrix,
 void argmin_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
 {
    
-	vivid::TheContext* tc = new vivid::TheContext();
+	vivid::CLContextSource* tc = new vivid::CLContextSource();
 	
     cl_context GPUContext = tc->getMyContext()->getContextCL();
     cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
@@ -418,7 +418,7 @@ void argmin_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
 void argmax_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
 {
 	
-	vivid::TheContext* tc = new vivid::TheContext();
+	vivid::CLContextSource* tc = new vivid::CLContextSource();
 	
     cl_context GPUContext = tc->getMyContext()->getContextCL();
     cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
@@ -463,7 +463,7 @@ void argmax_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
 void max_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
 {
 	
-	vivid::TheContext* tc = new vivid::TheContext();
+	vivid::CLContextSource* tc = new vivid::CLContextSource();
 	
     cl_context GPUContext = tc->getMyContext()->getContextCL();
     cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
@@ -507,7 +507,7 @@ void max_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
 void min_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
 {
 	
-	vivid::TheContext* tc = new vivid::TheContext();
+	vivid::CLContextSource* tc = new vivid::CLContextSource();
 	
     cl_context GPUContext = tc->getMyContext()->getContextCL();
     cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();

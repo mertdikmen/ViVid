@@ -23,11 +23,14 @@ using namespace std;
 #define OPENCL_CALL(call) do {\
 	cl_int err = call; \
 	if(CL_SUCCESS!= err) { \
-	printf("clGetPlatformIDs error\n");	\
+		vivid::print_cl_error(err);	\
 	} } while (0)
 
 namespace vivid
 {
+	enum DeviceType { DEVICE_GPU = CL_DEVICE_TYPE_GPU, DEVICE_CPU = CL_DEVICE_TYPE_GPU };
+	typedef std::pair<cl_platform_id, cl_device_id> PlatformDevicePair;
+
 	void print_cl_error(cl_int errorcode);
 
 	class ContexOpenCl 
@@ -51,17 +54,7 @@ namespace vivid
 			if (Context == NULL) 
 			{
 				printf("clCreateContextFromType error: %d",errorcode);
-				if (errorcode == CL_INVALID_PLATFORM) 
-					printf("invalid platform\n");
-				if (errorcode == CL_INVALID_VALUE) printf("invalid value\n");
-				if (errorcode == CL_DEVICE_NOT_AVAILABLE) 
-					printf("device not available\n");
-				if (errorcode == CL_DEVICE_NOT_FOUND)
-					printf("device not found\n");
-				if (errorcode == CL_OUT_OF_HOST_MEMORY)
-					printf("out of host memory\n");
-				if (errorcode == CL_INVALID_DEVICE_TYPE) 
-					printf("invalid device type\n");
+				print_cl_error(errorcode);
 				exit(1);
 			}
 
@@ -120,29 +113,37 @@ namespace vivid
 		}
 	};
 
-	class TheContext
+	class CLContextSource
 	{
 	public:
-		static ContexOpenCl* The_Context_GPU;
-		static ContexOpenCl* The_Context_CPU;
-
-		TheContext(std::string cpu_platform = "", std::string gpu_platform = "");
-		TheContext(int target_device);
+		CLContextSource(std::string cpu_platform = "", std::string gpu_platform = "");
+		//CLContextSource(int target_device);
 		//TheContext(int cpu);
 		ContexOpenCl* getMyContext(int target_device = VIVID_CL_CONTEXT_GPU)
 		{
-			if (target_device == VIVID_CL_CONTEXT_GPU)
-				return The_Context_GPU;
-			else if (target_device == VIVID_CL_CONTEXT_CPU)
+			switch (target_device)
+			{
+			case VIVID_CL_CONTEXT_CPU:
 				return The_Context_CPU;
+			case VIVID_CL_CONTEXT_GPU:
+				return The_Context_GPU;
+			default:
+				return NULL;
+			}
 		}
 		//myContexOpenCl * getMyContextCPU();
 
-		~TheContext(){};
+		~CLContextSource(){};
 
 		cl_uint n_devices;
 		cl_uint n_platforms;
 
+	private:
+		static ContexOpenCl* The_Context_GPU;
+		static ContexOpenCl* The_Context_CPU;
+
+		static cl_platform_id cpu_platform;
+		static cl_platform_id gpu_platform;
 	};
 }
 

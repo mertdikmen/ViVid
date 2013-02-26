@@ -104,7 +104,7 @@ void cell_histogram_dense_device_cl(
 	
 	assert(histogram->width == max_bin);
 		
-	vivid::TheContext* tc = new vivid::TheContext();
+	vivid::CLContextSource* tc = new vivid::CLContextSource();
 	cl_context GPUContext = tc->getMyContext()->getContextCL();
 	cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
 	
@@ -160,7 +160,7 @@ void cell_histogram_dense_device_cl(DeviceMatrixCL3D* histogram,
 	assert(histogram->dim_x == max_bin);
 	
 	
-	vivid::TheContext* tc = new vivid::TheContext();
+	vivid::CLContextSource* tc = new vivid::CLContextSource();
 	cl_context GPUContext = tc->getMyContext()->getContextCL();
 	cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
 	
@@ -333,7 +333,7 @@ void cell_histogram_dense_device_cl(DeviceMatrixCL3D* histogram,
    assert(histogram->dim_x == max_bin);
 	
 	
-	TheContext* tc = new TheContext();
+	CLContextSource* tc = new CLContextSource();
 	cl_context GPUContext = tc->getMyContext()->getContextCL();
 	cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
 	

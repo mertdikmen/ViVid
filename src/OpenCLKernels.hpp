@@ -19,8 +19,6 @@
 #include <sys/stat.h>
 #include <error.h>
 
-extern int device_use;
-
 static char* load_program_source(const char *filename) {
 
 	struct stat statbuf;
@@ -39,7 +37,6 @@ static char* load_program_source(const char *filename) {
 	return source;
 }
 
-
 struct theKernels {
 	cl_kernel kernel_list[50];
 	cl_program program_list[50]; 
@@ -47,20 +44,21 @@ struct theKernels {
 	cl_device_id cdDevice_K;
 	cl_mem  c_FilterBank;
 	cl_mem constant_kernel;
-	theKernels(cl_context GPUContext, cl_device_id cdDevice){
+	theKernels(cl_context GPUContext, cl_device_id cdDevice)
+	{
 		GPUContext_K = GPUContext;
 		cdDevice_K   = cdDevice;
-		if(device_use)
+		//if(device_use)
 			createKernel("pairwiseDistanceKernel","../../../src/E_PairwiseDistance.cl",0);
-		else
+		//else
 			createKernel("pairwiseDistanceKernel","../../../src/CPU_PairwiseDistance.cl",0);
 		createKernel("argminKernel","../../../src/argminKernel.cl",1);
 		createKernel("argmaxKernel","../../../src/argmaxKernel.cl",2);
 		createKernel("minKernel","../../../src/minKernel.cl",3);
 		createKernel("maxKernel","../../../src/maxKernel.cl",4);
-		if(device_use)
+		//if(device_use)
 			createKernel("blockwise_distance_kernel","../../../src/E_blockwise_distance_kernel.cl",5);
-		else
+		//else
 			createKernel("blockwise_distance_kernel","../../../src/CPU_blockwise_distance_kernel.cl",5);
 		createKernel("blockwise_filter_kernel","../../../src/blockwise_filter_kernel.cl",6);
 		createKernel("cell_histogram_kernel","../../../src/cell_histogram_kernel.cl",7);
@@ -126,300 +124,45 @@ class MyKernels{
 public:
 	static theKernels*  My_Kernels;
 	static theKernels*  My_Kernels_TMP;
-	MyKernels(cl_context GPUContext_K1,
-		cl_device_id cdDevice_K1);
-
-	MyKernels(cl_context GPUContext_K1,
-		cl_device_id cdDevice_K1,int cpu);
-
-	void MyKernelsOff(){
-		My_Kernels=NULL;
-	}
+	MyKernels(cl_context GPUContext_K1, cl_device_id cdDevice_K1);
+	MyKernels(cl_context GPUContext_K1, cl_device_id cdDevice_K1,int cpu);
+	void MyKernelsOff(){ My_Kernels=NULL; }
 
 	theKernels * getMyKernels(){
 		return My_Kernels;
 	}
 
-	cl_kernel getPairwiseDistanceKernel(){
-		return My_Kernels->kernel_list[0];
-	}
+	cl_kernel getPairwiseDistanceKernel(){ return My_Kernels->kernel_list[0];}
+	cl_kernel getArgminKernel(){ return My_Kernels->kernel_list[1];}
+	cl_kernel getArgmaxKernel(){ return My_Kernels->kernel_list[2];}
+	cl_kernel getMinKernel(){ return My_Kernels->kernel_list[3];}
+	cl_kernel getMaxKernel(){ return My_Kernels->kernel_list[4];}
+	cl_kernel getBlockWiseDistanceKernel(){ return My_Kernels->kernel_list[5];}
+	cl_kernel getBlockWiseFilterKernel(){return My_Kernels->kernel_list[6];}
+	cl_kernel getCellHistogramKernel(){ return My_Kernels->kernel_list[7];}
+	cl_kernel getCellHistogramKernel1(){ return My_Kernels->kernel_list[8];}
+	cl_kernel getCellHistogramKernel2(){ return My_Kernels->kernel_list[9];}
+	cl_kernel getCellHistogramKernel3(){ return My_Kernels->kernel_list[10];}
 
-	cl_kernel getArgminKernel(){
-		return My_Kernels->kernel_list[1];
-	}
-
-	cl_kernel getArgmaxKernel(){
-		return My_Kernels->kernel_list[2];
-	}
-
-	cl_kernel getMinKernel(){
-		return My_Kernels->kernel_list[3];
-	}
-
-	cl_kernel getMaxKernel(){
-		return My_Kernels->kernel_list[4];
-	}
-
-	cl_kernel getBlockWiseDistanceKernel(){
-		return My_Kernels->kernel_list[5];
-	}
-
-	cl_kernel getBlockWiseFilterKernel(){
-		return My_Kernels->kernel_list[6];
-	}
-
-	cl_kernel getCellHistogramKernel(){
-		return My_Kernels->kernel_list[7];
-	}
-
-	cl_kernel getCellHistogramKernel1(){
-		return My_Kernels->kernel_list[8];
-	}
-
-	cl_kernel getCellHistogramKernel2(){
-		return My_Kernels->kernel_list[9];
-	}
-
-	cl_kernel getCellHistogramKernel3(){
-	//	printf("ping\n");
-		return My_Kernels->kernel_list[10];
-	}
-	/*
-	cl_kernel getDoConvolution0(){
-		return My_Kernels->kernel_list[10];
-	}
-
-	cl_kernel getDoConvolution1(){
-		return My_Kernels->kernel_list[11];
-	}
-
-	cl_kernel getDoConvolution2_8(){
-		return My_Kernels->kernel_list[12];
-	}
-	cl_kernel getDoConvolution2_10(){
-		return My_Kernels->kernel_list[13];
-	}
-
-	cl_kernel getDoConvolution2_12(){
-		return My_Kernels->kernel_list[14];
-	}
-	cl_kernel getDoConvolution2_14(){
-		return My_Kernels->kernel_list[15];
-	}
-	cl_kernel getDoConvolution3(){
-		return My_Kernels->kernel_list[16];
-	}
-
-	cl_kernel getDoConvolution3_7(){
-		return My_Kernels->kernel_list[17];
-	}
-	cl_kernel getDoConvolution3_9(){
-		return My_Kernels->kernel_list[18];
-
-	}
-	cl_kernel getDoConvolution3_11(){
-		return My_Kernels->kernel_list[19];
-	}
-
-	cl_kernel getDoConvolution4(){
-		return My_Kernels->kernel_list[20];
-	}
-	cl_kernel getDoConvolution4_7(){
-		return My_Kernels->kernel_list[21];
-	}
-	cl_kernel getDoConvolution4_9(){
-		return My_Kernels->kernel_list[22];
-	}
-	cl_kernel getDoConvolution4_11(){
-		return My_Kernels->kernel_list[23];
-	}
-	cl_kernel getDoConvolution4_13(){
-		return My_Kernels->kernel_list[24];
-	}
-	cl_kernel getDoConvolution4_15(){
-		return My_Kernels->kernel_list[25];
-	}
-
-	cl_kernel getDoConvolution5(){
-		return My_Kernels->kernel_list[26];
-	}
-
-	cl_kernel getDoConvolution5_7(){
-		return My_Kernels->kernel_list[27];
-	}
-
-	cl_kernel getDoConvolution5_9(){
-		return My_Kernels->kernel_list[28];
-	}
-
-	cl_kernel getDoConvolution5_11(){
-		return My_Kernels->kernel_list[29];
-	}
-
-	cl_kernel getDoConvolutionComplexT0(){
-		return My_Kernels->kernel_list[30];
-	}
-
-	cl_kernel getDoConvolutionComplexT1_5(){
-		return My_Kernels->kernel_list[31];
-	}
-	cl_kernel getDoConvolutionComplexT1_7(){
-		return My_Kernels->kernel_list[32];
-	}
-
-	cl_kernel getDoConvolutionComplexT1_9(){
-		return My_Kernels->kernel_list[33];
-	}
-
-	cl_kernel getDoConvolutionComplexT1_11(){
-		return My_Kernels->kernel_list[34];
-	}
-	*/
 	~MyKernels(){};
 };
-
-
 
 class MyKernels_CPU{
 public:
 	static theKernels*  My_Kernels;
-	MyKernels_CPU(cl_context GPUContext_K1,
-		cl_device_id cdDevice_K1);
+	MyKernels_CPU(cl_context GPUContext_K1, cl_device_id cdDevice_K1);
 
-	theKernels * getMyKernels(){
-		return My_Kernels;
-	}
+	theKernels * getMyKernels(){return My_Kernels;}
+	cl_kernel getPairwiseDistanceKernel(){return My_Kernels->kernel_list[0];}
+	cl_kernel getArgminKernel(){return My_Kernels->kernel_list[1];}
+	cl_kernel getArgmaxKernel(){return My_Kernels->kernel_list[2];}
+	cl_kernel getMinKernel(){return My_Kernels->kernel_list[3];}
+	cl_kernel getMaxKernel(){return My_Kernels->kernel_list[4];}
+	cl_kernel getBlockWiseDistanceKernel(){return My_Kernels->kernel_list[5];}
+	cl_kernel getBlockWiseFilterKernel(){return My_Kernels->kernel_list[6];}
+	cl_kernel getCellHistogramKernel(){return My_Kernels->kernel_list[7];}
+	cl_kernel getCellHistogramKernel1(){return My_Kernels->kernel_list[8];}
+	cl_kernel getCellHistogramKernel2(){return My_Kernels->kernel_list[9];}
 
-	cl_kernel getPairwiseDistanceKernel(){
-		return My_Kernels->kernel_list[0];
-	}
-
-	cl_kernel getArgminKernel(){
-		return My_Kernels->kernel_list[1];
-	}
-
-	cl_kernel getArgmaxKernel(){
-		return My_Kernels->kernel_list[2];
-	}
-
-	cl_kernel getMinKernel(){
-		return My_Kernels->kernel_list[3];
-	}
-
-	cl_kernel getMaxKernel(){
-		return My_Kernels->kernel_list[4];
-	}
-
-	cl_kernel getBlockWiseDistanceKernel(){
-		return My_Kernels->kernel_list[5];
-	}
-
-	cl_kernel getBlockWiseFilterKernel(){
-		return My_Kernels->kernel_list[6];
-	}
-
-	cl_kernel getCellHistogramKernel(){
-		return My_Kernels->kernel_list[7];
-	}
-
-	cl_kernel getCellHistogramKernel1(){
-		return My_Kernels->kernel_list[8];
-	}
-
-	cl_kernel getCellHistogramKernel2(){
-		return My_Kernels->kernel_list[9];
-	}
-
-	/*
-	cl_kernel getDoConvolution0(){
-		return My_Kernels->kernel_list[10];
-	}
-
-	cl_kernel getDoConvolution1(){
-		return My_Kernels->kernel_list[11];
-	}
-
-	cl_kernel getDoConvolution2_8(){
-		return My_Kernels->kernel_list[12];
-	}
-	cl_kernel getDoConvolution2_10(){
-		return My_Kernels->kernel_list[13];
-	}
-
-	cl_kernel getDoConvolution2_12(){
-		return My_Kernels->kernel_list[14];
-	}
-	cl_kernel getDoConvolution2_14(){
-		return My_Kernels->kernel_list[15];
-	}
-	cl_kernel getDoConvolution3(){
-		return My_Kernels->kernel_list[16];
-	}
-
-	cl_kernel getDoConvolution3_7(){
-		return My_Kernels->kernel_list[17];
-	}
-	cl_kernel getDoConvolution3_9(){
-		return My_Kernels->kernel_list[18];
-
-	}
-	cl_kernel getDoConvolution3_11(){
-		return My_Kernels->kernel_list[19];
-	}
-
-	cl_kernel getDoConvolution4(){
-		return My_Kernels->kernel_list[20];
-	}
-	cl_kernel getDoConvolution4_7(){
-		return My_Kernels->kernel_list[21];
-	}
-	cl_kernel getDoConvolution4_9(){
-		return My_Kernels->kernel_list[22];
-	}
-	cl_kernel getDoConvolution4_11(){
-		return My_Kernels->kernel_list[23];
-	}
-	cl_kernel getDoConvolution4_13(){
-		return My_Kernels->kernel_list[24];
-	}
-	cl_kernel getDoConvolution4_15(){
-		return My_Kernels->kernel_list[25];
-	}
-
-	cl_kernel getDoConvolution5(){
-		return My_Kernels->kernel_list[26];
-	}
-
-	cl_kernel getDoConvolution5_7(){
-		return My_Kernels->kernel_list[27];
-	}
-
-	cl_kernel getDoConvolution5_9(){
-		return My_Kernels->kernel_list[28];
-	}
-
-	cl_kernel getDoConvolution5_11(){
-		return My_Kernels->kernel_list[29];
-	}
-
-	cl_kernel getDoConvolutionComplexT0(){
-		return My_Kernels->kernel_list[30];
-	}
-
-	cl_kernel getDoConvolutionComplexT1_5(){
-		return My_Kernels->kernel_list[31];
-	}
-	cl_kernel getDoConvolutionComplexT1_7(){
-		return My_Kernels->kernel_list[32];
-	}
-
-	cl_kernel getDoConvolutionComplexT1_9(){
-		return My_Kernels->kernel_list[33];
-	}
-
-	cl_kernel getDoConvolutionComplexT1_11(){
-		return My_Kernels->kernel_list[34];
-	}
-	*/
 	~MyKernels_CPU(){};
 };

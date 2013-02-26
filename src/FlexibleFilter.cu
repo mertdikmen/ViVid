@@ -501,8 +501,8 @@ void dist_filter_noargmin(const DeviceMatrix* frame,
                   DeviceMatrix3D* output,
                   const int optype)
 {
-    const int frame_width = float(frame->width) / (nchannels);
-    const int frame_height = float(frame->height);
+    const int frame_width = frame->width / nchannels;
+    const int frame_height = frame->height;
 
     const int apron_hi_y = dim_y / 2;
     const int apron_hi_x = dim_x / 2;

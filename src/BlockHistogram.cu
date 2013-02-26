@@ -186,8 +186,8 @@ void cell_histogram_dense_device(DeviceMatrix3D* histogram,
 
     dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE);
     
-    int grid_ry = (histogram->dim_t + 1) / 2;
-    int grid_cx = (histogram->dim_y + 1) / 2;
+    unsigned int grid_ry = (unsigned int) (histogram->dim_t + 1) / 2;
+    unsigned int grid_cx = (unsigned int) (histogram->dim_y + 1) / 2;
     
     dim3 dimGrid(grid_cx, grid_ry);
 

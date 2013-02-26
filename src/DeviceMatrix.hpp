@@ -57,13 +57,13 @@ struct DeviceMatrix3D {
     typedef boost::shared_ptr<DeviceMatrix3D> Ptr;
     typedef std::vector<Ptr> PtrList;
 
-    unsigned int dim_x; //!< width in floats
-    unsigned int dim_y; //!< height in floats
-    unsigned int dim_t; //!< depth (length?) in floats
+    size_t dim_x; //!< width in floats
+    size_t dim_y; //!< height in floats
+    size_t dim_t; //!< depth (length?) in floats
 
     // We assume that the data is tightly packed in x
-    unsigned int pitch_y; //! pitch in the y direction
-    unsigned int pitch_t; //! pitch in the t direction
+    size_t pitch_y; //! pitch in the y direction
+    size_t pitch_t; //! pitch in the t direction
 
     /**
      * @note We structure the data as data[t][y][x] (or as

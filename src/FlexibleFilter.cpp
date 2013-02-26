@@ -96,7 +96,7 @@ void cosine_filter(
 #define N_MAX_
 #define N_MAX_CHANNELS 10
 
-int update_filter_bank_internal_cl(float* new_filter, int filter_size){
+int update_filter_bank_internal_cl(float* new_filter, int filter_size, vivid::DeviceType device_type){
 		
     if (filter_size > MAX_FILTERBANK_SIZE){
         printf("ERROR: Filterbank too large\n");
@@ -104,10 +104,8 @@ int update_filter_bank_internal_cl(float* new_filter, int filter_size){
     }
     else 
 	{
-        //std::cout << "Loading the filterbank" << std::endl;
-        //printf("Value in:%05f\n",new_filter[0]);
 		
-		vivid::TheContext* tc = new vivid::TheContext();
+		vivid::CLContextSource* tc = new vivid::CLContextSource();
 		cl_context GPUContext = tc->getMyContext()->getContextCL();
 		cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
 		MyKernels *kernels = new MyKernels(GPUContext,cdDevice);
@@ -134,7 +132,7 @@ int set_filter_bank_cuda(float* filter_bank, int size){
     return update_filter_bank_internal(filter_bank,size); 
 }
 
-int set_filter_bank_cl(float* filter_bank, int size){
+int set_filter_bank_cl(float* filter_bank, int size, vivid::DeviceType device_type){
 	// reorganize data in SIMD8 vectors
 	// |0 1 2 .. 8| 0 1 2 .. 8 ..  =>> 0 0 0 ... 1 1 1 .. 
 	float* tmpbank = new float[size];
@@ -155,7 +153,7 @@ int set_filter_bank_cl(float* filter_bank, int size){
 		}
 	}
 
-    return update_filter_bank_internal_cl(tmpbank,size); 
+    return update_filter_bank_internal_cl(tmpbank,size,device_type); 
 }
 
 /* CUDA Functions */
@@ -415,7 +413,7 @@ void dist_filter2_d3_cl(const DeviceMatrixCL* frame,
 	const int n_blocks_y = (valid_region_w / (BLOCK_SIZE * BLOCK_MULT) + 1)* local_work_size[1];	
 	const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
 	
-	vivid::TheContext* tc = new vivid::TheContext();
+	vivid::CLContextSource* tc = new vivid::CLContextSource();
 	
     cl_context GPUContext = tc->getMyContext()->getContextCL();
     cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
@@ -495,7 +493,7 @@ void dist_filter2_d5_cl(const DeviceMatrixCL* frame,
     
     const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
 	
-	vivid::TheContext* tc = new vivid::TheContext();
+	vivid::CLContextSource* tc = new vivid::CLContextSource();
 	
     cl_context GPUContext = tc->getMyContext()->getContextCL();
     cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
@@ -553,7 +551,7 @@ void dist_filter2_d7_cl(const DeviceMatrixCL* frame,
     
     const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
 	
-	vivid::TheContext* tc = new vivid::TheContext();
+	vivid::CLContextSource* tc = new vivid::CLContextSource();
 	
     cl_context GPUContext = tc->getMyContext()->getContextCL();
     cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
@@ -616,7 +614,7 @@ void dist_filter_noargmin_cl(const DeviceMatrixCL* frame,
 	
 	
 	
-	vivid::TheContext* tc = new vivid::TheContext();
+	vivid::CLContextSource* tc = new vivid::CLContextSource();
 	
     cl_context GPUContext = tc->getMyContext()->getContextCL();
     cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
@@ -672,7 +670,7 @@ void hist_all_cells_cl(const DeviceMatrixCL3D* inds_and_weights,
     
     const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
     
-    vivid::TheContext* tc = new vivid::TheContext();
+	vivid::CLContextSource* tc = new vivid::CLContextSource();
     
     cl_context GPUContext = tc->getMyContext()->getContextCL();
     cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
