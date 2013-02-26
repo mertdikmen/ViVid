@@ -9,20 +9,18 @@
 
 namespace bpo = boost::program_options;
 
-
 static char* exampleImagePath = "..\\..\\..\\media\\kewell1.jpg";
 
 void parse_config(std::string config_filename, std::string& cpu_platform, std::string& gpu_platform)
 {
-	std::ifstream config_stream(config_filename.c_str());
+	std::ifstream config_stream(config_filename.c_str(), ios_base::in);
 	bpo::options_description desc("Options");
 	desc.add_options()
 		("CPUContext.platform", bpo::value<std::string>(&cpu_platform)->default_value("Intel(R) Corporation"), "CPU platform")
-		("GPUContext.platform", 
-		 bpo::value<std::string>(&gpu_platform)->default_value("NVIDIA"), "GPU platform");
-
+		("GPUContext.platform", bpo::value<std::string>(&gpu_platform)->default_value("NVIDIA"), "GPU platform");
+	
 	bpo::variables_map vm;
-
+	
 	try 
 	{
 		bpo::store(bpo::parse_config_file(config_stream, desc), vm);
@@ -35,7 +33,6 @@ void parse_config(std::string config_filename, std::string& cpu_platform, std::s
 	}
 	
 	config_stream.close();
-	
 }
 
 int main(int argc, char* argv[])
@@ -49,6 +46,7 @@ int main(int argc, char* argv[])
 	std::cout << "Config: CPU Platform: " << cpu_platform << std::endl;
 	std::cout << "Config: GPU Platform: " << gpu_platform << std::endl;
 	
+	//Initialize the singleton source
 	vivid::CLContextSource cl_context_source(cpu_platform, gpu_platform);
 
 	//pull the data
@@ -68,12 +66,14 @@ int main(int argc, char* argv[])
 	const int num_filters = 100;
 	const int filter_dim = 3;
 
-	FilterBank fb(filter_dim, num_filters);
-	fb.set_on_device();
+	FilterBank fb_cpu(filter_dim, num_filters);
+	fb_cpu.set_on_device(vivid::DEVICE_CPU);
 
-	std::cout << "Press any key to end." << std::endl;
-	string test;
-	std::cin >> test;
+	FilterBank fb_gpu(filter_dim, num_filters);
+	fb_gpu.set_on_device(vivid::DEVICE_GPU);
+
+	std::cout << "Press ENTER to end." << std::endl;
+	std::cin.ignore( std::numeric_limits <std::streamsize> ::max(), '\n' );
 
 	return 0;
 }
