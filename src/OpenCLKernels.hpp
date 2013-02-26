@@ -40,15 +40,17 @@ static char* load_program_source(const char *filename) {
 struct theKernels {
 	cl_kernel kernel_list[50];
 	cl_program program_list[50]; 
-	cl_context GPUContext_K;
+	cl_context my_context;
 	cl_device_id cdDevice_K;
 	cl_mem  c_FilterBank;
 	cl_mem constant_kernel;
-	theKernels(cl_context GPUContext, cl_device_id cdDevice)
+	theKernels(vivid::ContexOpenCl* context, cl_device_id cdDevice)
 	{
-		GPUContext_K = GPUContext;
+		my_context = context->getContextCL();
+		
+		
 		cdDevice_K   = cdDevice;
-		//if(device_use)
+		
 			createKernel("pairwiseDistanceKernel","../../../src/E_PairwiseDistance.cl",0);
 		//else
 			createKernel("pairwiseDistanceKernel","../../../src/CPU_PairwiseDistance.cl",0);
