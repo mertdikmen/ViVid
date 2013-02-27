@@ -97,7 +97,7 @@ void cell_histogram_dense_device_cl(
 	
 	//MyKernels *kernels = new MyKernels(context->getContextCL(),context->getDeviceCL());
 
-	histogram->zero();
+	//histogram->zero(); this is done inside the kernel
 	
 	const size_t local_work_size[2] = {BLOCK_SIZE, BLOCK_SIZE}; 
 
