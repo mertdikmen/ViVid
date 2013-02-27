@@ -30,8 +30,8 @@ static void deleteDeviceMatrix(DeviceMatrix* mat)
 boost::shared_ptr<DeviceMatrix> makeDeviceMatrix(size_t height,	size_t width)
 {
 	DeviceMatrix* mat = new DeviceMatrix();
-	mat->width = width;
-	mat->height = height;
+	mat->width = (unsigned int) width;
+	mat->height = (unsigned int) height;
 	CUDA_CALL
 		(cudaMallocPitch((void**)&mat->data, &mat->pitch,
 		mat->width * sizeof(float),
@@ -119,13 +119,13 @@ boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(size_t height, size_t width
 	cl_int prueba = clGetDeviceInfo(mat->my_context->getDeviceCL(), CL_DEVICE_MEM_BASE_ADDR_ALIGN , sizeof(buffer), &buffer, NULL);
 	buffer /= 8;
 
-	int naturalPitch = sizeof(float) * mat->width;
+	int naturalPitch = sizeof(float) * int(mat->width);
 
 	/*let's call this base (2) find the largest multiple of base
 	that is no less than your natural
 	data pitch (sizeof(type) times number of columns);*/
 
-	int devicepitch = ceil(float(naturalPitch)/buffer) * buffer;
+	int devicepitch = (int)ceil(float(naturalPitch)/buffer) * buffer;
 
 	//printf("Pitch: %d, DevicePitch: %d, Buffer: %d\n", naturalPitch, devicepitch, buffer);
 
@@ -135,7 +135,7 @@ boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(size_t height, size_t width
 
 	//std::cout << height << "\t" << devicepitch << std::endl;
 
-	const int mem_size = (mat->height+16) * mat->pitch;
+	const int mem_size = (int)((mat->height+16) * mat->pitch);
 
 	//std::cout << "Mem size: " << mem_size << std::endl;
 
@@ -157,7 +157,7 @@ boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(size_t height, size_t width
 
 void DeviceMatrixCL_copyToDevice(DeviceMatrixCL& self, const float* data)
 {
-	const int mem_size = self.height * self.pitch;
+	const int mem_size = int(self.height * self.pitch);
 	
 	size_t buffer_origin[3] = {0,0,0};
 	size_t host_origin[3] = {0,0,0};	
@@ -225,7 +225,7 @@ void DeviceMatrixCL3D_copyFromDevice(const DeviceMatrixCL3D& self, float* dst)
 		size_t region[3] = {self.dim_x * sizeof(float),
 			self.dim_y,
 			self.dim_t};	
-		float prueba[5][2][3];
+
 		//PyArray_DATA(retval.ptr());
 		cl_int err =
 			clEnqueueReadBufferRect(
@@ -238,7 +238,6 @@ void DeviceMatrixCL3D_copyFromDevice(const DeviceMatrixCL3D& self, float* dst)
 			self.dim_x * sizeof(float), 0,
 			dst,
 			0, NULL, NULL);
-		//std::cout<<prueba[2][2][2]<<" "<<prueba[0][0][2]<<endl;
 
 		if (err != CL_SUCCESS){
 			vivid::print_cl_error(err);
@@ -249,7 +248,7 @@ void DeviceMatrixCL3D_copyFromDevice(const DeviceMatrixCL3D& self, float* dst)
 void DeviceMatrixCL_copyFromDevice(const DeviceMatrixCL& self, float* dst)
 {
 	if ((self.width > 0) && (self.height > 0)) {
-		const int mem_size = self.height * self.pitch;
+		const int mem_size = int(self.height * self.pitch);
 
 		size_t buffer_origin[3] = {0,0,0};
 		size_t host_origin[3] = {0,0,0};	
@@ -368,17 +367,12 @@ DeviceMatrix3D::Ptr makeDeviceMatrix3DPacked(size_t dim_t, size_t dim_y,
 }
 
 void DeviceMatrix::zero(){
-	CUDA_CALL(
-		cudaMemset(data, 0, height * width * sizeof(float));
-	);
+	CUDA_CALL(cudaMemset(data, 0, height * width * sizeof(float)););
 }
 
 void DeviceMatrix3D::zero()
 {
-	CUDA_CALL
-		(
-		cudaMemset(data, 0, dim_t * pitch_t * sizeof(float));
-	);
+	CUDA_CALL(cudaMemset(data, 0, dim_t * pitch_t * sizeof(float)););
 }
 
 
@@ -427,7 +421,6 @@ OpenCL 3d MATRIX
 static void deleteDeviceMatrixCL3D(DeviceMatrixCL3D* mat)
 {
 	OPENCL_CALL(clReleaseMemObject(mat->dataMatrix));
-
 	delete mat;
 }
 
@@ -435,11 +428,10 @@ DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(size_t dim_t, size_t dim_y, size_t di
 {
 	DeviceMatrixCL3D* mat = new DeviceMatrixCL3D();
 	mat->my_context = dst_context;
-	mat->dim_x = dim_x;
-	mat->dim_y = dim_y;
-	mat->dim_t = dim_t;
+	mat->dim_x = (unsigned int) dim_x;
+	mat->dim_y = (unsigned int) dim_y;
+	mat->dim_t = (unsigned int) dim_t;
 	//printf("%d  x %d  x  %d\n",dim_x,dim_y,dim_t);
-	size_t pitch;
 
 	/*The optimal pitch is computed by (1) getting the base address alignment
 	preference for your card (CL_DEVICE_MEM_BASE_ADDR_ALIGN property with
@@ -457,12 +449,12 @@ DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(size_t dim_t, size_t dim_y, size_t di
 	that is no less than your natural
 	data pitch (sizeof(type) times number of columns);*/
 
-	int devicepitch = ceil(float(naturalPitch)/buffer) * buffer;
+	int devicepitch = (int) ceil(float(naturalPitch)/buffer) * buffer;
 
 	//printf("Pitch: %d, DevicePitch: %d, Buffer: %d\n", naturalPitch, devicepitch, buffer);
 
 	mat->pitch_y = naturalPitch;//devicepitch;
-	mat->pitch_t = dim_y*mat->pitch_y;
+	mat->pitch_t = (unsigned int) dim_y * mat->pitch_y;
 
 	//You then allocate pitch times number of rows bytes, and pass the pitch information to kernels.
 
@@ -492,16 +484,15 @@ DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(size_t dim_t, size_t dim_y, size_t di
 DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3DPacked(size_t dim_t, size_t dim_y, size_t dim_x, vivid::DeviceType device_type)
 {
 	DeviceMatrixCL3D* mat = new DeviceMatrixCL3D();
-	mat->dim_x = dim_x;
-	mat->dim_y = dim_y;
-	mat->dim_t = dim_t;
-	size_t pitch;
+	mat->dim_x = (unsigned int) dim_x;
+	mat->dim_y = (unsigned int) dim_y;
+	mat->dim_t = (unsigned int) dim_t;
 
 	vivid::CLContextSource* tc = new vivid::CLContextSource();
 	mat->my_context = tc->getContext(device_type);
 	
-	mat->pitch_y = dim_x;
-	mat->pitch_t = dim_y*mat->pitch_y;
+	mat->pitch_y = (unsigned int) dim_x;
+	mat->pitch_t = (unsigned int) dim_y * mat->pitch_y;
 
 	const int mem_size = mat->dim_t * mat->pitch_t;
 
@@ -513,9 +504,14 @@ DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3DPacked(size_t dim_t, size_t dim_y, siz
 	return DeviceMatrixCL3D::Ptr(mat, deleteDeviceMatrixCL3D);	
 }
 
-void DeviceMatrixCL::zero(){}
-
-void DeviceMatrixCL3D::zero(){}
+void DeviceMatrixCL::zero()
+{
+	printf("Warning: DeviceMatrixCL::zero is not implemented\n");
+}
+void DeviceMatrixCL3D::zero()
+{
+	printf("Warning: DeviceMatrixCL3D::zero is not implemented\n");
+}
 
 DeviceMatrixCL3D::Ptr
 	cropDeviceMatrixCL3D(const DeviceMatrixCL3D::Ptr self,
@@ -523,9 +519,9 @@ DeviceMatrixCL3D::Ptr
 {
 	boost::shared_ptr<DeviceMatrixCL3DView> retval(new DeviceMatrixCL3DView());
 	retval->parent = self;
-	retval->dim_x = new_dim_x;
-	retval->dim_y = new_dim_y;
-	retval->dim_t = new_dim_t;
+	retval->dim_x = (unsigned int) new_dim_x;
+	retval->dim_y = (unsigned int) new_dim_y;
+	retval->dim_t = (unsigned int) new_dim_t;
 	retval->pitch_y = self->pitch_y;
 	retval->pitch_t = self->pitch_t;
 	retval->data = self->data;
@@ -543,11 +539,11 @@ MCLMatrix3D::Ptr makeMCLMatrix3D(size_t dim_t, size_t dim_y,
 								 size_t dim_x)
 {
 	MCLMatrix3D* mat = new MCLMatrix3D();
-	mat->dim_x = dim_x;
-	mat->dim_y = dim_y;
-	mat->dim_t = dim_t;
-	mat->pitch_y = dim_x;
-	mat->pitch_t = dim_y*mat->pitch_y;
+	mat->dim_x = (unsigned int) dim_x;
+	mat->dim_y = (unsigned int) dim_y;
+	mat->dim_t = (unsigned int) dim_t;
+	mat->pitch_y = (unsigned int) dim_x;
+	mat->pitch_t = mat->pitch_y * (unsigned int)(dim_y);
 
 	mat->data = new float[dim_x * dim_y * dim_t];
 
