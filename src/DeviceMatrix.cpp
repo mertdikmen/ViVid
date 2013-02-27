@@ -88,12 +88,9 @@ boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(DeviceMatrixCL3D& src, cons
 	mat->height = height;
 	mat->my_context = src.my_context;
 
-	//size_t mem_size = width * height 
-
 	size_t buffer_region[2] = {src.pitch_t * slice, src.pitch_t};
 
 	cl_int err;
-
 	mat->dataMatrix = clCreateSubBuffer(src.dataMatrix, CL_MEM_READ_WRITE, CL_BUFFER_CREATE_TYPE_REGION, buffer_region, &err);
 	CHECK_CL_ERROR(err);
 
