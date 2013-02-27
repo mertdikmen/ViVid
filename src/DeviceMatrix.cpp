@@ -424,7 +424,12 @@ MCudaMatrix3D::Ptr makeMCudaMatrix3D(size_t dim_t, size_t dim_y,
 OpenCL 3d MATRIX
 **/
 
-static void deleteDeviceMatrixCL3D(DeviceMatrixCL3D* mat){}
+static void deleteDeviceMatrixCL3D(DeviceMatrixCL3D* mat)
+{
+	OPENCL_CALL(clReleaseMemObject(mat->dataMatrix));
+
+	delete mat;
+}
 
 DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(size_t dim_t, size_t dim_y, size_t dim_x, vivid::ContexOpenCl* dst_context)
 {
