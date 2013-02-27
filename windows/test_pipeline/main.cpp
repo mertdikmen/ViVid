@@ -137,6 +137,8 @@ int main(int argc, char* argv[])
 	//convert to float
 	exampleImage.convertTo(exampleImage, CV_32FC1);
 
+	cv::resize(exampleImage, exampleImage, cv::Size(exampleImage.cols, exampleImage.rows));
+
 	if(device_use==0)
 		std::cout << "running on CPU" <<std::endl;
 	else
@@ -166,7 +168,7 @@ int main(int argc, char* argv[])
 	double tic0, tic1, tic2, tic3;
 	tic0= omp_get_wtime();
 
-//	for(int i=0; i<1000; i++)
+	for(int i=0; i<1000; i++)
 	{
 
 	DeviceMatrixCL3D::Ptr ff_im = fb.apply_cl(dmpCL);
@@ -178,6 +180,10 @@ int main(int argc, char* argv[])
 	tic2= omp_get_wtime();
 
 	DeviceMatrixCL::Ptr result = clf.apply(block_histogram);
+
+	TheContext* tc = new TheContext();
+
+	clFinish(tc->getMyContext()->cqCommandQueue);
 	}
 
 	tic3 = omp_get_wtime();

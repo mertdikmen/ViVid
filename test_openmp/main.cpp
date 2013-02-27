@@ -76,10 +76,10 @@ int main(int argc, char* argv[])
 
 
 	//cosine_filter_mix(f_imData, filter_bank, height, width, filter_dim, filter_dim, num_filters, retvalC);
-	//cosine_filter_old(f_imData, filter_bank, height, width, filter_dim, filter_dim, num_filters, retvalC);
+	cosine_filter_old(f_imData, filter_bank, height, width, filter_dim, filter_dim, num_filters, retvalC);
 	//cosine_filter_transpose(f_imData, filter_bank, height, width, filter_dim, filter_dim, num_filters, retvalC);
 	//cosine_filter_avx(f_imData, filter_bank, height, width, filter_dim, filter_dim, num_filters, retvalC);
-	cosine_filter_avx_nocomp(f_imData, filter_bank, height, width, filter_dim, filter_dim, num_filters, retvalC);
+	//cosine_filter_avx_nocomp(f_imData, filter_bank, height, width, filter_dim, filter_dim, num_filters, retvalC);
 	//cosine_filter_sse(f_imData, filter_bank, height, width, filter_dim, filter_dim, num_filters, retvalC);
 
 	std::ofstream test_out_c("testc.out", std::ios_base::out);
@@ -139,8 +139,8 @@ void cosine_filter_old(
 		}
 	}
 
-	int n_threads = omp_get_num_procs();
-	omp_set_num_threads(n_threads);
+	int n_threads = 1;//omp_get_num_procs();
+	//omp_set_num_threads(n_threads);
 
 	double tic = omp_get_wtime();
 
@@ -148,7 +148,7 @@ void cosine_filter_old(
 	int height_step = valid_height / n_threads + 1;
 
 	for(int i=0; i<1000; i++)
-#pragma omp parallel for
+//#pragma omp parallel for
 		for (int tid=0; tid<n_threads; tid++){
 			int start_y = apron_y + tid * height_step;
 			int end_y = min(start_y + height_step, height - apron_y);
