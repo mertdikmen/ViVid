@@ -1,7 +1,10 @@
 #include "OpenCLKernels.hpp"
+#include "cl_exceptions.hpp"
 
 ViVidCLKernels::ViVidCLKernels(cl_context context, vivid::DeviceType device_type)
 {
+	memset(kernel_ready, 0, sizeof(bool) * NUM_MAX_KERNELS);
+
 	if (device_type == vivid::DEVICE_GPU)
 		createKernel(context, "pairwiseDistanceKernel","../../../src/E_PairwiseDistance.cl",0);
 	else if (device_type == vivid::DEVICE_CPU)
@@ -37,11 +40,8 @@ void ViVidCLKernels::createKernel(cl_context context, const char* kernel, const 
 		cl_int err;
 
 		program_list[indice] = clCreateProgramWithSource(context, 1, (const char **) &program_source, NULL, &err);
-		if (!program_list[indice]) {
-			printf("Error: Failed to create compute program for device %d Kernel: (%s)!\n", indice,kernel);
-			printf("************\n%s\n************\n", program_source);
-		}
-
+		CHECK_CL_ERROR(err);
+		
 		// Build the program executable
 		const char * options = "-cl-fast-relaxed-math";
 		err = clBuildProgram(program_list[indice], 0, NULL, options, NULL, NULL);
@@ -56,11 +56,7 @@ void ViVidCLKernels::createKernel(cl_context context, const char* kernel, const 
 		}
 
 		kernel_list[indice] = clCreateKernel(program_list[indice], kernel, &err);
-		if (!kernel_list[indice] || err != CL_SUCCESS) 
-		{
-			printf("Error: Failed to create compute kernel for device %d Kernel: (%s)!\n", indice, full_path);
-			exit(1);
-		}
+		CHECK_CL_ERROR(err);
 }
 
 //theKernels *  MyKernels::My_Kernels=NULL;

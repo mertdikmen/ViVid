@@ -12,6 +12,8 @@
 #include <error.h>
 #include "OpenCLTypes.hpp"
 
+#define NUM_MAX_KERNELS 50
+
 static char* load_program_source(const char *filename) 
 {
 	struct stat statbuf;
@@ -51,8 +53,9 @@ public:
 	cl_kernel getCellHistogramKernel3(){ return kernel_list[10];}
 
 private:
-	cl_kernel kernel_list[50];
-	cl_program program_list[50]; 
+	cl_kernel kernel_list[NUM_MAX_KERNELS];
+	bool kernel_ready[NUM_MAX_KERNELS];
+	cl_program program_list[NUM_MAX_KERNELS]; 
 	cl_device_id cdDevice_K;
 	cl_mem constant_kernel;
 };
