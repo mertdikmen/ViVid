@@ -55,17 +55,51 @@ int main(int argc, char* argv[])
 	cv::Mat exampleImage = cv::imread(exampleImagePath, 0);
 	cv::Mat f_exampleImage;
 	exampleImage.convertTo(f_exampleImage, CV_32FC1);
+	cv::resize(f_exampleImage, f_exampleImage, cv::Size(f_exampleImage.size().width * 2, f_exampleImage.size().height));
 
-	float* f_imData = (float*) f_exampleImage.data;
+	auto width = f_exampleImage.size().width;
+	auto height = f_exampleImage.size().height;
+
+	/*float split_coeff = 0.333333f;*/
+	float split_coeff = 0.33333;
+	if (argc > 1)
+	{
+		split_coeff = atof(argv[1]);
+	}
+
+	int sub_width = width * split_coeff + 1;
+
+	////height split
+	//cv::Mat cpu_image = exampleImage(cv::Rect(0,height * split_coeff,width, height * (1.0f - split_coeff))).clone();
+	//cv::Mat gpu_image = exampleImage(cv::Rect(0,0,width, height * split_coeff)).clone();
+
+	//width split
+	cv::Mat cpu_image = f_exampleImage(cv::Rect(sub_width, 0, width-sub_width, height)).clone();
+	cv::Mat gpu_image = f_exampleImage(cv::Rect(0, 0, sub_width, height)).clone();
+
+	float* cpu_image_data = (float*) _mm_malloc(cpu_image.size().area() *sizeof(float), 256);
+	float* gpu_image_data = (float*) _mm_malloc(gpu_image.size().area() *sizeof(float), 256);
+
+	//for (int i = 0; i < cpu_image.size().area(); i++)
+	//{
+	//	cpu_image_data[i] = cpu_image.data[i];
+	//}
+
+	//for (int i = 0; i < gpu_image.size().area(); i++)
+	//{
+	//	gpu_image_data[i] = gpu_image.data[i];
+	//}
+
+	printf("CPU Image\twidth: %d,\theight: %d\n", cpu_image.size().width, cpu_image.size().height);
+	printf("GPU Image\twidth: %d,\theight: %d\n", gpu_image.size().width, gpu_image.size().height);
+
 	DeviceMatrixCL::Ptr dmpCL_gpu = 
-		makeDeviceMatrixCL(f_exampleImage.size().height, exampleImage.size().width, vivid::DEVICE_GPU);
-	DeviceMatrixCL_copyToDevice(*dmpCL_gpu, f_imData);
+		makeDeviceMatrixCL(gpu_image.size().height, gpu_image.size().width, vivid::DEVICE_GPU);
+	DeviceMatrixCL_copyToDevice(*dmpCL_gpu, (float*) gpu_image_data);
 
-	cv::resize(f_exampleImage, f_exampleImage, cv::Size(f_exampleImage.cols * 2, f_exampleImage.rows * 2));
-	f_imData = (float*) f_exampleImage.data;	
 	DeviceMatrixCL::Ptr dmpCL_cpu = 
-		makeDeviceMatrixCL(f_exampleImage.size().height, f_exampleImage.size().width, vivid::DEVICE_CPU);
-	DeviceMatrixCL_copyToDevice(*dmpCL_cpu, f_imData);
+		makeDeviceMatrixCL(cpu_image.size().height, cpu_image.size().width, vivid::DEVICE_CPU);
+	DeviceMatrixCL_copyToDevice(*dmpCL_cpu, (float*) cpu_image_data);
 
 	const int num_filters = 100;
 	const int filter_dim = 3;
@@ -78,31 +112,44 @@ int main(int argc, char* argv[])
 	fb_gpu.set_on_device(vivid::DEVICE_GPU);	
 	Classifier clf_gpu(128, 64, 8, 2, num_filters, vivid::DEVICE_GPU);
 	
+	printf("Classifier CPU: %d x %d\n", clf_cpu.classifierCL->width, clf_cpu.classifierCL->height);
+	printf("Classifier GPU: %d x %d\n", clf_gpu.classifierCL->width, clf_gpu.classifierCL->height);
+
 	double tic = omp_get_wtime();
-
-	for (int i = 1000; i > 0; i--)
+	DeviceMatrixCL::Ptr block_histogram_cpu;
+	DeviceMatrixCL::Ptr block_histogram_gpu;
+	for (int i = 500; i > 0; i--)
 	{
+		if (1)
+		{
 		DeviceMatrixCL3D::Ptr ff_im_cpu = fb_cpu.apply_cl(dmpCL_cpu);
-		DeviceMatrixCL::Ptr block_histogram_cpu = cell_histogram_dense_cl(
+		 block_histogram_cpu = cell_histogram_dense_cl(
 			ff_im_cpu, num_filters, 8, 0, 0, 
-			exampleImage.size().height, exampleImage.size().width);
+			cpu_image.size().height, cpu_image.size().width);
 		DeviceMatrixCL::Ptr result_cpu = clf_cpu.apply(block_histogram_cpu);
-
+		}
+		if (1)
+		{
 		DeviceMatrixCL3D::Ptr ff_im_gpu = fb_gpu.apply_cl(dmpCL_gpu);
-		DeviceMatrixCL::Ptr block_histogram_gpu = cell_histogram_dense_cl(
+		block_histogram_gpu = cell_histogram_dense_cl(
 			ff_im_gpu, num_filters, 8, 0, 0, 
-			exampleImage.size().height, exampleImage.size().width);
+			gpu_image.size().height, gpu_image.size().width);
 		DeviceMatrixCL::Ptr result_gpu = clf_gpu.apply(block_histogram_gpu);
-		
-		clFinish(cl_context_source.getContext(vivid::DEVICE_CPU)->getCommandQueue());
-		clFinish(cl_context_source.getContext(vivid::DEVICE_GPU)->getCommandQueue());
+		}		
 	}
+	clFinish(cl_context_source.getContext(vivid::DEVICE_CPU)->getCommandQueue());
+	clFinish(cl_context_source.getContext(vivid::DEVICE_GPU)->getCommandQueue());
+	//printf("Blocks CPU y: %d, x: %d\n", block_histogram_cpu->height, block_histogram_cpu->width);
+	//printf("Blocks GPU y: %d, x: %d\n", block_histogram_gpu->height, block_histogram_gpu->width);
+
+
+
 	double toc = omp_get_wtime();
 
 	std::cout << "Total runtime: " << toc - tic << std::endl;
 
-	std::cout << "Press ENTER to end." << std::endl;
-	std::cin.ignore( std::numeric_limits <std::streamsize> ::max(), '\n' );
+	//std::cout << "Press ENTER to end." << std::endl;
+	//std::cin.ignore( std::numeric_limits <std::streamsize> ::max(), '\n' );
 
 	return 0;
 }
