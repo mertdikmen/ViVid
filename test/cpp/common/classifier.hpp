@@ -16,7 +16,7 @@ public:
 		  _n_blocks_x = _n_cells_x - _block_size + 1;
 		  _n_blocks_y = _n_cells_y - _block_size + 1;
 
-		  _n_total_coeff = _block_size * _block_size * _n_blocks_x * _n_blocks_y, _dict_size;
+		  _n_total_coeff = _block_size * _block_size * _n_blocks_x * _n_blocks_y * _dict_size;
 
 		  coefficients = new float[_n_total_coeff];
 
@@ -45,20 +45,20 @@ public:
 			  coefficients = NULL;
 		  }
 	  };
+	
 
+	DeviceMatrixCL::Ptr classifierCL;
 private:
 	const int _window_height;
 	const int _window_width;
 	const int _cell_size;
 	const int _block_size;
 	const int _dict_size;
-
 	int _n_total_coeff;
-
 	int _n_cells_x, _n_cells_y;
 	int _n_blocks_x, _n_blocks_y;
 
 	float* coefficients;
 
-	DeviceMatrixCL::Ptr classifierCL;
+
 };
