@@ -3,7 +3,7 @@
 
 void vivid::print_cl_error(cl_int errorcode, char* file, int line)
 {
-	if (line > 0)
+	if (line <= 0)
 	{
 		printf("OpenCL Error in file: %s at line: %d. ", file, line);
 	}
@@ -60,6 +60,6 @@ void vivid::print_cl_error(cl_int errorcode, char* file, int line)
 	case CL_INVALID_GL_OBJECT:                  printf("Invalid OpenGL object");break;
 	case CL_INVALID_BUFFER_SIZE:                printf("Invalid buffer size");break;
 	case CL_INVALID_MIP_LEVEL:                  printf("Invalid mip-map level");break;
-	default: printf("Unknown");
+	default: printf("Unknown: %d", errorcode);
 	}
 }
