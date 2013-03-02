@@ -1,14 +1,6 @@
-
-
-
-
-
 __constant int MAX_HISTOGRAM_SIZE = 500;
- __constant int BLOCK_SIZE = 16;
- 
- __constant int histogram_cache_sz =2000; // 4 * MAX_HISTOGRAM_SIZE
-
-
+__constant int BLOCK_SIZE = 16;
+__constant int histogram_cache_sz =2000; // 4 * MAX_HISTOGRAM_SIZE
 
 __kernel void  cellHistogramKernel2(
     __global float* histogram, 

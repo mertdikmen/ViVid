@@ -114,7 +114,7 @@ DeviceMatrix3D::Ptr makeDeviceMatrix3D(const boost::python::object& array)
 {
   PyObject* contig
     = PyArray_FromAny(array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
-                      3, 3, NPY_ARRAY_CARRAY, NULL);
+                      3, 3, NPY_CARRAY, NULL);
   handle<> temp(contig);
   object arr(temp);
 
@@ -216,7 +216,7 @@ void DeviceMatrix3D_copyToDevicePy(DeviceMatrix3D& self,
 {
     PyObject* contig
         = PyArray_FromAny(array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
-                          3, 3, NPY_ARRAY_CARRAY, NULL);
+                          3, 3, NPY_CARRAY, NULL);
     handle<> temp(contig);
     object arr(temp);
 
@@ -246,7 +246,7 @@ DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(const boost::python::object& array)
 {
 	PyObject* contig
     = PyArray_FromAny(array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
-                      3, 3, NPY_ARRAY_CARRAY, NULL);
+                      3, 3, NPY_CARRAY, NULL);
 	handle<> temp(contig);
 	object arr(temp);
 	
@@ -277,7 +277,7 @@ void DeviceMatrixCL3D_copyToDevice(DeviceMatrixCL3D& self,
 {
     PyObject* contig
 	= PyArray_FromAny(array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
-					  3, 3, NPY_ARRAY_CARRAY, NULL);
+					  3, 3, NPY_CARRAY, NULL);
     handle<> temp(contig);
     object arr(temp);
 	
@@ -297,7 +297,7 @@ MCudaMatrix3D::Ptr makeMCudaMatrix3D(const object& array)
 {
   PyObject* contig
     = PyArray_FromAny(array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
-                      3, 3, NPY_ARRAY_CARRAY, NULL);
+                      3, 3, NPY_CARRAY, NULL);
   handle<> temp(contig);
   object arr(temp);
 
@@ -341,7 +341,7 @@ MCLMatrix3D::Ptr makeMCLMatrix3D(const object& array)
 {
   PyObject* contig
     = PyArray_FromAny(array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
-                      3, 3, NPY_ARRAY_CARRAY, NULL);
+                      3, 3, NPY_CARRAY, NULL);
   handle<> temp(contig);
   object arr(temp);
 

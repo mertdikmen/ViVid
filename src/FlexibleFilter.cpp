@@ -9,6 +9,89 @@
 
 #include <cuda_runtime.h>
 
+void cosine_filter(
+	float* fr_data, float* fb_array, 
+	const int height, const int width, 
+	const int filter_h, const int filter_w, 
+	const int n_filters, float* out_data)
+{
+    //do convolution
+    const int apron_y = filter_h / 2;
+    const int apron_x = filter_w / 2;
+
+    const int filter_size = filter_h * filter_w;
+
+    const int filter_bank_size = filter_size * n_filters;
+
+	int *pixel_offsets=(int*) malloc(sizeof(int)*filter_size);
+
+    int oi = 0;
+    for (int ii=-apron_y; ii<=apron_y; ii++){
+        for (int jj=-apron_y; jj<=apron_y; jj++){
+            pixel_offsets[oi] = ii * width + jj;
+            oi++;
+        }
+    }
+
+    double tic = omp_get_wtime();
+
+    int n_threads = omp_get_num_procs();
+    int valid_height = height - 2 * apron_y;
+    int height_step = valid_height / n_threads + 1;
+
+    #pragma omp parallel for
+    for (int tid=0; tid<n_threads; tid++){
+        int start_y = apron_y + tid * height_step;
+        int end_y = min(start_y + height_step, height - apron_y);
+    
+    for (int i=start_y; i<end_y; i++){
+        float* fr_ptr = fr_data + i * width + apron_x;
+        float* ass_out = out_data + i * width + apron_x;
+        float* wgt_out = ass_out + height * width;
+
+        float *image_cache=(float*) malloc(sizeof(float)*filter_size);
+        for (int j=apron_x; j<(width - apron_x); j++){
+
+            for (int ii=0; ii< filter_size; ii++){
+                image_cache[ii] = fr_ptr[pixel_offsets[ii]];
+            } 
+
+            float max_sim = -1e6;
+            float best_ind = -1.0f;
+
+            int fi=0;
+            int filter_ind = 0;
+            float temp_sum;
+            while (fi<filter_bank_size)
+            {
+                temp_sum = 0.0f;
+
+                for (int ii=0; ii < filter_size; ii++){
+                    temp_sum += fb_array[fi++] * image_cache[ii];
+                }
+
+                temp_sum = fabs(temp_sum);
+
+                if (temp_sum > max_sim){
+                    max_sim = temp_sum;
+                    best_ind = filter_ind;
+                }
+
+                filter_ind++;
+            }
+            *ass_out = best_ind;
+            *wgt_out = max_sim;
+
+            fr_ptr++;
+            ass_out++;
+            wgt_out++;
+        }
+    }
+    }
+
+    double toc = omp_get_wtime();
+}
+
 #define MAX_FILTERBANK_SIZE 10000
 #define N_MAX_
 #define N_MAX_CHANNELS 10
@@ -31,8 +114,8 @@ int update_filter_bank_internal_cl(float* new_filter, int filter_size){
 		MyKernels *kernels = new MyKernels(GPUContext,cdDevice);
 		
 		cl_int err;
-		
-		cl_mem filter_mem =  clCreateBuffer(GPUContext, CL_MEM_READ_ONLY, sizeof(float) * filter_size,     
+		// padding for SIMD
+		cl_mem filter_mem =  clCreateBuffer(GPUContext, CL_MEM_READ_ONLY, sizeof(float) * (filter_size+8),     
 											NULL, &err);
 
 		err |= clEnqueueWriteBuffer(tc->getMyContext()->cqCommandQueue, filter_mem, CL_TRUE, 0, 
@@ -53,7 +136,27 @@ int set_filter_bank_cuda(float* filter_bank, int size){
 }
 
 int set_filter_bank_cl(float* filter_bank, int size){
-    return update_filter_bank_internal_cl(filter_bank,size); 
+	// reorganize data in SIMD8 vectors
+	// |0 1 2 .. 8| 0 1 2 .. 8 ..  =>> 0 0 0 ... 1 1 1 .. 
+	float* tmpbank = new float[size];
+	int num_filts = size/9;
+	for(int i=0; i<num_filts/8; i++)
+	{
+		for(int j=0; j<9; j++) {
+			for(int k=0; k<8; k++)
+			tmpbank[i*8*9+ j*8+ k] = filter_bank[i*8*9+ j+ k*9];
+		}
+	}
+	// leftovers in smaller vecs
+	
+	{
+		for(int j=0; j<9; j++) {
+			for(int k=0; k<4; k++)
+			tmpbank[96*9 + j*4+ k] = filter_bank[96*9 + j+ k*9];
+		}
+	}
+
+    return update_filter_bank_internal_cl(tmpbank,size); 
 }
 
 /* CUDA Functions */
@@ -125,10 +228,12 @@ DeviceMatrix3D::Ptr get_cell_histograms_cuda(const DeviceMatrix3D::Ptr& inds_and
 DeviceMatrixCL3D::Ptr filter_frame_cl_3(const DeviceMatrixCL::Ptr& frame,
 										const int dim_t, const int nchannels,
 										const int optype){
-	
+//	double tic0= omp_get_wtime();
     DeviceMatrixCL3D::Ptr out = makeDeviceMatrixCL3D(2, frame->height, frame->width / nchannels);
-	
+//	for(int i=0; i<1000; i++)
     dist_filter2_d3_cl(frame.get(), dim_t, nchannels, out.get(), optype);
+//	double tic1= omp_get_wtime();
+	//std::cout << "--full filter time: " << tic1 - tic0 << std::endl;
     return out;
 }
 
@@ -223,6 +328,10 @@ cl_int parameters_blockwise_distance_kernel(
 	err |= clSetKernelArg(theKernel, 15, sizeof (const int), &optype);
 	err |= clSetKernelArg(theKernel, 16, sizeof (cl_mem), &filter);
 	err |= clSetKernelArg(theKernel, 17, sizeof (const int), &n_filters);
+//	printf("width:%d height:%d pitch:%d dim_x:%d dim_y:%d dim_t:%d pitch_y:%d pitch_t:%d\n" 
+//		"frame_width:%d frame_height:%d FD:%d BM:%d BS:%d n_filters:%d\n", matrix->width, 
+//		matrix->height, matrix->pitch, output->dim_x, output->dim_y, output->dim_t, output->pitch_y, output->pitch_t,
+//		frame_width, frame_height, FD, BM, BS, n_filters);
 	return err;
 }
 
@@ -295,6 +404,7 @@ void dist_filter2_d3_cl(const DeviceMatrixCL* frame,
 						DeviceMatrixCL3D* output,
 						const int optype)
 {
+//	double tic0 = omp_get_wtime();
 	const int frame_width = int(frame->width);
 	const int frame_height = int(frame->height);
 	
@@ -325,17 +435,23 @@ void dist_filter2_d3_cl(const DeviceMatrixCL* frame,
 												frame_width,frame_height,3,optype,
 												kernels->getMyKernels()->c_FilterBank,
                                                 dim_t);	
-  	
+//  	double tic1 = omp_get_wtime();
+//	std::cout << "OpenCL init filter kernel time: " << tic1 - tic0 << std::endl;
     if (err != CL_SUCCESS) {
         printf("Error: Failed to set kernel arguments 3! %d\n", err);
         exit(1);
     }
 	
-	
+//	double tic = omp_get_wtime();
+	//for(int i=0; i<1000; i++)
+	{
 	err = clEnqueueNDRangeKernel(tc->getMyContext()->cqCommandQueue, 
 								 theKernel, 2, NULL, 
 								 global_work_size, local_work_size, 0, NULL, NULL);
-	
+	err = clFinish(tc->getMyContext()->cqCommandQueue);// to make sure the kernel completed
+	}
+//	double toc = omp_get_wtime();
+//	std::cout << "OpenCL filter kernel time: " << toc - tic << std::endl;
     if (err) {
         printf("Error: Failed to execute kernel! %d\n", err);
         exit(1);

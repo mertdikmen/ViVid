@@ -92,15 +92,17 @@ DeviceMatrix::Ptr max_cuda(const DeviceMatrix::Ptr& matrix)
 DeviceMatrixCL::Ptr pwdist_cl( const DeviceMatrixCL::Ptr& features_train,
         const DeviceMatrixCL::Ptr& features_test){
 
-	double tic = omp_get_wtime();
+//	double tic = omp_get_wtime();
     DeviceMatrixCL::Ptr out = makeDeviceMatrixCL(features_train->height,
             features_test->height);
 
     // double tic = omp_get_wtime();
-    pwdist_genericCL(features_train.get(), features_test.get(), out.get(), EUCLIDEAN);
-    double toc = omp_get_wtime();
+    // pwdist_genericCL(features_train.get(), features_test.get(), out.get(), EUCLIDEAN);
+//	for(int i=0; i<10000; i++)
+	pwdist_eucCL(features_train.get(), features_test.get(), out.get());
 
-    std::cout << "OpenCL time: " << toc - tic << std::endl;
+ //   double toc = omp_get_wtime();
+ //   std::cout << "OpenCL time: " << toc - tic << std::endl;
     return out;
 }
 
@@ -231,6 +233,92 @@ void pwdist_genericCL(const DeviceMatrixCL* features_train,
     err = clEnqueueNDRangeKernel(tc->getMyContext()->cqCommandQueue, 
             theKernel, 2, NULL, 
             global_work_size, local_work_size, 0, NULL, NULL);
+
+    if (err) {
+        printf("Error: Failed to execute kernel! %d\n", err);
+        exit(1);
+    }
+}
+
+void pwdist_eucCL(const DeviceMatrixCL* features_train,
+        const DeviceMatrixCL* features_test,
+        DeviceMatrixCL* output) {
+
+    TheContext* tc = new TheContext();
+
+    cl_context GPUContext = tc->getMyContext()->getContextCL();
+    cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
+
+    // Creates the program
+    // Uses NVIDIA helper functions to get the code string and it's size (in bytes)
+  	
+	MyKernels *kernels = new MyKernels(GPUContext,cdDevice);
+	
+	cl_kernel theKernel= kernels->getPairwiseDistanceKernel();
+	cl_int err;
+	err=0;
+	/*
+	size_t local;
+	err = clGetKernelWorkGroupInfo(theKernel, cdDevice, CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE, sizeof(local), &local, NULL);
+    if (err != CL_SUCCESS)
+    {
+        printf("Error: Failed to retrieve kernel work group info! %d\n", err);
+        exit(1);
+    }
+	printf("simultaneous threads num:%d\n", local);
+	*/
+
+	int f_pitch=0;
+    err |= clSetKernelArg(theKernel, 0, sizeof (cl_mem), &features_train->dataMatrix);
+    err |= clSetKernelArg(theKernel, 1, sizeof (int), &features_train->width);
+   // err |= clSetKernelArg(theKernel, 2, sizeof (int), &features_train->height);
+	f_pitch = features_train->pitch/sizeof(float);
+    err |= clSetKernelArg(theKernel, 2, sizeof (int), &f_pitch);
+	
+	
+    err |= clSetKernelArg(theKernel, 3, sizeof (cl_mem), &features_test->dataMatrix);
+  //  err |= clSetKernelArg(theKernel, 5, sizeof (int), &features_test->width);
+  //  err |= clSetKernelArg(theKernel, 6, sizeof (int), &features_test->height);
+	f_pitch = features_test->pitch/sizeof(float);
+    err |= clSetKernelArg(theKernel, 4, sizeof (int), &f_pitch);
+	
+    err |= clSetKernelArg(theKernel, 5, sizeof (cl_mem), &output->dataMatrix);
+ //   err |= clSetKernelArg(theKernel, 9, sizeof (int), &output->width);
+ //   err |= clSetKernelArg(theKernel, 10, sizeof (int), &output->height);
+	f_pitch = output->pitch/sizeof(float);
+    err |= clSetKernelArg(theKernel, 6, sizeof (int), &f_pitch);
+	
+   // err |= clSetKernelArg(theKernel, 12, sizeof (int), &type);
+ //   err |= clSetKernelArg(theKernel, 12, sizeof (int), &BLOCK_SIZE);
+//	printf("params: %d %d %d,  %d %d %d, %d %d %d-- %d\n",features_train->width,
+//		features_train->height,features_train->pitch, features_test->width, features_test->height,
+//		features_test->pitch, output->width, output->height, output->pitch, BLOCK_SIZE);
+    if (err != CL_SUCCESS) {
+        printf("Error: Failed to set kernel arguments 3! %d\n", err);
+        exit(1);
+    }
+	
+
+    const int n_blocks_x = ((features_train->height - 1) / BLOCK_SIZE + 1) * BLOCK_SIZE;
+    const int n_blocks_y = ((features_test->height - 1) / BLOCK_SIZE + 1) * BLOCK_SIZE;
+
+    const size_t local_work_size[2] = {BLOCK_SIZE, BLOCK_SIZE}; 
+    const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
+
+  //  std::cout << "Threads: " << local_work_size[0] << ", " << local_work_size[1] << std::endl;
+  //  std::cout << "Blocks: " << global_work_size[0] << ", " << global_work_size[1] << std::endl;
+
+//	double tic = omp_get_wtime();
+//	for(int i=0; i<6000; i++) 
+	{
+    err = clEnqueueNDRangeKernel(tc->getMyContext()->cqCommandQueue, 
+            theKernel, 2, NULL, 
+            global_work_size, local_work_size, 0, NULL, NULL);
+	clFinish(tc->getMyContext()->cqCommandQueue);// to make sure the kernel completed
+	}
+//	double toc = omp_get_wtime();
+//	std::cout << "OpenCL time: " << toc - tic << std::endl;
+
 
     if (err) {
         printf("Error: Failed to execute kernel! %d\n", err);

@@ -5,11 +5,13 @@
 #include <fstream>
 
 static char* exampleImagePath = "..\\..\\..\\media\\kewell1.jpg";
-
+int device_use; 
 int main(int argc, char* argv[])
 {
 	cv::Mat exampleImage = cv::imread(exampleImagePath, 0);
-
+	device_use = 0;
+	if(argc>1)
+		device_use = atoi(argv[1]);
 	//convert to float
 	exampleImage.convertTo(exampleImage, CV_32FC1);
 
@@ -30,8 +32,35 @@ int main(int argc, char* argv[])
 		filter_bank[i] = float( std::rand() ) / RAND_MAX;
 	}
 
+	//C Reference
+	float* retvalC = new float[2 * height * width];
+	cosine_filter(f_imData, filter_bank, height, width, filter_dim, filter_dim, num_filters, retvalC);
+
+	std::ofstream test_out_c("testc.out", std::ios_base::out);
+	for (int j = 0; j < height; j++)
+	{
+		for (int i = 0; i < width; i++)
+		{
+			test_out_c << retvalC[j * width + i] << ", ";
+		}
+
+		test_out_c << std::endl;
+	}
+
+	test_out_c << std::endl << std::endl << std::endl;
+
+	for (int j = 0; j < height; j++)
+	{
+		for (int i = 0; i < width; i++)
+		{
+			test_out_c << retvalC[height * width + j * width + i] << ", ";
+		}
+		test_out_c << std::endl;
+	}
+	test_out_c.close();
+
 	//CUDA Reference
-	DeviceMatrix::Ptr dmpCU = makeDeviceMatrix(height, width);
+/*	DeviceMatrix::Ptr dmpCU = makeDeviceMatrix(height, width);
 	DeviceMatrix_copyToDevice(*dmpCU, f_imData);
 	set_filter_bank_cuda(filter_bank, num_filters * filter_dim * filter_dim);
 	DeviceMatrix3D::Ptr retdmCU = filter_frame_cuda_3(dmpCU, num_filters, 1, FF_OPTYPE_COSINE);
@@ -60,7 +89,7 @@ int main(int argc, char* argv[])
 		test_out << std::endl;
 	}
 	test_out.close();
-
+	*/
 	//OPENCL Reference
 	DeviceMatrixCL::Ptr dmpCL = makeDeviceMatrixCL(height, width);
 	DeviceMatrixCL_copyToDevice(*dmpCL, f_imData);
@@ -94,7 +123,8 @@ int main(int argc, char* argv[])
 
 	delete[] filter_bank;
 	delete[] retval;
-	delete[] retvalCU;
+	delete[] retvalC;
+	//delete[] retvalCU;
 
 	return 0;
 }

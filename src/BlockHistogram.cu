@@ -150,7 +150,7 @@ __global__ void cellHistogramKernel(
     __syncthreads();
 
     //if (wval > 0.01f){
-        atomicAdd(histogram_cache + cache_offset + (int) aval, wval);
+//        atomicAdd(histogram_cache + cache_offset + (int) aval, wval);
     //}
 
     __syncthreads();

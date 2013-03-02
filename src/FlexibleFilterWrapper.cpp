@@ -46,7 +46,7 @@ object cosine_filter_c(object& frame, object& filter_bank)
     PyObject* filter_bank_parr = PyArray_FromAny(
         filter_bank.ptr(), 
         PyArray_DescrFromType(PyArray_FLOAT),
-        1, 4, NPY_ARRAY_CARRAY, NULL);
+        1, 4, NPY_CARRAY, NULL);
 
     expect_non_null(filter_bank_parr);
 
@@ -67,84 +67,10 @@ object cosine_filter_c(object& frame, object& filter_bank)
     float* out_data = (float*)PyArray_DATA(arr);
     memset(out_data, 0, sizeof(float) * height * width * 2);
 
-    //do convolution
-    const int apron_y = filter_h / 2;
-    const int apron_x = filter_w / 2;
-
-    const int filter_size = filter_h * filter_w;
-
-    const int filter_bank_size = filter_size * n_filters;
-
-	int *pixel_offsets=(int*) malloc(sizeof(int)*filter_size);
-
-    int oi = 0;
-    for (int ii=-apron_y; ii<=apron_y; ii++){
-        for (int jj=-apron_y; jj<=apron_y; jj++){
-            pixel_offsets[oi] = ii * width + jj;
-            oi++;
-        }
-    }
-
-    double tic = omp_get_wtime();
-
-    int n_threads = omp_get_num_procs();
-    int valid_height = height - 2 * apron_y;
-    int height_step = valid_height / n_threads + 1;
-
-    #pragma omp parallel for
-    for (int tid=0; tid<n_threads; tid++){
-        int start_y = apron_y + tid * height_step;
-        int end_y = min(start_y + height_step, height - apron_y);
-    
-    for (int i=start_y; i<end_y; i++){
-        float* fr_ptr = fr_data + i * width + apron_x;
-        float* ass_out = out_data + i * width + apron_x;
-        float* wgt_out = ass_out + height * width;
-
-        float *image_cache=(float*) malloc(sizeof(float)*filter_size);
-        for (int j=apron_x; j<(width - apron_x); j++){
-
-            for (int ii=0; ii< filter_size; ii++){
-                image_cache[ii] = fr_ptr[pixel_offsets[ii]];
-            } 
-
-            float max_sim = -1e6;
-            float best_ind = -1.0f;
-
-            int fi=0;
-            int filter_ind = 0;
-            float temp_sum;
-            while (fi<filter_bank_size)
-            {
-                temp_sum = 0.0f;
-
-                for (int ii=0; ii < filter_size; ii++){
-                    temp_sum += fb_array[fi++] * image_cache[ii];
-                }
-
-                temp_sum = fabs(temp_sum);
-
-                if (temp_sum > max_sim){
-                    max_sim = temp_sum;
-                    best_ind = filter_ind;
-                }
-
-                filter_ind++;
-            }
-            *ass_out = best_ind;
-            *wgt_out = max_sim;
-
-            fr_ptr++;
-            ass_out++;
-            wgt_out++;
-        }
-    }
-    }
-
-    double toc = omp_get_wtime();
+	cosine_filter(fr_data, fb_array, height, width, filter_h, filter_w, n_filters, out_data);
 
     //std::cout << "FF C time: " << toc - tic << std::endl;
-    printf("FF C time %.8f\n", toc - tic);
+    //printf("FF C time %.8f\n", toc - tic);
 
     Py_DECREF(filter_bank_parr);
     handle<> temp_out(arr);
@@ -158,7 +84,7 @@ DeviceMatrixCL3D::Ptr filter_frame_cl_3_batch(const boost::python::object& npy_a
     PyObject* contig
         = PyArray_FromAny(
                 npy_array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
-                3, 3, NPY_ARRAY_CARRAY, NULL);
+                3, 3, NPY_CARRAY, NULL);
     handle<> temp(contig);
     object arr(temp);
 

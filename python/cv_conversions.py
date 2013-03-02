@@ -41,19 +41,24 @@ def cvmat2array(im):
 
     return a
 
+def dtype2depth(dtype, nChannels):
+	if dtype == np.int8 and nChannels == 1:
+		return cv.CV_8SC1
+	if dtype == np.int8 and nChannels == 3:
+		return cv.CV_8SC3
+	if dtype == np.uint8 and nChannels == 1:
+		return cv.CV_8UC1
+	if dtype == np.uint8 and nChannels == 3:
+		return cv.CV_8UC3
+	if dtype == np.float32 and nChannels == 1:
+		return cv.CV_32FC1
+	if dtype == np.float32 and nChannels == 3:
+		return cv.CV_32FC3
+		
 def array2cv(a):
     """
     Convert a NumPy array to CvMat
     """
-    dtype2depth = {
-        'uint8':   cv.IPL_DEPTH_8U,
-        'int8':    cv.IPL_DEPTH_8S,
-        'uint16':  cv.IPL_DEPTH_16U,
-        'int16':   cv.IPL_DEPTH_16S,
-        'int32':   cv.IPL_DEPTH_32S,
-        'float32': cv.IPL_DEPTH_32F,
-        'float64': cv.IPL_DEPTH_64F,
-    }
     try:
         nChannels = a.shape[2]
     except:
@@ -65,4 +70,4 @@ def array2cv(a):
     cv.SetData(cv_im, a.tostring(),
         a.dtype.itemsize*nChannels*a.shape[1])
 
-    return cv_im
+    return cv_m

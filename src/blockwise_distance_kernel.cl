@@ -14,17 +14,14 @@ __kernel void blockwise_distance_kernel(
 	const int o_pitch_yf = o_pitch_y / sizeof(float);
 	const int o_pitch_tf = o_pitch_t / sizeof(float);
 	
-	const int out_ry = get_group_id(0) * BLOCK_SIZE + get_local_id(0);
-    const int out_cx = get_group_id(1) * BLOCK_SIZE + get_local_id(1);
-	
 	const int out_pix_y0 = get_group_id(0) * (BLOCK_SIZE * BLOCK_MULT) + FILTER_DIM / 2;
 	
 	const int out_pix_x0 = get_group_id(1) * (BLOCK_SIZE * BLOCK_MULT) + FILTER_DIM / 2;
 
-    const int out_pix_y1 = min(out_pix_y0 + (BLOCK_SIZE * BLOCK_MULT),
+    const int out_pix_y_stop = min(out_pix_y0 + (BLOCK_SIZE * BLOCK_MULT),
                                frame_height - FILTER_DIM / 2);
     
-	const int out_pix_x1 = min(out_pix_x0 + (BLOCK_SIZE * BLOCK_MULT),
+	const int out_pix_x_stop = min(out_pix_x0 + (BLOCK_SIZE * BLOCK_MULT),
                                frame_width - FILTER_DIM / 2);
 							   
 	const int cache_size = 38;
@@ -70,7 +67,7 @@ __kernel void blockwise_distance_kernel(
             float curval = -1e6;
             float curid = -1;
             int fi = 0;
-            if ((out_y < out_pix_y1) && (out_x < out_pix_x1)){ 
+            if ((out_y < out_pix_y_stop) && (out_x < out_pix_x_stop)){ 
                 for (int filter_id=0; filter_id<n_filters; filter_id++){
                     float tempval = 0.0f;
                     int cyi = get_local_id(0)+ ii * BLOCK_SIZE;

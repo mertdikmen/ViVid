@@ -258,5 +258,20 @@
     <None Include="..\src\PairwiseDistance.cl">
       <Filter>CL</Filter>
     </None>
+    <None Include="..\src\E_blockwise_distance_kernel.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\CPU_blockwise_distance_kernel.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\cellHistogramKernel3.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\CPU_PairwiseDistance.cl">
+      <Filter>CL</Filter>
+    </None>
+    <None Include="..\src\E_PairwiseDistance.cl">
+      <Filter>CL</Filter>
+    </None>
   </ItemGroup>
 </Project>

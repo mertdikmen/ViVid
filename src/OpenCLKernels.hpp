@@ -19,6 +19,8 @@
 #include <sys/stat.h>
 #include <error.h>
 
+extern int device_use;
+
 static char* load_program_source(const char *filename) {
 
 	struct stat statbuf;
@@ -45,19 +47,26 @@ struct theKernels {
 	cl_device_id cdDevice_K;
 	cl_mem  c_FilterBank;
 	cl_mem constant_kernel;
-	theKernels(cl_context GPUContext,cl_device_id cdDevice){
+	theKernels(cl_context GPUContext, cl_device_id cdDevice){
 		GPUContext_K = GPUContext;
 		cdDevice_K   = cdDevice;
-		createKernel("pairwiseDistanceKernelGeneric","../src/PairwiseDistance.cl",0);
-		createKernel("argminKernel","../src/argminKernel.cl",1);
-		createKernel("argmaxKernel","../src/argmaxKernel.cl",2);
-		createKernel("minKernel","../src/minKernel.cl",3);
-		createKernel("maxKernel","../src/maxKernel.cl",4);
-		createKernel("blockwise_distance_kernel","../src/blockwise_distance_kernel.cl",5);
-		createKernel("blockwise_filter_kernel","../src/blockwise_filter_kernel.cl",6);
-		createKernel("cell_histogram_kernel","../src/cell_histogram_kernel.cl",7);
-		createKernel("cellHistogramKernel1","../src/cellHistogramKernel1.cl",8);
-		createKernel("cellHistogramKernel2","../src/cellHistogramKernel2.cl",9);
+		if(device_use)
+			createKernel("pairwiseDistanceKernel","../../../src/E_PairwiseDistance.cl",0);
+		else
+			createKernel("pairwiseDistanceKernel","../../../src/CPU_PairwiseDistance.cl",0);
+		createKernel("argminKernel","../../../src/argminKernel.cl",1);
+		createKernel("argmaxKernel","../../../src/argmaxKernel.cl",2);
+		createKernel("minKernel","../../../src/minKernel.cl",3);
+		createKernel("maxKernel","../../../src/maxKernel.cl",4);
+		if(device_use)
+			createKernel("blockwise_distance_kernel","../../../src/E_blockwise_distance_kernel.cl",5);
+		else
+			createKernel("blockwise_distance_kernel","../../../src/CPU_blockwise_distance_kernel.cl",5);
+		createKernel("blockwise_filter_kernel","../../../src/blockwise_filter_kernel.cl",6);
+		createKernel("cell_histogram_kernel","../../../src/cell_histogram_kernel.cl",7);
+		createKernel("cellHistogramKernel1","../../../src/cellHistogramKernel1.cl",8);
+		createKernel("cellHistogramKernel2","../../../src/cellHistogramKernel2.cl",9);
+		createKernel("cellHistogramKernel3","../../../src/cellHistogramKernel3.cl",10);
 	}
 
 	void createKernel(const char* kernel, const char* path, int indice){
@@ -74,7 +83,7 @@ struct theKernels {
         char full_path[256];
 
 #ifdef _VIVID_STATIC_LIB
-        sprintf(full_path, "../../%s", path);
+        sprintf(full_path, "%s", path);
 #else
         sprintf(full_path, "%s", path);
 #endif
@@ -93,21 +102,21 @@ struct theKernels {
 		}
 
 		// Build the program executable
-		const char * options = "";
+		const char * options = "-cl-fast-relaxed-math";
 		err = clBuildProgram(program_list[indice], 0, NULL, options, NULL, NULL);
 		if (err != CL_SUCCESS) {
 			size_t len;
-			char buffer[2048];
+			char buffer[10000];
 
 			printf("Error: Failed to build program executable for device %d kernel: (%s)!\n",err,kernel);
-			clGetProgramBuildInfo(program_list[indice], cdDevice_K, CL_PROGRAM_BUILD_LOG, sizeof (buffer), buffer, &len);
-			printf("%s\n", buffer);
+			cl_int get_err=clGetProgramBuildInfo(program_list[indice], cdDevice_K, CL_PROGRAM_BUILD_LOG, sizeof (buffer), buffer, &len);
+			printf("%d %s\n", get_err, buffer);
 
 		}
 
 		kernel_list[indice] = clCreateKernel(program_list[indice], kernel, &err);
 		if (!kernel_list[indice] || err != CL_SUCCESS) {
-			printf("Error: Failed to create compute kernel for device %d Kernel: (%s)!\n", indice,kernel);
+			printf("Error: Failed to create compute kernel for device %d Kernel: (%s)!\n", indice, full_path);
 			exit(1);
 		}
 	}
@@ -169,6 +178,11 @@ public:
 
 	cl_kernel getCellHistogramKernel2(){
 		return My_Kernels->kernel_list[9];
+	}
+
+	cl_kernel getCellHistogramKernel3(){
+	//	printf("ping\n");
+		return My_Kernels->kernel_list[10];
 	}
 	/*
 	cl_kernel getDoConvolution0(){
@@ -316,6 +330,7 @@ public:
 		return My_Kernels->kernel_list[9];
 	}
 
+	/*
 	cl_kernel getDoConvolution0(){
 		return My_Kernels->kernel_list[10];
 	}
@@ -405,6 +420,6 @@ public:
 	cl_kernel getDoConvolutionComplexT1_11(){
 		return My_Kernels->kernel_list[34];
 	}
-
+	*/
 	~MyKernels_CPU(){};
 };
