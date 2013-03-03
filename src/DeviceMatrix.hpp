@@ -9,7 +9,7 @@
 #include <CL/opencl.h>
 #include <CL/cl.h>
 #include <vector>
-#include "ContextOpenCL.h"
+#include "ContextOpenCL.hpp"
 
 
 

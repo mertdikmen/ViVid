@@ -73,7 +73,7 @@ void DeviceMatrix_copyToDevice(DeviceMatrix& self,
 }
 
 
-DeviceMatrixCL::Ptr makeDeviceMatrixCL(boost::python::object& array)
+DeviceMatrixCL::Ptr makeDeviceMatrixCL(boost::python::object& array, vivid::DeviceType device_type)
 {
     // If we already have a DeviceMatrix, just return it. This sholuld
     // help unify code paths.
@@ -84,7 +84,7 @@ DeviceMatrixCL::Ptr makeDeviceMatrixCL(boost::python::object& array)
 	
     NumPyMatrix arr(array);
 	
-    DeviceMatrixCL::Ptr retval = makeDeviceMatrixCL(arr.height(), arr.width());
+    DeviceMatrixCL::Ptr retval = makeDeviceMatrixCL(arr.height(), arr.width(), device_type);
     DeviceMatrixCL_copyToDevice(*retval, arr);
     return retval;
 }
@@ -242,7 +242,7 @@ void DeviceMatrix3D_copyToDevicePy(DeviceMatrix3D& self,
  **/
 
 
-DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(const boost::python::object& array)
+DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(const boost::python::object& array, vivid::DeviceType device_type)
 {
 	PyObject* contig
     = PyArray_FromAny(array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
@@ -252,7 +252,8 @@ DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(const boost::python::object& array)
 	
 	DeviceMatrixCL3D::Ptr retval = makeDeviceMatrixCL3D(PyArray_DIM(arr.ptr(), 0),
 													PyArray_DIM(arr.ptr(), 1),
-													PyArray_DIM(arr.ptr(), 2));
+													PyArray_DIM(arr.ptr(), 2),
+                                                    device_type);
 	DeviceMatrixCL3D_copyToDevice(*retval, arr);
 	return retval;
 }
@@ -384,7 +385,7 @@ void export_DeviceMatrix()
     class_<DeviceMatrixCL, DeviceMatrixCL::Ptr >
         ("DeviceMatrixCL", no_init)
         .def("__init__",
-                make_constructor<DeviceMatrixCL::Ptr (object&)>
+                make_constructor<DeviceMatrixCL::Ptr (object&, vivid::DeviceType)>
                 (makeDeviceMatrixCL))
         .def("mat", DeviceMatrixCL_copyFromDevicePy);
 	
@@ -402,7 +403,7 @@ void export_DeviceMatrix()
 	class_<DeviceMatrixCL3D, DeviceMatrixCL3D::Ptr >
 	("DeviceMatrixCL3D", no_init)
 	.def("__init__",
-		 make_constructor<DeviceMatrixCL3D::Ptr (const object&)>
+		 make_constructor<DeviceMatrixCL3D::Ptr (const object&, vivid::DeviceType)>
 		 (makeDeviceMatrixCL3D))
 	.def("mat", DeviceMatrixCL3D_copyFromDevicePy)
 	//.def("set", DeviceMatrixCL3D_copyToDevice)

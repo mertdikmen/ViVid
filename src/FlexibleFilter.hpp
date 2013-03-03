@@ -3,7 +3,7 @@
 
 #include "DeviceMatrix.hpp"
 #include "OpenCLKernels.hpp"
-#include "ContextOpenCL.h"
+#include "ContextOpenCL.hpp"
 
 #include <stdio.h>
 

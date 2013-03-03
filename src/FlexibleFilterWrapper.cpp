@@ -27,11 +27,11 @@ int update_filter_bank_cuda(object& filterbank_array){
     return 0;
 }
 
-int update_filter_bank_cl(object& filterbank_array){
+int update_filter_bank_cl(object& filterbank_array, vivid::DeviceType device_type){
     NumPyMatrix3D arr(filterbank_array);
     //Here turn it into a float array and pass it to the FlexibleFilter.cpp
     int data_size = arr.dim_t() * arr.dim_x() * arr.dim_y();
-    set_filter_bank_cl(arr.data(), data_size);
+    set_filter_bank_cl(arr.data(), data_size, device_type);
 
     return 0;
 }
@@ -79,7 +79,7 @@ object cosine_filter_c(object& frame, object& filter_bank)
 
 /* Batch processing fuctions */
 DeviceMatrixCL3D::Ptr filter_frame_cl_3_batch(const boost::python::object& npy_array,
-        const int dim_t, const int nchannels, const int optype)
+        const int dim_t, const int nchannels, const int optype, vivid::DeviceType device_type)
 {
     PyObject* contig
         = PyArray_FromAny(
@@ -94,7 +94,7 @@ DeviceMatrixCL3D::Ptr filter_frame_cl_3_batch(const boost::python::object& npy_a
 
     //std::cout << "d0: " << d0 << ", d1: " << d1 << ", d2: " << d2 << std::endl;
     //TheContext * contex = new TheContext(1);
-    DeviceMatrixCL::Ptr frame = makeDeviceMatrixCL(d1, d2);
+    DeviceMatrixCL::Ptr frame = makeDeviceMatrixCL(d1, d2, device_type);
     //DeviceMatrixCL_copyToDevice(frame
 
     float* data = (float*)PyArray_DATA(contig);
@@ -103,7 +103,7 @@ DeviceMatrixCL3D::Ptr filter_frame_cl_3_batch(const boost::python::object& npy_a
     int frame_stride = PyArray_STRIDE(contig, 0);
 
     //Create the output array
-    DeviceMatrixCL3D::Ptr out = makeDeviceMatrixCL3D(2,d1,d2);
+    DeviceMatrixCL3D::Ptr out = makeDeviceMatrixCL3D(2,d1,d2, device_type);
 
 //    /**
 //      Measuring energy
@@ -155,7 +155,8 @@ void export_FlexibleFilter()
     /* For power testing purposes only */
     def<DeviceMatrixCL3D::Ptr (const object&,
                                const int dim_t, const int nchannels,
-                               const int optype) >
+                               const int optype,
+                               vivid::DeviceType device_type) >
         ("_filter_frame_cl_3_batch", filter_frame_cl_3_batch);
 
     /* End test code */
@@ -202,7 +203,7 @@ void export_FlexibleFilter()
 	    ("_filter_frame_cl_noargmin", filter_frame_cl_noargmin);
 	
     def ("_update_filter_bank_cuda", update_filter_bank_cuda);
-    def ("_update_filter_bank_cl", update_filter_bank_cl);
+    def <int (boost::python::object& obj, vivid::DeviceType device_type)> ("_update_filter_bank_cl", update_filter_bank_cl);
 
     def("cosine_filter_c", cosine_filter_c);
 }

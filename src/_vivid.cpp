@@ -3,6 +3,7 @@
 #include "PairwiseDistanceWrapper.hpp"
 #include "FlexibleFilterWrapper.hpp"
 #include "BlockHistogramWrapper.hpp"
+#include "OpenCLTypes.hpp"
 /*
 #include "ConvolutionWrapper.hpp"
 #include "OpenCLWrapper.hpp"
@@ -373,6 +374,10 @@ BOOST_PYTHON_MODULE(_vivid)
 	export_FlexibleFilter();
     export_BlockHistogram();
     //export_Convolution();
+
+    enum_<vivid::DeviceType>("CL_DEVICE")
+        .value("CPU", vivid::DEVICE_CPU)
+        .value("GPU", vivid::DEVICE_GPU);
 
     class_< std::vector<int> >("std::vectorOfInt")
                  .def(vector_indexing_suite< std::vector<int>, true>());

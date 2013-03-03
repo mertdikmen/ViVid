@@ -1,4 +1,4 @@
-#include "ContextOpenCL.h"
+#include "ContextOpenCL.hpp"
 
 namespace vivid
 {
