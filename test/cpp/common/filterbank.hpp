@@ -18,10 +18,9 @@ public:
 	  DeviceMatrixCL3D::Ptr apply_cl(DeviceMatrixCL::Ptr dmpCL)
 	  {
 		// double tic0= omp_get_wtime();
-		  DeviceMatrixCL3D::Ptr retdm = filter_frame_cl_3(dmpCL, n_filters, 1, FF_OPTYPE_COSINE);
+		  return filter_frame_cl_3(dmpCL, n_filters, 1, FF_OPTYPE_COSINE);
 		// double tic1= omp_get_wtime();
 		// std::cout << "---filter outside time: " << tic1 - tic0 << std::endl;
-		  return retdm;
 	  };
 
 	  void set_on_device(vivid::DeviceType device_type = vivid::DEVICE_CPU)

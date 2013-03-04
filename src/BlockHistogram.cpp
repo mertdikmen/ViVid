@@ -95,10 +95,6 @@ void cell_histogram_dense_device_cl(
 	vivid::ContexOpenCl* context = weights->my_context;
 	cl_kernel theKernel = context->getKernels()->getCellHistogramKernel3();
 	
-	//MyKernels *kernels = new MyKernels(context->getContextCL(),context->getDeviceCL());
-
-	//histogram->zero(); this is done inside the kernel
-	
 	const size_t local_work_size[2] = {BLOCK_SIZE, BLOCK_SIZE}; 
 
 	int grid_ry = (n_parts_y + 1) / 2;
@@ -111,15 +107,13 @@ void cell_histogram_dense_device_cl(
 	
 	assert(histogram->width == max_bin);
 		
-		
     OPENCL_CALL(parameters_histogram_dense2(
 		theKernel, histogram, assignments,
 		weights, max_bin, cell_size, n_parts_x, start_y, start_x));
 
 	OPENCL_CALL(clEnqueueNDRangeKernel(context->getCommandQueue(), theKernel, 2, NULL, 
 								 global_work_size, local_work_size, 0, NULL, NULL));
-	//clFinish(context->getCommandQueue());// to make sure the kernel completed
-
+	//clFinish(context->getCommandQueue());// to make sure the kernel completed)
 }
 
 void cell_histogram_dense_device_cl(DeviceMatrixCL3D* histogram,
@@ -211,9 +205,12 @@ DeviceMatrixCL::Ptr cell_histogram_dense_cl(
 	const int start_y, const int start_x,
 	const int stop_y, const int stop_x)
 {
-	DeviceMatrixCL::Ptr assignment_mat = makeDeviceMatrixCL(*ff_out, 0);
-	DeviceMatrixCL::Ptr weight_mat = makeDeviceMatrixCL(*ff_out, 1);
-	
+	DeviceMatrixCL::Ptr assignment_mat = makeDeviceMatrixCL(ff_out, 0);
+	DeviceMatrixCL::Ptr weight_mat = makeDeviceMatrixCL(ff_out, 1);
+
+	//DeviceMatrixCL::Ptr assignment_mat = makeDeviceMatrixCL(ff_out->dim_y, ff_out->dim_x, ff_out->my_context);
+	//DeviceMatrixCL::Ptr weight_mat = makeDeviceMatrixCL(ff_out->dim_y, ff_out->dim_x, ff_out->my_context);
+
 	int n_parts_y = (stop_y - start_y) / cell_size;
     int n_parts_x = (stop_x - start_x) / cell_size;
 	
@@ -223,7 +220,7 @@ DeviceMatrixCL::Ptr cell_histogram_dense_cl(
 #endif
 	
 	DeviceMatrixCL::Ptr histogram = makeDeviceMatrixCL(n_parts_y * n_parts_x, max_bin, ff_out->my_context);
-//		for(int i=0; i<10000; i++)
+
 	cell_histogram_dense_device_cl(
 		histogram.get(),
 		assignment_mat.get(),
@@ -233,8 +230,9 @@ DeviceMatrixCL::Ptr cell_histogram_dense_cl(
 		start_y, start_x,
 		n_parts_y, n_parts_x);
 
-    return histogram;
+	return histogram;
 }
+
 DeviceMatrixCL3D::Ptr cell_histogram_dense_cl(
 											const DeviceMatrixCL::Ptr& assignment_mat,
 											const DeviceMatrixCL::Ptr& weight_mat,

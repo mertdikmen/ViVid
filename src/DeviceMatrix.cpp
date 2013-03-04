@@ -74,27 +74,27 @@ void DeviceMatrix_copyFromDevice(const DeviceMatrix& self, float* dst)
 static void deleteDeviceMatrixCL(DeviceMatrixCL* mat)
 {
 	OPENCL_CALL(clReleaseMemObject(mat->dataMatrix));
-
 	delete mat;
 }
 
-boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(DeviceMatrixCL3D& src, const int slice)
+boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(const DeviceMatrixCL3D::Ptr& src, const int slice)
 {
-	const int height = src.dim_y;
-	const int width = src.dim_x;
+	const int height = src->dim_y;
+	const int width = src->dim_x;
 
 	DeviceMatrixCL* mat = new DeviceMatrixCL();
 	mat->width = width;
 	mat->height = height;
-	mat->my_context = src.my_context;
-
-	size_t buffer_region[2] = {src.pitch_t * slice, src.pitch_t};
+	mat->pitch = src->pitch_y;
+	mat->my_context = src->my_context;
+	
+	size_t buffer_region[2] = {src->pitch_t * slice, src->pitch_t};
 
 	cl_int err;
-	mat->dataMatrix = clCreateSubBuffer(src.dataMatrix, CL_MEM_READ_WRITE, CL_BUFFER_CREATE_TYPE_REGION, buffer_region, &err);
+	const int mem_size = (int)((mat->height+16) * mat->pitch);
+	//mat->dataMatrix = clCreateBuffer(mat->my_context->getContextCL(), CL_MEM_READ_WRITE, mem_size, NULL, &err);
+	mat->dataMatrix = clCreateSubBuffer(src->dataMatrix, CL_MEM_READ_ONLY, CL_BUFFER_CREATE_TYPE_REGION, buffer_region, &err);
 	CHECK_CL_ERROR(err);
-
-	mat->pitch = src.pitch_y;
 
 	return boost::shared_ptr<DeviceMatrixCL>(mat, deleteDeviceMatrixCL);
 }
@@ -149,7 +149,6 @@ boost::shared_ptr<DeviceMatrixCL> makeDeviceMatrixCL(size_t height, size_t width
 	vivid::CLContextSource* tc = new vivid::CLContextSource();
 
 	return makeDeviceMatrixCL(height, width, tc->getContext(target_device));
-	
 }
 
 void DeviceMatrixCL_copyToDevice(DeviceMatrixCL& self, const float* data)

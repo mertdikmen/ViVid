@@ -147,7 +147,7 @@ struct DeviceMatrixCL3D {
     void zero();
 };
 
-DeviceMatrixCL::Ptr makeDeviceMatrixCL(DeviceMatrixCL3D& src, const int slice);
+DeviceMatrixCL::Ptr makeDeviceMatrixCL(const DeviceMatrixCL3D::Ptr& src, const int slice);
 DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(size_t dim_t, size_t dim_y, size_t dim_x, vivid::DeviceType device_type);
 DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(size_t dim_t, size_t dim_y, size_t dim_x, vivid::ContexOpenCl* dst_context);
 
