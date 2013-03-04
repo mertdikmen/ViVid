@@ -12,6 +12,13 @@ DeviceMatrix3D::Ptr cell_histogram_dense_cuda(
 	const int stop_y, const int stop_x);
     //boost::python::object& start_inds, boost::python::object& stop_inds);
 
+void cell_histogram_dense_cl(
+	const DeviceMatrixCL3D::Ptr& ff_out,
+	DeviceMatrixCL::Ptr& out,
+	const int max_bin, const int cell_size, 
+	const int start_y, const int start_x,
+	const int stop_y, const int stop_x);
+
 DeviceMatrixCL::Ptr cell_histogram_dense_cl(
 	const DeviceMatrixCL3D::Ptr& ff_out,
 	const int max_bin, const int cell_size, 

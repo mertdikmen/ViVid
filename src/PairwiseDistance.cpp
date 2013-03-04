@@ -89,6 +89,21 @@ DeviceMatrix::Ptr max_cuda(const DeviceMatrix::Ptr& matrix)
   OpenCL function
 **/
 
+void pwdist_cl(const DeviceMatrixCL::Ptr& features_train, const DeviceMatrixCL::Ptr& features_test, DeviceMatrixCL::Ptr& dst)
+{
+	assert(features_train->my_context == features_test->my_context);
+
+	if ((dst->my_context != features_train->my_context) ||
+		(dst->height != features_train->height) ||
+		(dst->width != features_test->width))
+	{
+		dst = makeDeviceMatrixCL(features_train->height, features_test->height, features_train->my_context);
+	}
+
+	pwdist_eucCL(features_train.get(), features_test.get(), dst.get());
+}
+
+
 DeviceMatrixCL::Ptr pwdist_cl(const DeviceMatrixCL::Ptr& features_train, const DeviceMatrixCL::Ptr& features_test)
 {
 	assert(features_train->my_context == features_test->my_context);

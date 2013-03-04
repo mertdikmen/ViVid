@@ -34,6 +34,10 @@ DeviceMatrix::Ptr max_cuda(const DeviceMatrix::Ptr& matrix);
 /*
 OpenCL
  */
+void pwdist_cl(const DeviceMatrixCL::Ptr& features_train, 
+			   const DeviceMatrixCL::Ptr& features_test, 
+			   DeviceMatrixCL::Ptr& dst);
+
 DeviceMatrixCL::Ptr pwdist_cl( const DeviceMatrixCL::Ptr& features_train,
 							  const DeviceMatrixCL::Ptr& features_test);
 

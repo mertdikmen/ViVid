@@ -199,6 +199,43 @@ DeviceMatrix3D::Ptr cell_histogram_dense_cuda(
     return histogram;
 }
 
+void cell_histogram_dense_cl(
+	const DeviceMatrixCL3D::Ptr& ff_out,
+	DeviceMatrixCL::Ptr& out,
+	const int max_bin, const int cell_size, 
+	const int start_y, const int start_x,
+	const int stop_y, const int stop_x)
+{
+	DeviceMatrixCL::Ptr assignment_mat = makeDeviceMatrixCL(ff_out, 0);
+	DeviceMatrixCL::Ptr weight_mat = makeDeviceMatrixCL(ff_out, 1);
+
+	//DeviceMatrixCL::Ptr assignment_mat = makeDeviceMatrixCL(ff_out->dim_y, ff_out->dim_x, ff_out->my_context);
+	//DeviceMatrixCL::Ptr weight_mat = makeDeviceMatrixCL(ff_out->dim_y, ff_out->dim_x, ff_out->my_context);
+
+	int n_parts_y = (stop_y - start_y) / cell_size;
+    int n_parts_x = (stop_x - start_x) / cell_size;
+	
+#ifdef METHOD_2
+    n_parts_y += (n_parts_y % 2);
+    n_parts_x += (n_parts_x % 2);
+#endif
+	
+	if ((out->my_context != ff_out->my_context) || 
+		(out->height != n_parts_y * n_parts_x) ||
+		(out->width != max_bin))
+	{
+		out = makeDeviceMatrixCL(n_parts_y * n_parts_x, max_bin, ff_out->my_context);
+	}
+	cell_histogram_dense_device_cl(
+		out.get(),
+		assignment_mat.get(),
+		weight_mat.get(),
+		max_bin,
+		cell_size,
+		start_y, start_x,
+		n_parts_y, n_parts_x);
+}
+
 DeviceMatrixCL::Ptr cell_histogram_dense_cl(
 	const DeviceMatrixCL3D::Ptr& ff_out,
 	const int max_bin, const int cell_size, 
