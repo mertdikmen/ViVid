@@ -3,43 +3,41 @@
 class FilterBank
 {
 public:
-	FilterBank(const int ndim, const int nfilters):
-	  n_filters(nfilters), n_dim(ndim)
-	  {
-		  data = new float[n_filters * n_dim * n_dim];
-		  for (int i = 0; i < n_filters * n_dim * n_dim; i++)
-		  {
-			  data[i] = float( std::rand() ) / RAND_MAX;
-		  }
-	  };
+	FilterBank(const int ndim, const int nfilters, vivid::DeviceType device_type):
+		n_filters(nfilters), n_dim(ndim)
+	{
+		data = new float[n_filters * n_dim * n_dim];
+		for (int i = 0; i < n_filters * n_dim * n_dim; i++)
+		{
+			data[i] = float( std::rand() ) / RAND_MAX;
+		}
 
-	  //TODO: Read from file sFilterBank(const string file_name){};
+		set_filter_bank_cl(data, n_filters * n_dim * n_dim, device_type);
 
-	  DeviceMatrixCL3D::Ptr apply_cl(DeviceMatrixCL::Ptr dmpCL)
-	  {
-		// double tic0= omp_get_wtime();
-		  return filter_frame_cl_3(dmpCL, n_filters, 1, FF_OPTYPE_COSINE);
-		// double tic1= omp_get_wtime();
-		// std::cout << "---filter outside time: " << tic1 - tic0 << std::endl;
-	  };
+		ff_image = makeDeviceMatrixCL3D(n_filters, 100, 100, device_type);
+	};
 
-	  void set_on_device(vivid::DeviceType device_type = vivid::DEVICE_CPU)
-	  {
-		  set_filter_bank_cl(data, n_filters * n_dim * n_dim, device_type);
-	  };
+	//TODO: Read from file sFilterBank(const string file_name){};
+	DeviceMatrixCL3D::Ptr apply_cl(DeviceMatrixCL::Ptr dmpCL)
+	{
+		filter_frame_cl_3(dmpCL, ff_image, n_filters, 1, FF_OPTYPE_COSINE);
+		//return filter_frame_cl_3(dmpCL, n_filters, 1, FF_OPTYPE_COSINE);
+		return ff_image;
+	};
 
-	  ~FilterBank()
-	  {
-		  if (data!=NULL)
-		  { 
-			  delete[] data;
-			  data = NULL;
-		  }
-	  }
+	~FilterBank()
+	{
+		if (data!=NULL)
+		{ 
+			delete[] data;
+			data = NULL;
+		}
+	}
 
-	  float* data;
+	float* data;
 
 private:
+	DeviceMatrixCL3D::Ptr ff_image;
 	int n_dim;
 	int n_filters;
 };

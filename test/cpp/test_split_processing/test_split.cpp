@@ -104,15 +104,11 @@ int main(int argc, char* argv[])
 	const int num_filters = 100;
 	const int filter_dim = 3;
 
-	FilterBank fb_cpu(filter_dim, num_filters);
-	fb_cpu.set_on_device(vivid::DEVICE_CPU);
+	FilterBank fb_cpu(filter_dim, num_filters, vivid::DEVICE_CPU);
 	Classifier clf_cpu(128, 64, 8, 2, num_filters, vivid::DEVICE_CPU);
 
-	FilterBank fb_gpu(filter_dim, num_filters);
-	fb_gpu.set_on_device(vivid::DEVICE_GPU);	
+	FilterBank fb_gpu(filter_dim, num_filters, vivid::DEVICE_GPU);
 	Classifier clf_gpu(128, 64, 8, 2, num_filters, vivid::DEVICE_GPU);
-
-
 
 	clFinish(cl_context_source.getContext(vivid::DEVICE_CPU)->getCommandQueue());
 	clFinish(cl_context_source.getContext(vivid::DEVICE_GPU)->getCommandQueue());
@@ -123,9 +119,9 @@ int main(int argc, char* argv[])
 		if (0)
 		{
 			DeviceMatrixCL3D::Ptr ff_im_cpu = fb_cpu.apply_cl(dmpCL_cpu);
-			//DeviceMatrixCL::Ptr block_histogram_cpu = cell_histogram_dense_cl(
-			//	ff_im_cpu, num_filters, 8, 0, 0, 
-			//	cpu_image.size().height, cpu_image.size().width);
+			DeviceMatrixCL::Ptr block_histogram_cpu = cell_histogram_dense_cl(
+				ff_im_cpu, num_filters, 8, 0, 0, 
+				cpu_image.size().height, cpu_image.size().width);
 			//DeviceMatrixCL::Ptr result_cpu = clf_cpu.apply(block_histogram_cpu);
 		}
 		if (1)
@@ -137,8 +133,9 @@ int main(int argc, char* argv[])
 			//DeviceMatrixCL::Ptr result_gpu = clf_gpu.apply(block_histogram_gpu);
 		}		
 		
-		clFinish(cl_context_source.getContext(vivid::DEVICE_GPU)->getCommandQueue());
 	}
+
+	clFinish(cl_context_source.getContext(vivid::DEVICE_GPU)->getCommandQueue());
 	clFinish(cl_context_source.getContext(vivid::DEVICE_CPU)->getCommandQueue());
 
 	//printf("Blocks CPU y: %d, x: %d\n", block_histogram_cpu->height, block_histogram_cpu->width);
