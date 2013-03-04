@@ -28,13 +28,17 @@ public:
 		  }
 
 		  DeviceMatrixCL_copyToDevice(*classifierCL, coefficients);
+
+		  result = makeDeviceMatrixCL(1,1,device_type);
 	  };
 
 	  //TODO: read from file Classifier(const string file_name){};
 
 	  DeviceMatrixCL::Ptr apply(DeviceMatrixCL::Ptr blocks)
 	  {
-		  return pwdist_cl(classifierCL, blocks);
+		  pwdist_cl(classifierCL, blocks, result);
+
+		  return result;
 	  };
 
 	  ~Classifier()
@@ -46,7 +50,6 @@ public:
 		  }
 	  };
 	
-
 	DeviceMatrixCL::Ptr classifierCL;
 private:
 	const int _window_height;
@@ -60,5 +63,5 @@ private:
 
 	float* coefficients;
 
-
+	DeviceMatrixCL::Ptr result;
 };

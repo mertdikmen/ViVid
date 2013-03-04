@@ -122,6 +122,7 @@
     <ClCompile Include="test_split.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\common\blockhistogrammer.hpp" />
     <ClInclude Include="..\common\classifier.hpp" />
     <ClInclude Include="..\common\filterbank.hpp" />
   </ItemGroup>

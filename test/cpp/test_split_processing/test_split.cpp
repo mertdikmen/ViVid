@@ -6,6 +6,7 @@
 
 #include "classifier.hpp"
 #include "filterbank.hpp"
+#include "blockhistogrammer.hpp"
 
 #include "omp.h"
 
@@ -106,9 +107,11 @@ int main(int argc, char* argv[])
 
 	FilterBank fb_cpu(filter_dim, num_filters, vivid::DEVICE_CPU);
 	Classifier clf_cpu(128, 64, 8, 2, num_filters, vivid::DEVICE_CPU);
+	BlockHistogrammer bh_cpu(num_filters, 8, vivid::DEVICE_CPU);
 
 	FilterBank fb_gpu(filter_dim, num_filters, vivid::DEVICE_GPU);
 	Classifier clf_gpu(128, 64, 8, 2, num_filters, vivid::DEVICE_GPU);
+	BlockHistogrammer bh_gpu(num_filters, 8, vivid::DEVICE_GPU);
 
 	clFinish(cl_context_source.getContext(vivid::DEVICE_CPU)->getCommandQueue());
 	clFinish(cl_context_source.getContext(vivid::DEVICE_GPU)->getCommandQueue());
@@ -119,18 +122,20 @@ int main(int argc, char* argv[])
 		if (0)
 		{
 			DeviceMatrixCL3D::Ptr ff_im_cpu = fb_cpu.apply_cl(dmpCL_cpu);
-			DeviceMatrixCL::Ptr block_histogram_cpu = cell_histogram_dense_cl(
-				ff_im_cpu, num_filters, 8, 0, 0, 
-				cpu_image.size().height, cpu_image.size().width);
-			//DeviceMatrixCL::Ptr result_cpu = clf_cpu.apply(block_histogram_cpu);
+			DeviceMatrixCL::Ptr block_histogram_cpu = bh_cpu.apply(ff_im_cpu);
+			//DeviceMatrixCL::Ptr block_histogram_cpu = cell_histogram_dense_cl(
+			//	ff_im_cpu, num_filters, 8, 0, 0, 
+			//	cpu_image.size().height, cpu_image.size().width);
+			DeviceMatrixCL::Ptr result_cpu = clf_cpu.apply(block_histogram_cpu);
 		}
 		if (1)
 		{
 			DeviceMatrixCL3D::Ptr ff_im_gpu = fb_gpu.apply_cl(dmpCL_gpu);
-			DeviceMatrixCL::Ptr block_histogram_gpu = cell_histogram_dense_cl(
-				ff_im_gpu, num_filters, 8, 0, 0, 
-				gpu_image.size().height, gpu_image.size().width);
-			//DeviceMatrixCL::Ptr result_gpu = clf_gpu.apply(block_histogram_gpu);
+			DeviceMatrixCL::Ptr block_histogram_gpu = bh_gpu.apply(ff_im_gpu);
+			//DeviceMatrixCL::Ptr block_histogram_gpu = cell_histogram_dense_cl(
+			//	ff_im_gpu, num_filters, 8, 0, 0, 
+			//	gpu_image.size().height, gpu_image.size().width);
+			DeviceMatrixCL::Ptr result_gpu = clf_gpu.apply(block_histogram_gpu);
 		}		
 		
 	}

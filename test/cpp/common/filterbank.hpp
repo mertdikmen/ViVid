@@ -14,7 +14,7 @@ public:
 
 		set_filter_bank_cl(data, n_filters * n_dim * n_dim, device_type);
 
-		ff_image = makeDeviceMatrixCL3D(n_filters, 100, 100, device_type);
+		ff_image = makeDeviceMatrixCL3D(2, 100, 100, device_type);
 	};
 
 	//TODO: Read from file sFilterBank(const string file_name){};

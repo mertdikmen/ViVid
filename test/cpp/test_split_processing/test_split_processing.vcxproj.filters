@@ -26,5 +26,8 @@
     <ClInclude Include="..\common\filterbank.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\common\blockhistogrammer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
