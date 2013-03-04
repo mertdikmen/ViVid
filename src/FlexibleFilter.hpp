@@ -67,6 +67,11 @@ DeviceMatrixCL3D::Ptr filter_frame_cl_3(const DeviceMatrixCL::Ptr& frame,
 										const int dim_t, const int nchannels,
 										const int optype);
 
+void filter_frame_cl_3(const DeviceMatrixCL::Ptr& frame,
+					   DeviceMatrixCL3D::Ptr& dst,
+					   const int dim_t, const int nchannels,
+					   const int optype);
+
 DeviceMatrixCL3D::Ptr filter_frame_cl_5(const DeviceMatrixCL::Ptr& frame,
 										const int dim_t, const int nchannels,
 										const int optype);
