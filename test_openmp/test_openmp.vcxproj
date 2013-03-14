@@ -144,7 +144,7 @@
       <InterproceduralOptimization>NoIPO</InterproceduralOptimization>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <VectorizerDiagnosticLevel>LoopsSuccessVectorized1</VectorizerDiagnosticLevel>
-      <AdditionalOptions>/Qxavx %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Qvec-report=2  /fp:fast %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
