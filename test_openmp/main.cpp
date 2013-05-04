@@ -77,9 +77,9 @@ int main(int argc, char* argv[])
 
 	//cosine_filter_mix(f_imData, filter_bank, height, width, filter_dim, filter_dim, num_filters, retvalC);
 	//cosine_filter_old(f_imData, filter_bank, height, width, filter_dim, filter_dim, num_filters, retvalC);
-	//cosine_filter_transpose(f_imData, filter_bank, height, width, filter_dim, filter_dim, num_filters, retvalC);
+	cosine_filter_transpose(f_imData, filter_bank, height, width, filter_dim, filter_dim, num_filters, retvalC);
 	//cosine_filter_avx(f_imData, filter_bank, height, width, filter_dim, filter_dim, num_filters, retvalC);
-	cosine_filter_avx_nocomp(f_imData, filter_bank, height, width, filter_dim, filter_dim, num_filters, retvalC);
+	//cosine_filter_avx_nocomp(f_imData, filter_bank, height, width, filter_dim, filter_dim, num_filters, retvalC);
 	//cosine_filter_sse(f_imData, filter_bank, height, width, filter_dim, filter_dim, num_filters, retvalC);
 
 	std::ofstream test_out_c("testc.out", std::ios_base::out);
@@ -174,7 +174,9 @@ void cosine_filter_old(
 					while (fi<filter_bank_size)
 					{
 						temp_sum = 0.0f;
-
+						__assume_aligned(fb_array,32);
+						__assume_aligned(image_cache,32);
+						#pragma ivdep
 						for (int ii=0; ii < filter_size; ii++){
 							temp_sum += fb_array[fi++] * image_cache[ii];
 						}
@@ -288,20 +290,28 @@ void cosine_filter_transpose(
 
 					int fi=0;
 					int filter_ind = 0;
-
+					int sssize = 9;
 					// 96 filters, 9 values each
 					while (fi<((n_filters/8)*8)*filter_size)
 					{
 						float temp_sum[8] = {0,0,0,0,0,0,0,0};
 
-						for(int i=0; i<9; i++) {
+
+						for(int i=0; i<sssize; i++) {
+
+						__assume_aligned(fb_array,32);
+						__assume_aligned(image_cache,32);						
+						float img = image_cache[i];
 							for(int j=0; j<8; j++) {
-								temp_sum[j] += image_cache[i]*fb_array[fi++];
+								temp_sum[j] += img*fb_array[fi++];
 							}
 						}
+						
+						
 						for(int j=0; j<8; j++) {
 							temp_sum[j] = abs(temp_sum[j]);
 						}
+
 						for(int j=0; j<8; j++) {
 							if(temp_sum[j] > max_sim) {
 								max_sim = temp_sum[j];
@@ -313,11 +323,16 @@ void cosine_filter_transpose(
 					}
 
 					float temp_sum[4] = {0,0,0,0};
+					
 					for(int i=0; i<9; i++) {
+						__assume_aligned(fb_array,32);
+						__assume_aligned(image_cache,32);
+						#pragma ivdep
 						for(int j=0; j<4; j++) {
 							temp_sum[j] += image_cache[i]*fb_array[fi++];
 						}
 					}
+					
 					for(int j=0; j<4; j++) {
 						temp_sum[j] = abs(temp_sum[j]);
 					}
