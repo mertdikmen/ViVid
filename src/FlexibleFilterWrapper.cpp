@@ -13,6 +13,7 @@
 
 #define PY_ARRAY_UNIQUE_SYMBOL tb
 #define NO_IMPORT
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include <numpy/arrayobject.h>
 
 using namespace boost::python;
@@ -43,18 +44,20 @@ object cosine_filter_c(object& frame, object& filter_bank)
     const int height = frame_mat.height();
     const int width = frame_mat.width();
 
-    PyObject* filter_bank_parr = PyArray_FromAny(
+    PyArrayObject* filter_bank_parr = reinterpret_cast<PyArrayObject*>(PyArray_FromAny(
         filter_bank.ptr(), 
-        PyArray_DescrFromType(PyArray_FLOAT),
-        1, 4, NPY_CARRAY, NULL);
+        PyArray_DescrFromType(NPY_FLOAT),
+        1, 4, NPY_ARRAY_CARRAY, NULL));
 
     expect_non_null(filter_bank_parr);
 
-    int num_dim = ((PyArrayObject*) filter_bank_parr)->nd;
+    int num_dim = PyArray_NDIM((PyArrayObject*) filter_bank_parr);
 
-    const int n_filters = ((PyArrayObject*) filter_bank_parr)->dimensions[0];
-    const int filter_h = ((PyArrayObject*) filter_bank_parr)->dimensions[1];
-    const int filter_w = ((PyArrayObject*) filter_bank_parr)->dimensions[2];
+    npy_intp* dimensions = PyArray_DIMS(filter_bank_parr);
+
+    const int n_filters = dimensions[0];
+    const int filter_h = dimensions[1];
+    const int filter_w = dimensions[2];
     
     const int filter_stride = filter_h * filter_w;
 
@@ -63,8 +66,8 @@ object cosine_filter_c(object& frame, object& filter_bank)
 
     //allocate output
     npy_intp dims[3] = {2, height, width};
-    PyObject* arr = PyArray_SimpleNew(3, dims, PyArray_FLOAT);
-    float* out_data = (float*)PyArray_DATA(arr);
+    PyObject* arr = PyArray_SimpleNew(3, dims, NPY_FLOAT);
+    float* out_data = (float*)PyArray_DATA((PyArrayObject*)arr);
     memset(out_data, 0, sizeof(float) * height * width * 2);
 
 	cosine_filter(fr_data, fb_array, height, width, filter_h, filter_w, n_filters, out_data);
@@ -81,11 +84,11 @@ object cosine_filter_c(object& frame, object& filter_bank)
 DeviceMatrixCL3D::Ptr filter_frame_cl_3_batch(const boost::python::object& npy_array,
         const int dim_t, const int nchannels, const int optype, vivid::DeviceType device_type)
 {
-    PyObject* contig
-        = PyArray_FromAny(
-                npy_array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
-                3, 3, NPY_CARRAY, NULL);
-    handle<> temp(contig);
+    PyArrayObject* contig
+        = reinterpret_cast<PyArrayObject*>(PyArray_FromAny(
+                npy_array.ptr(), PyArray_DescrFromType(NPY_FLOAT),
+                3, 3, NPY_ARRAY_CARRAY, NULL));
+    handle<> temp((PyObject*)contig);
     object arr(temp);
 
     const int d0 = PyArray_DIM(contig, 0);

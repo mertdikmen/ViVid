@@ -2,6 +2,7 @@
 
 #define PY_ARRAY_UNIQUE_SYMBOL tb
 #define NO_IMPORT
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include <numpy/arrayobject.h>
 
 #include <iostream>
@@ -113,14 +114,14 @@ void DeviceMatrixCL_copyToDevice(DeviceMatrixCL& self,
 DeviceMatrix3D::Ptr makeDeviceMatrix3D(const boost::python::object& array)
 {
   PyObject* contig
-    = PyArray_FromAny(array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
-                      3, 3, NPY_CARRAY, NULL);
+    = PyArray_FromAny(array.ptr(), PyArray_DescrFromType(NPY_FLOAT),
+                      3, 3, NPY_ARRAY_CARRAY, NULL);
   handle<> temp(contig);
   object arr(temp);
 
-  DeviceMatrix3D::Ptr retval = makeDeviceMatrix3D(PyArray_DIM(arr.ptr(), 0),
-                                                  PyArray_DIM(arr.ptr(), 1),
-                                                  PyArray_DIM(arr.ptr(), 2));
+  DeviceMatrix3D::Ptr retval = makeDeviceMatrix3D(PyArray_DIM(reinterpret_cast<PyArrayObject*>(arr.ptr()), 0),
+                                                  PyArray_DIM(reinterpret_cast<PyArrayObject*>(arr.ptr()), 1),
+                                                  PyArray_DIM(reinterpret_cast<PyArrayObject*>(arr.ptr()), 2));
   DeviceMatrix3D_copyToDevicePy(*retval, arr);
   return retval;
 }
@@ -132,7 +133,7 @@ boost::python::object DeviceMatrix3D_copyFromDevice(const DeviceMatrix3D& self)
 {
     npy_intp dims[3] = {self.dim_t, self.dim_y, self.dim_x};
 
-    PyObject* arr = PyArray_New(&PyArray_Type, 3, dims, PyArray_FLOAT,
+    PyObject* arr = PyArray_New(&PyArray_Type, 3, dims, NPY_FLOAT,
                                 NULL, NULL, 0, NPY_ARRAY_C_CONTIGUOUS, NULL);
     handle<> temp(arr);
     object retval(temp);
@@ -172,9 +173,9 @@ boost::python::object DeviceMatrix3D_copyFromDevice(const DeviceMatrix3D& self)
 // Hack around problem with cudaMemcpy3D by using cudaMemcpy2D
 boost::python::object DeviceMatrix3D_copyFromDevicePy(const DeviceMatrix3D& self)
 {
-    npy_intp dims[3] = {self.dim_t, self.dim_y, self.dim_x};
+    npy_intp dims[3] = {int(self.dim_t), int(self.dim_y), int(self.dim_x)};
 
-    PyObject* arr = PyArray_New(&PyArray_Type, 3, dims, PyArray_FLOAT,
+    PyObject* arr = PyArray_New(&PyArray_Type, 3, dims, NPY_FLOAT,
                                 NULL, NULL, 0, 0, NULL);
     handle<> temp(arr);
     object retval(temp);
@@ -188,7 +189,7 @@ boost::python::object DeviceMatrix3D_copyFromDevicePy(const DeviceMatrix3D& self
         // Shortcut if we're packed in the t direction
         const size_t widthInBytes = self.dim_x * sizeof(float);
         CUDA_SAFE_CALL_NO_SYNC
-            (cudaMemcpy2D(PyArray_DATA(retval.ptr()), widthInBytes,
+            (cudaMemcpy2D(PyArray_DATA(reinterpret_cast<PyArrayObject*>(retval.ptr())), widthInBytes,
                           self.data, self.pitch_y * sizeof(float),
                           widthInBytes, self.dim_y * self.dim_t,
                           cudaMemcpyDeviceToHost));
@@ -199,7 +200,7 @@ boost::python::object DeviceMatrix3D_copyFromDevicePy(const DeviceMatrix3D& self
     // Do a series of copies to fill in the 3D array
     for (size_t t=0; t < self.dim_t; t++) {
         const size_t widthInBytes = self.dim_x * sizeof(float);
-        float* host_start = (float*)PyArray_DATA(retval.ptr())
+        float* host_start = (float*)PyArray_DATA(reinterpret_cast<PyArrayObject*>(retval.ptr()))
             + t * self.dim_y * self.dim_x;
         float* device_start = self.data + t * self.pitch_t;
         CUDA_SAFE_CALL_NO_SYNC
@@ -215,8 +216,8 @@ void DeviceMatrix3D_copyToDevicePy(DeviceMatrix3D& self,
                                  const object& array)
 {
     PyObject* contig
-        = PyArray_FromAny(array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
-                          3, 3, NPY_CARRAY, NULL);
+        = PyArray_FromAny(array.ptr(), PyArray_DescrFromType(NPY_FLOAT),
+                          3, 3, NPY_ARRAY_CARRAY, NULL);
     handle<> temp(contig);
     object arr(temp);
 
@@ -227,7 +228,7 @@ void DeviceMatrix3D_copyToDevicePy(DeviceMatrix3D& self,
         const size_t widthInBytes = self.dim_x * sizeof(float);
         CUDA_SAFE_CALL_NO_SYNC
         (cudaMemcpy2D(self.data, self.pitch_y * sizeof(float),
-                      PyArray_DATA(arr.ptr()), widthInBytes,
+                      PyArray_DATA(reinterpret_cast<PyArrayObject*>(arr.ptr())), widthInBytes,
                       widthInBytes, self.dim_y * self.dim_t,
                       cudaMemcpyHostToDevice));
     }
@@ -245,14 +246,14 @@ void DeviceMatrix3D_copyToDevicePy(DeviceMatrix3D& self,
 DeviceMatrixCL3D::Ptr makeDeviceMatrixCL3D(const boost::python::object& array, vivid::DeviceType device_type)
 {
 	PyObject* contig
-    = PyArray_FromAny(array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
-                      3, 3, NPY_CARRAY, NULL);
+    = PyArray_FromAny(array.ptr(), PyArray_DescrFromType(NPY_FLOAT),
+                      3, 3, NPY_ARRAY_CARRAY, NULL);
 	handle<> temp(contig);
 	object arr(temp);
 	
-	DeviceMatrixCL3D::Ptr retval = makeDeviceMatrixCL3D(PyArray_DIM(arr.ptr(), 0),
-													PyArray_DIM(arr.ptr(), 1),
-													PyArray_DIM(arr.ptr(), 2),
+	DeviceMatrixCL3D::Ptr retval = makeDeviceMatrixCL3D(PyArray_DIM(reinterpret_cast<PyArrayObject*>(arr.ptr()), 0),
+													PyArray_DIM(reinterpret_cast<PyArrayObject*>(arr.ptr()), 1),
+													PyArray_DIM(reinterpret_cast<PyArrayObject*>(arr.ptr()), 2),
                                                     device_type);
 	DeviceMatrixCL3D_copyToDevice(*retval, arr);
 	return retval;
@@ -263,12 +264,11 @@ boost::python::object DeviceMatrixCL3D_copyFromDevicePy(const DeviceMatrixCL3D& 
 {
     npy_intp dims[3] = {self.dim_t, self.dim_y, self.dim_x};
 	
-    PyObject* arr = PyArray_New(&PyArray_Type, 3, dims, PyArray_FLOAT,
-                                NULL, NULL, 0, NULL, NULL);
+    PyObject* arr = PyArray_New(&PyArray_Type, 3, dims, NPY_FLOAT, NULL, NULL, 0, 0, NULL);
     handle<> temp(arr);
     object retval(temp);
 	
-	DeviceMatrixCL3D_copyFromDevice(self, (float*)PyArray_DATA(retval.ptr()));
+	DeviceMatrixCL3D_copyFromDevice(self, (float*)PyArray_DATA(reinterpret_cast<PyArrayObject*>(retval.ptr())));
 	return retval;
 }
 
@@ -277,15 +277,15 @@ void DeviceMatrixCL3D_copyToDevice(DeviceMatrixCL3D& self,
                                  const object& array)
 {
     PyObject* contig
-	= PyArray_FromAny(array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
-					  3, 3, NPY_CARRAY, NULL);
+	= PyArray_FromAny(array.ptr(), PyArray_DescrFromType(NPY_FLOAT),
+					  3, 3, NPY_ARRAY_CARRAY, NULL);
     handle<> temp(contig);
     object arr(temp);
 	
     // Make sure that we are packed in the t direction
     assert(self.pitch_t == self.dim_y * self.pitch_y);
 
-	DeviceMatrixCL3D_copyToDevice(self, (float*) PyArray_DATA(arr.ptr()));
+	DeviceMatrixCL3D_copyToDevice(self, (float*) PyArray_DATA(reinterpret_cast<PyArrayObject*>(arr.ptr())));
 }
 /**
  
@@ -297,24 +297,24 @@ void DeviceMatrixCL3D_copyToDevice(DeviceMatrixCL3D& self,
 MCudaMatrix3D::Ptr makeMCudaMatrix3D(const object& array)
 {
   PyObject* contig
-    = PyArray_FromAny(array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
-                      3, 3, NPY_CARRAY, NULL);
+    = PyArray_FromAny(array.ptr(), PyArray_DescrFromType(NPY_FLOAT),
+                      3, 3, NPY_ARRAY_CARRAY, NULL);
   handle<> temp(contig);
   object arr(temp);
 
-  MCudaMatrix3D::Ptr retval = makeMCudaMatrix3D(PyArray_DIM(arr.ptr(), 0),
-                                                PyArray_DIM(arr.ptr(), 1),
-                                                PyArray_DIM(arr.ptr(), 2));
-  memcpy(retval->data, PyArray_DATA(arr.ptr()),
+  MCudaMatrix3D::Ptr retval = makeMCudaMatrix3D(PyArray_DIM(reinterpret_cast<PyArrayObject*>(arr.ptr()), 0),
+                                                PyArray_DIM(reinterpret_cast<PyArrayObject*>(arr.ptr()), 1),
+                                                PyArray_DIM(reinterpret_cast<PyArrayObject*>(arr.ptr()), 2));
+  memcpy(retval->data, PyArray_DATA(reinterpret_cast<PyArrayObject*>(arr.ptr())),
          retval->dim_t * retval->dim_y * retval->dim_x * sizeof(float));
   return retval;
 }
 
 boost::python::object MCudaMatrix3D_copyFromDevice(const MCudaMatrix3D& self)
 {
-    npy_intp dims[3] = {self.dim_t, self.dim_y, self.dim_x};
+    npy_intp dims[3] = {int(self.dim_t), int(self.dim_y), int(self.dim_x)};
 
-    PyObject* arr = PyArray_New(&PyArray_Type, 3, dims, PyArray_FLOAT,
+    PyObject* arr = PyArray_New(&PyArray_Type, 3, dims, NPY_FLOAT,
                                 NULL, NULL, 0, 0, NULL);
     handle<> temp(arr);
     object retval(temp);
@@ -322,7 +322,7 @@ boost::python::object MCudaMatrix3D_copyFromDevice(const MCudaMatrix3D& self)
     /**
      * @todo Avoid the copy
      */
-    memcpy(PyArray_DATA(retval.ptr()), self.data,
+    memcpy(PyArray_DATA(reinterpret_cast<PyArrayObject*>(retval.ptr())), self.data,
            self.dim_t * self.dim_y * self.dim_x * sizeof(float));
 
     return retval;
@@ -341,14 +341,14 @@ boost::python::object MCudaMatrix3D_copyFromDevice(const MCudaMatrix3D& self)
 MCLMatrix3D::Ptr makeMCLMatrix3D(const object& array)
 {
   PyObject* contig
-    = PyArray_FromAny(array.ptr(), PyArray_DescrFromType(PyArray_FLOAT),
-                      3, 3, NPY_CARRAY, NULL);
+    = PyArray_FromAny(array.ptr(), PyArray_DescrFromType(NPY_FLOAT),
+                      3, 3, NPY_ARRAY_CARRAY, NULL);
   handle<> temp(contig);
   object arr(temp);
 
-  MCLMatrix3D::Ptr retval = makeMCLMatrix3D(PyArray_DIM(arr.ptr(), 0),
-                                                PyArray_DIM(arr.ptr(), 1),
-                                                PyArray_DIM(arr.ptr(), 2));
+  MCLMatrix3D::Ptr retval = makeMCLMatrix3D(PyArray_DIM(reinterpret_cast<PyArrayObject*>(arr.ptr()), 0),
+                                            PyArray_DIM(reinterpret_cast<PyArrayObject*>(arr.ptr()), 1),
+                                            PyArray_DIM(reinterpret_cast<PyArrayObject*>(arr.ptr()), 2));
  /// memcpy(retval->data, PyArray_DATA(arr.ptr()),
     //     retval->dim_t * retval->dim_y * retval->dim_x * sizeof(float));
   return retval;
@@ -358,7 +358,7 @@ boost::python::object MCLMatrix3D_copyFromDevice(const MCLMatrix3D& self)
 {
     npy_intp dims[3] = {self.dim_t, self.dim_y, self.dim_x};
 
-    PyObject* arr = PyArray_New(&PyArray_Type, 3, dims, PyArray_FLOAT,
+    PyObject* arr = PyArray_New(&PyArray_Type, 3, dims, NPY_FLOAT,
                                 NULL, NULL, 0, 0, NULL);
     handle<> temp(arr);
     object retval(temp);
