@@ -10,8 +10,7 @@
 #include <CL/cl.h>
 #include <vector>
 #include "ContextOpenCL.hpp"
-
-
+#include "OpenCLTypes.hpp"
 
 struct DeviceMatrix {
   typedef boost::shared_ptr<DeviceMatrix> Ptr;
