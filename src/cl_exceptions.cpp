@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include "cl_exceptions.hpp"
 
-void vivid::print_cl_error(cl_int errorcode, char* file, int line)
+void vivid::print_cl_error(cl_int errorcode, std::string file, int line)
 {
 	if (line <= 0)
 	{
-		printf("OpenCL Error in file: %s at line: %d. ", file, line);
+		printf("OpenCL Error in file: %s at line: %d. ", file.c_str(), line);
 	}
 	else
 	{
