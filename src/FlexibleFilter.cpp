@@ -410,8 +410,8 @@ void dist_filter2_d3_cl(const DeviceMatrixCL* frame,
 	const int valid_region_w = frame_width - 3 + 1;
 	
 	const size_t local_work_size[2] = {BLOCK_SIZE, BLOCK_SIZE}; 
-	const int n_blocks_x = (valid_region_h / (BLOCK_SIZE * BLOCK_MULT) + 1)* local_work_size[0];
-	const int n_blocks_y = (valid_region_w / (BLOCK_SIZE * BLOCK_MULT) + 1)* local_work_size[1];	
+	const size_t n_blocks_x = (valid_region_h / (BLOCK_SIZE * BLOCK_MULT) + 1)* local_work_size[0];
+	const size_t n_blocks_y = (valid_region_w / (BLOCK_SIZE * BLOCK_MULT) + 1)* local_work_size[1];	
 	const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
 	
 	assert(frame->my_context == output->my_context);
@@ -476,9 +476,8 @@ void dist_filter2_d5_cl(const DeviceMatrixCL* frame,
 	const size_t local_work_size[2] = {BLOCK_SIZE, BLOCK_SIZE}; 
 	
 	
-	const int n_blocks_x = int(valid_region_h / (BLOCK_SIZE * BLOCK_MULT) + 1)* local_work_size[0];
-	
-	const int n_blocks_y = int(valid_region_w / (BLOCK_SIZE * BLOCK_MULT) + 1)* local_work_size[1];
+	const size_t n_blocks_x = (valid_region_h / (BLOCK_SIZE * BLOCK_MULT) + 1)* local_work_size[0];
+	const size_t n_blocks_y = (valid_region_w / (BLOCK_SIZE * BLOCK_MULT) + 1)* local_work_size[1];
     
     const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
 	
@@ -530,9 +529,8 @@ void dist_filter2_d7_cl(const DeviceMatrixCL* frame,
 	const size_t local_work_size[2] = {BLOCK_SIZE, BLOCK_SIZE}; 
 	
 	
-	const int n_blocks_x = (valid_region_h / (BLOCK_SIZE * BLOCK_MULT) + 1)* local_work_size[0];
-	
-	const int n_blocks_y = (valid_region_w / (BLOCK_SIZE * BLOCK_MULT) + 1)* local_work_size[1];
+	const size_t n_blocks_x = (valid_region_h / (BLOCK_SIZE * BLOCK_MULT) + 1)* local_work_size[0];
+	const size_t n_blocks_y = (valid_region_w / (BLOCK_SIZE * BLOCK_MULT) + 1)* local_work_size[1];
     
     const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
 	
@@ -565,13 +563,11 @@ void dist_filter_noargmin_cl(const DeviceMatrixCL* frame,
 	
     const int apron_lo_y = dim_y - apron_hi_y - 1;
     const int apron_lo_x = dim_x - apron_hi_x - 1;
-	
+
 	const size_t local_work_size[2] = {BLOCK_SIZE, BLOCK_SIZE}; 
 	
-	
-	const int n_blocks_x = ((frame_height) / (local_work_size[0]-dim_y+1) + 1)* local_work_size[0];
-	
-	const int n_blocks_y = ((frame_width ) / (local_work_size[1]-dim_x+1) + 1)* local_work_size[1];
+	const size_t n_blocks_x = ((frame_height) / (local_work_size[0]-dim_y+1) + 1)* local_work_size[0];
+	const size_t n_blocks_y = ((frame_width ) / (local_work_size[1]-dim_x+1) + 1)* local_work_size[1];
     
     const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
 	
@@ -602,8 +598,8 @@ void hist_all_cells_cl(const DeviceMatrixCL3D* inds_and_weights,
     const int frame_width = inds_and_weights->dim_x;
     
     const size_t local_work_size[2] = {BLOCK_8, BLOCK_8}; 
-    const int n_blocks_x = ((frame_height - offset_y) / cell_size + 1)* local_work_size[0];
-    const int n_blocks_y = ((frame_width  - offset_x) / cell_size + 1)* local_work_size[1];
+    const size_t n_blocks_x = ((frame_height - offset_y) / cell_size + 1)* local_work_size[0];
+    const size_t n_blocks_y = ((frame_width  - offset_x) / cell_size + 1)* local_work_size[1];
     const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
     
     // Creates the program

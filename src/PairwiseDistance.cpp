@@ -218,7 +218,7 @@ void pwdist_genericCL(const DeviceMatrixCL* features_train,
     const int n_blocks_y = ((features_test->height - 1) / BLOCK_SIZE + 1) * BLOCK_SIZE;
 
     const size_t local_work_size[2] = {BLOCK_SIZE, BLOCK_SIZE}; 
-    const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
+    const size_t global_work_size[2] = {size_t(n_blocks_x), size_t(n_blocks_y)};
 
     //std::cout << "Threads: " << local_work_size[0] << ", " << local_work_size[1] << std::endl;
     //std::cout << "Blocks: " << global_work_size[0] << ", " << global_work_size[1] << std::endl;
@@ -278,7 +278,7 @@ void pwdist_eucCL(const DeviceMatrixCL* features_train,
     const int n_blocks_y = ((features_test->height - 1) / BLOCK_SIZE + 1) * BLOCK_SIZE;
 
     const size_t local_work_size[2] = {BLOCK_SIZE, BLOCK_SIZE}; 
-    const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
+    const size_t global_work_size[2] = {size_t(n_blocks_x), size_t(n_blocks_y)};
 
   //  std::cout << "Threads: " << local_work_size[0] << ", " << local_work_size[1] << std::endl;
   //  std::cout << "Blocks: " << global_work_size[0] << ", " << global_work_size[1] << std::endl;
@@ -383,7 +383,7 @@ void argmin_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
 	const int n_blocks_y = 1;
 	
     
-    const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
+    const size_t global_work_size[2] = {size_t(n_blocks_x), size_t(n_blocks_y)};
 	
 	err = clEnqueueNDRangeKernel(context->getCommandQueue(), 
 								 theKernel, 2, NULL, 
@@ -419,7 +419,7 @@ void argmax_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
 	const int n_blocks_y = 1;
 	
     
-    const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
+    const size_t global_work_size[2] = {size_t(n_blocks_x), size_t(n_blocks_y)};
 	
 	err = clEnqueueNDRangeKernel(context->getCommandQueue(), 
 								 theKernel, 2, NULL, 
@@ -459,7 +459,7 @@ void max_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
 	const int n_blocks_y = 1;
 	
     
-    const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
+    const size_t global_work_size[2] = {size_t(n_blocks_x), size_t(n_blocks_y)};
 	
 	err = clEnqueueNDRangeKernel(context->getCommandQueue(), 
 								 theKernel, 2, NULL, 
@@ -500,7 +500,7 @@ void min_cl_local(const DeviceMatrixCL* matrix, DeviceMatrixCL* output)
 	const int n_blocks_y = 1;
 	
     
-    const size_t global_work_size[2] = {n_blocks_x, n_blocks_y};
+    const size_t global_work_size[2] = {size_t(n_blocks_x), size_t(n_blocks_y)};
 	
 	err = clEnqueueNDRangeKernel(context->getCommandQueue(), 
 								 theKernel, 2, NULL, 
