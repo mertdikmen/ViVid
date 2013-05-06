@@ -14,7 +14,7 @@
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
 #define PY_ARRAY_UNIQUE_SYMBOL tb
-//#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include <numpy/arrayobject.h>
 
 using namespace boost::python;
@@ -25,19 +25,18 @@ using namespace boost::python;
 boost::python::object fast_exp(boost::python::object& input_mat, 
                                const int approx_level)
 {
-    PyObject* input_block = PyArray_FromAny(
+    PyArrayObject* input_block = reinterpret_cast<PyArrayObject*>(PyArray_FromAny(
                                 input_mat.ptr(), 
-                                PyArray_DescrFromType(
-                                    NPY_FLOAT32),
-                                    1, 3, NPY_CARRAY, NULL);
+                                PyArray_DescrFromType(NPY_FLOAT32),
+                                1, 3, NPY_ARRAY_CARRAY, NULL));
 
     boost::python::expect_non_null(input_block);
 
-    int num_dim = ((PyArrayObject*) input_block)->nd;
+    int num_dim = PyArray_NDIM(input_block);
     //npy_intp* d_strides = ((PyArrayObject*) input_block)->strides;
 
     npy_intp* n_dims = PyArray_DIMS(input_block);
-    PyObject* output_block = PyArray_SimpleNew(num_dim, n_dims, NPY_FLOAT32);
+    PyArrayObject* output_block = reinterpret_cast<PyArrayObject*>(PyArray_SimpleNew(num_dim, n_dims, NPY_FLOAT32));
 
     long obj_size = 1;
     for (int i=0; i<num_dim; i++){ obj_size = obj_size * n_dims[i]; } 
@@ -71,7 +70,7 @@ boost::python::object fast_exp(boost::python::object& input_mat,
             std::cout << "Invalid approximation level.  Select [3-9]" << std::endl;
     }
 
-    boost::python::handle<> out_mat(output_block);
+    boost::python::handle<> out_mat((PyObject*)output_block);
     Py_DECREF(input_block);
     return boost::python::object(out_mat);
 }
@@ -141,7 +140,7 @@ object compute_lbp_n8_r1(const object& input_mat,
 
     npy_intp dims[2] = {height, width};
 
-    PyObject* output = PyArray_SimpleNew(2, dims, PyArray_INT);
+    PyArrayObject* output = reinterpret_cast<PyArrayObject*>(PyArray_SimpleNew(2, dims, NPY_INT));
     int* out_data = (int*)PyArray_DATA(output);
     
     const float* input_data = (float*) input.data();
@@ -180,7 +179,7 @@ object compute_lbp_n8_r1(const object& input_mat,
         }
     }
 
-    handle<> temp_out(output);
+    handle<> temp_out((PyObject*)output);
     return boost::python::object(temp_out);
 }
 
@@ -188,11 +187,11 @@ object compute_lbp_n8_r1(const object& input_mat,
 
 object group_blocks(object& block_mat, object& grouping_inds, bool normalize_flag){
 
-    PyObject* contig_block = PyArray_FromAny(block_mat.ptr(), PyArray_DescrFromType(NPY_FLOAT32),
-                                       3, 3, NPY_CARRAY, NULL);
+    PyArrayObject* contig_block = reinterpret_cast<PyArrayObject*>(PyArray_FromAny(block_mat.ptr(), PyArray_DescrFromType(NPY_FLOAT32),
+                                       3, 3, NPY_ARRAY_CARRAY, NULL));
 
-    PyObject* contig_group = PyArray_FromAny(grouping_inds.ptr(), PyArray_DescrFromType(PyArray_INT),
-                                       2, 2, NPY_CARRAY, NULL);
+    PyArrayObject* contig_group = reinterpret_cast<PyArrayObject*>(PyArray_FromAny(grouping_inds.ptr(), PyArray_DescrFromType(NPY_INT),
+                                       2, 2, NPY_ARRAY_CARRAY, NULL));
 
     float* blocks_data = (float*)PyArray_DATA(contig_block);
     int* grouping_data = (int*)PyArray_DATA(contig_group);
@@ -207,7 +206,7 @@ object group_blocks(object& block_mat, object& grouping_inds, bool normalize_fla
 
     npy_intp dims[3] = {n_samples, n_blocks, n_dims};
     
-    PyObject* arr = PyArray_SimpleNew(3, dims, NPY_FLOAT32);
+    PyArrayObject* arr = reinterpret_cast<PyArrayObject*>(PyArray_SimpleNew(3, dims, NPY_FLOAT32));
     float* out_data = (float*)PyArray_DATA(arr);
     
     memset(out_data, 0, sizeof(float) * n_samples*n_blocks*n_dims);
@@ -234,7 +233,7 @@ object group_blocks(object& block_mat, object& grouping_inds, bool normalize_fla
         }
     }
     
-    handle<> temp_out(arr);
+    handle<> temp_out((PyObject*)arr);
     return boost::python::object(temp_out);
 
 }
@@ -243,10 +242,10 @@ object add_cell_histograms(object& cell_histograms,
                            const int block_size_y, const int block_size_x,
                            const int block_step)
 {
-    PyObject* pyo_cell_histograms = PyArray_FromAny(cell_histograms.ptr(), 
+    PyArrayObject* pyo_cell_histograms = reinterpret_cast<PyArrayObject*>( PyArray_FromAny(cell_histograms.ptr(), 
                                    PyArray_DescrFromType(NPY_FLOAT32), 
                                    3, 3, 
-                                   NPY_CARRAY, NULL);
+                                   NPY_ARRAY_CARRAY, NULL));
 
     boost::python::expect_non_null(pyo_cell_histograms);
 
@@ -267,7 +266,7 @@ object add_cell_histograms(object& cell_histograms,
     output_dims[1] = blocks_x;
     output_dims[2] = hist_size;
 
-    PyObject* pyo_output_blocks = PyArray_SimpleNew(3, output_dims, NPY_FLOAT32);
+    PyArrayObject* pyo_output_blocks = reinterpret_cast<PyArrayObject*>( PyArray_SimpleNew(3, output_dims, NPY_FLOAT32) );
 
     float* cell_histograms_data = (float*) PyArray_DATA(pyo_cell_histograms);
     float* output_blocks_data = (float*) PyArray_DATA(pyo_output_blocks);
@@ -297,7 +296,7 @@ object add_cell_histograms(object& cell_histograms,
         }    
     }
 
-    handle<> out_mat(pyo_output_blocks);
+    handle<> out_mat((PyObject*)pyo_output_blocks);
 
     Py_DECREF(pyo_cell_histograms);
     return boost::python::object(out_mat);
@@ -309,10 +308,10 @@ object group_cell_histograms(object& cell_histograms,
                              const int block_step /* in terms of number of cells */)
 {
 
-    PyObject* pyo_cell_histograms = PyArray_FromAny(cell_histograms.ptr(), 
+    PyArrayObject* pyo_cell_histograms = reinterpret_cast<PyArrayObject*>( PyArray_FromAny(cell_histograms.ptr(), 
                                    PyArray_DescrFromType(NPY_FLOAT32), 
                                    3, 3, 
-                                   NPY_CARRAY, NULL);
+                                   NPY_ARRAY_CARRAY, NULL) );
 
     boost::python::expect_non_null(pyo_cell_histograms);
 
@@ -330,7 +329,7 @@ object group_cell_histograms(object& cell_histograms,
     output_dims[1] = blocks_x;
     output_dims[2] = hist_size * block_size_y * block_size_x;
 
-    PyObject* pyo_output_blocks = PyArray_SimpleNew(3, output_dims, NPY_FLOAT32);
+    PyArrayObject* pyo_output_blocks = reinterpret_cast<PyArrayObject*>( PyArray_SimpleNew(3, output_dims, NPY_FLOAT32) );
 
     float* cell_histograms_data = (float*) PyArray_DATA(pyo_cell_histograms);
     float* output_blocks_data = (float*) PyArray_DATA(pyo_output_blocks);
@@ -358,7 +357,7 @@ object group_cell_histograms(object& cell_histograms,
         }    
     }
     
-    handle<> out_mat(pyo_output_blocks);
+    handle<> out_mat((PyObject*)pyo_output_blocks);
     
     Py_DECREF(pyo_cell_histograms);
     return boost::python::object(out_mat);
