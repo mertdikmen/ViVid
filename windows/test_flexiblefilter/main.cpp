@@ -121,6 +121,33 @@ int main(int argc, char* argv[])
 	}
 	test_out_cl.close();
 
+	//OPENCV Reference
+	cv::Mat inImage(height, width, CV_32FC1, f_imData);
+	std::vector<cv::Mat> opencv_filter_bank;
+	for (int i = 0; i < num_filters; ++i)
+	{
+		cv::Mat filter(filter_dim, filter_dim, CV_32FC1);
+		memcpy(filter.data, filter_bank + i * filter_dim * filter_dim, sizeof(float) * filter_dim * filter_dim);
+		opencv_filter_bank.push_back(filter);
+	}
+	
+	//The flexible filter algorithm
+	cv::Mat dest(height, width, CV_32FC1);
+	dest = 0;
+	cv::Mat dest_sub = dest(cv::Range(1, height - 1), cv::Range(1, width - 1));
+	cv::Mat max_array(height, width, CV_32FC1);
+	max_array = 0;
+	cv::Mat max_ind_array(height, width, CV_32FC1);
+	cv::Mat mask;
+	for (int i = 0; i < num_filters; ++i)
+	{
+		cv::matchTemplate(inImage, opencv_filter_bank[i], dest_sub, CV_TM_CCORR);
+		dest = cv::abs(dest);
+		cv::max(dest, max_array, max_array);
+		cv::compare(dest, max_array, mask, CV_CMP_GT);
+		max_ind_array.setTo(i, mask);
+	}
+
 	delete[] filter_bank;
 	delete[] retval;
 	delete[] retvalC;

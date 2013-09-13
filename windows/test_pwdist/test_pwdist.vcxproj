@@ -125,8 +125,8 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>vivid.lib;opencv_core243.lib;opencv_imgproc243.lib;opencv_highgui243.lib;OpenCL.lib;cudart.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\lib\$(Platform)\$(Configuration);$(BOOST_PATH)\stage\lib;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\lib\x64;C:\Program Files (x86)\Intel\OpenCL SDK\3.0\lib\x64;c:\OpenCV-2-4-3\build\x64\vc10\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>vivid.lib;opencv_core246.lib;opencv_imgproc246.lib;opencv_highgui246.lib;opencv_gpu246.lib;opencv_objdetect246.lib;OpenCL.lib;cudart.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\lib\$(Platform)\$(Configuration);$(OPENCV_PATH)\x64\vc11\lib;C:\Program Files (x86)\Intel\OpenCL SDK\3.0\lib\x64;$(CUDA_PATH)\lib\x64</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
