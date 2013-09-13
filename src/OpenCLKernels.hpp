@@ -17,7 +17,7 @@
 #include <math.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <error.h>
+//#include <error.h>
 
 extern int device_use;
 
@@ -51,7 +51,9 @@ struct theKernels {
 		GPUContext_K = GPUContext;
 		cdDevice_K   = cdDevice;
 		if(device_use)
+		{
 			createKernel("pairwiseDistanceKernel","../../../src/E_PairwiseDistance.cl",0);
+		}
 		else
 			createKernel("pairwiseDistanceKernel","../../../src/CPU_PairwiseDistance.cl",0);
 		createKernel("argminKernel","../../../src/argminKernel.cl",1);

@@ -110,14 +110,14 @@ int update_filter_bank_internal_cl(float* new_filter, int filter_size){
 		TheContext* tc = new TheContext();
 		cl_context GPUContext = tc->getMyContext()->getContextCL();
 		cl_device_id cdDevice = tc->getMyContext()->getDeviceCL();
-		
+
 		MyKernels *kernels = new MyKernels(GPUContext,cdDevice);
-		
+
 		cl_int err;
 		// padding for SIMD
 		cl_mem filter_mem =  clCreateBuffer(GPUContext, CL_MEM_READ_ONLY, sizeof(float) * (filter_size+8),     
 											NULL, &err);
-
+		
 		err |= clEnqueueWriteBuffer(tc->getMyContext()->cqCommandQueue, filter_mem, CL_TRUE, 0, 
 									  sizeof(float) * filter_size, new_filter, 0, NULL,  NULL);
 		
@@ -149,12 +149,12 @@ int set_filter_bank_cl(float* filter_bank, int size){
 	}
 	// leftovers in smaller vecs
 	
-	{
-		for(int j=0; j<9; j++) {
-			for(int k=0; k<4; k++)
-			tmpbank[96*9 + j*4+ k] = filter_bank[96*9 + j+ k*9];
-		}
-	}
+	//{
+	//	for(int j=0; j<9; j++) {
+	//		for(int k=0; k<4; k++)
+	//		tmpbank[96*9 + j*4+ k] = filter_bank[96*9 + j+ k*9];
+	//	}
+	//}
 
     return update_filter_bank_internal_cl(tmpbank,size); 
 }

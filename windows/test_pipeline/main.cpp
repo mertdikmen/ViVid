@@ -120,11 +120,14 @@ int main(int argc, char* argv[])
 	if(argc>1)
 		device_use = atoi(argv[1]);
 	
-
 	static char* exampleImagePath = "..\\..\\..\\media\\kewell1.jpg";
 
 	//create a random filterbank
-	const int num_filters = 100;
+	const int num_filters = 256;
+
+	//number of pipeline passes
+	const int num_iters = 125;
+
 	const int filter_dim = 3;
 
 	FilterBank fb(filter_dim, num_filters);
@@ -166,32 +169,36 @@ int main(int argc, char* argv[])
 	}
 	*/
 	double tic0, tic1, tic2, tic3;
-	tic0= omp_get_wtime();
+	double tim1 = 0.0;
+	double tim2 = 0.0;
+	double tim3 = 0.0;
 
-	for(int i=0; i<1000; i++)
+	for(int i=0; i<num_iters; i++)
 	{
-
+	tic0= omp_get_wtime();
 	DeviceMatrixCL3D::Ptr ff_im = fb.apply_cl(dmpCL);
 	tic1= omp_get_wtime();
+	tim1 += tic1 - tic0;
 
 	DeviceMatrixCL::Ptr block_histogram = cell_histogram_dense_cl(
 		ff_im, num_filters, 8, 0, 0, 
 		exampleImage.size().height, exampleImage.size().width);
 	tic2= omp_get_wtime();
+	tim2 += tic2 - tic1;
 
 	DeviceMatrixCL::Ptr result = clf.apply(block_histogram);
 
 	TheContext* tc = new TheContext();
 
 	clFinish(tc->getMyContext()->cqCommandQueue);
+	tic3 = omp_get_wtime();	
+	tim3 += tic3 - tic2;
 	}
-
-	tic3 = omp_get_wtime();
-
-	std::cout << "full pipeline time: " << tic3 - tic0 << std::endl;
-	std::cout << "filter pipeline time: " << tic1 - tic0 << std::endl;
-	std::cout << "histogram pipeline time: " << tic2 - tic1 << std::endl;
-	std::cout << "classifier pipeline time: " << tic3 - tic2 << std::endl;
+	
+	std::cout << "full pipeline time: " << tim1 + tim2 + tim3 << std::endl;
+	std::cout << "filter pipeline time: " << tim1 << std::endl;
+	std::cout << "histogram pipeline time: " << tim2 << std::endl;
+	std::cout << "classifier pipeline time: " << tim3 << std::endl;
 
 	return 0;
 }
