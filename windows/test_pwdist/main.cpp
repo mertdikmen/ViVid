@@ -11,7 +11,7 @@ int device_use;
 
 int main(int argc, char* argv[])
 {
-	device_use = 0;
+	device_use = 1;
 	if(argc>1)
 		device_use = atoi(argv[1]);
 	
@@ -82,11 +82,21 @@ int main(int argc, char* argv[])
 	cv::Mat opencv_test2(bheight, num_dim, CV_32FC1, random2);
 	cv::Mat opencv_ret_exp;
 	cv::Mat opencv_ret(aheight, bheight, CV_32FC1);
+	cv::Mat diff;
+	cv::Mat sq;
 	double tic_cv = omp_get_wtime();
 	for (int i = 0; i < 10; ++i)
 	{
-		opencv_ret_exp = opencv_test1 * opencv_test2.t();
-		opencv_ret_exp.copyTo(opencv_ret);
+		for (int ai = 0; ai < aheight; ++ai)
+		{
+			cv::Mat arow = opencv_test1.row(ai);
+			for (int bi = 0; bi < bheight; ++bi)
+			{
+				cv::Mat brow = opencv_test2.row(bi);
+				diff = (arow - brow);
+				opencv_ret.data[ai * opencv_ret.step + bi] = cv::norm(diff);
+			}
+		}
 	}
 	double toc_cv = omp_get_wtime();
 
